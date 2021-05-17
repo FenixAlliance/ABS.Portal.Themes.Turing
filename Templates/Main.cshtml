@@ -1,0 +1,5 @@
+@{Name = "Turing Main Template";}
+
+@await ViewService.InvokeAsync("Header")
+@Body
+@await ViewService.InvokeAsync("Footer")
