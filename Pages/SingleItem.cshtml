@@ -1,0 +1,202 @@
+@{
+    var GoogleQuery = $"\"{Model.SKU}\"";
+    var ProductImagePlaceholder = "/Store/img/empty-image.png";
+    var imageCount = 0;
+    var PrimaryImageCount = 0;
+    var AverageRating = 0.0;
+    var MinRate = 0.0;
+    var MaxRate = 0.0;
+    var image = ProductImagePlaceholder;
+    var IP = Context.Connection.RemoteIpAddress.ToString();
+    var URL = "https://" + Context.Request.Host + Context.Request.Path;
+    var TaxBase = Model.EstimatedTotalPriceInUSD - Model.EstimatedTaxesInUSD;
+
+    if (Model.ItemImages != null && Model.ItemImages.Count != 0)
+    {
+        ViewBag.Image = image = Model.ItemImages?.First()?.FileUploadURL ?? ProductImagePlaceholder;
+    }
+    else
+    {
+        ViewBag.Image = image = ProductImagePlaceholder;
+    }
+
+    if (Model.ItemReviews != null && Model.ItemReviews.Count != 0)
+    {
+        AverageRating = (Model.ItemReviews.Count == 0) ? 0.0 : Model.ItemReviews.Average(c => c.ReviewScore);
+        MinRate = (Model.ItemReviews.Count == 0) ? 0.0 : Model.ItemReviews.OrderBy(c => c.ReviewScore).First().ReviewScore;
+        MaxRate = (Model.ItemReviews.Count == 0) ? 0.0 : Model.ItemReviews.OrderByDescending(c => c.ReviewScore).First().ReviewScore;
+    }
+}
+<script>
+    const ItemID = '@Model.ID';
+</script>
+<!-- application/ld+json -->
+<script type="application/ld+json">
+    {
+        "@@context": "https://schema.org/",
+        "@@type": "Item",
+        "name": "@Model.Title",
+        "image": "@image",
+        "description": "@Model.Description",
+        "category": "@(Model.ItemCategory?.Title ?? "Undefined"),
+        "sku": "@Model.SKU",
+        "mpn": "@Model.SKU",
+        "ProductID": "@Model.ID",
+        "brand": "@(Model.Brand?.Name ?? "Undefined")",
+
+        @if (Model.ItemReviews != null)
+        {
+
+            @if (Model.ItemReviews.Count != 0)
+            {
+                @foreach (var item in Model.ItemReviews)
+                {
+                    <text>
+                        "review": {
+                            "@@type": "Review",
+                            "reviewRating": {
+                                "@@type": "Review",
+                                "ratingValue": "@AverageRating",
+                                "bestRating": "@MaxRate",
+                                "worstRating": "@MinRate"
+                            },
+                            "aggregateRating": {
+                                "@@type": "AggregateRating",
+                                "ratingValue": "@AverageRating",
+                                "reviewCount": "@Model.ItemReviews.Count"
+                            },
+                            "author": {
+                                "@@type": "Organization",
+                                "name": "Fenix Alliance S.A.S"
+                            }
+                        },
+                    </text>
+                }
+            }
+        }
+        "offers": [{
+                "url": "@URL",
+                "@@type": "Offer",
+                "price": "@Model.EstimatedTotalPriceInUSD",
+                "priceValidUntil": "2019-06-30",
+                "priceCurrency": "USD",
+                "itemCondition": "https://schema.org/NewCondition",
+                "availability": "https://schema.org/InStock",
+                "seller": {
+                    "@@type": "Organization",
+                    "name": "Fenix Alliance S.A.S"
+                }
+            }
+        ]
+    }
+</script>
+
+
+
+<div class="section">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>
+                    @Html.DisplayFor(model => model.Title)
+                </h2>
+                <p>
+                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
+                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
+                    mollis euismod. Donec sed odio dui.
+                </p>
+                <p>
+                    <a class="btn" href="#">View details »</a>
+                </p>
+            </div>
+            <div class="col-md-4">
+                <h2>
+                    Heading
+                </h2>
+                <p>
+                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
+                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
+                    mollis euismod. Donec sed odio dui.
+                </p>
+                <p>
+                    <a class="btn" href="#">View details »</a>
+                </p>
+            </div>
+            <div class="col-md-4">
+                <h2>
+                    Heading
+                </h2>
+                <p>
+                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
+                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
+                    mollis euismod. Donec sed odio dui.
+                </p>
+                <p>
+                    <a class="btn" href="#">View details »</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.min.js"></script>
+<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.css" />
+<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials-theme-flat.css" />
+
+<script>
+
+    $(document).ready(function () {
+        $("#share").jsSocials({
+            showLabel: false,
+            shareIn: "popup",
+            showCount: false,
+            url: "https://fenixalliance.com.co/store/products/details/@Model.ID",
+            text: "Buy Now your new @Model.Title at Infinity Comex | Just: USD @Math.Round(Model.EstimatedTotalPriceInUSD).ToString().Replace(',', '.')",
+            shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "whatsapp"]
+        });
+    });
+
+    function SubmitQuestionValidation() {
+        var Question = $('#QuestionMsg').val();
+        var QuestionData = { "ItemID": ItemID, "ContactID": CurrentTenantGUID, "Question": Question, "NeedsRevision": true };
+        $.ajax({
+            url: '/api/ItemQuestions',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            headers: {
+                RequestVerificationToken:
+                    $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            data: JSON.stringify(QuestionData)
+        }).done(function (QuestionResult) {
+            toastr.success('@_["We will reply to your question as soon as possible"]"]', '@_["Asked Suceessfully"]"]');
+            location.reload();
+        });
+        return false;
+    }
+
+    $(document).ready(
+        $.ajax({
+            url: '/api/Items/CreateSARUsageRecord?ItemID=@Model.ID&CartID=' + CartID + '&EventType=Click ',
+            type: 'GET',
+            contentType: 'application/json; charset=utf-8',
+            headers: {
+                RequestVerificationToken:
+                    $('input:hidden[name="__RequestVerificationToken"]').val()
+            }
+        }).success(function () {
+            console.log("Sar record was successfull | Infinity Comex  SAR Engine ");
+        })
+    );
+
+    function _IsMobile() {
+        if (window.innerWidth <= 800 || window.innerHeight <= 600) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+</script>
