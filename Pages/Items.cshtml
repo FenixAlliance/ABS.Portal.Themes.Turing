@@ -2,4 +2,4 @@
     var ItemsList = (System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.Item.Item>)ViewData["ItemsList"];
 }
 
-@await Component.InvokeAsync("ItemsGrid", FenixAlliance.ABM.SDK.Helpers.ListPaggingHelpers<FenixAlliance.ABM.Models.Logistics.Stock.Item..Item>.Paginate(ItemsList, ViewBag.pageIndex ?? 1, ViewBag.pageSize ?? 24))
+@await Component.InvokeAsync("ItemsGrid", FenixAlliance.ABM.SDK.Helpers.ListPaggingHelpers<FenixAlliance.ABM.Models.Logistics.Stock.Item.Item>.Paginate(ItemsList, ViewBag.pageIndex ?? 1, ViewBag.pageSize ?? 24))
