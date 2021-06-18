@@ -6,6 +6,9 @@
         @await ViewService.InvokeAsync("HomeHero")
         <div class="row">
             <div class="col-md-4">
+                <form id="Contact" action="Support/Contact/Create" method="post" onsubmit="return ValidatePhone()">
+                    @Html.AntiForgeryToken()
+                </form>>
                 <h2>
                     Store
                 </h2>
