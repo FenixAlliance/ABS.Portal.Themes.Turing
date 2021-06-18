@@ -1,0 +1,517 @@
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    var SortDescendent = (ViewBag.SortDescendent == true) ? "active" : "";
+    var Action = ViewBag.CurrentAction;
+}
+
+<style>
+    .view-button {
+        float: left;
+        width: 30px;
+        position: relative;
+        margin-right: 10px;
+        text-align: center;
+        color: #b5b5b5;
+        cursor: pointer;
+        padding: 7px;
+        margin-left: 7px;
+        margin-right: 3px;
+    }
+
+    .sort-button {
+        font-family: FontAwesome;
+        float: left;
+        cursor: pointer;
+        margin-top: 8px;
+    }
+
+    .shop-grid-controls .inline-text {
+        float: left;
+        margin: 7px;
+    }
+
+    .entry.pageSizeEntry {
+        display: inline-block;
+    }
+
+    @@media(max-width:960px) {
+        .entry.pageSizeEntry {
+            display: inline-block;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+
+<div class="information-blocks">
+    <div class="row row-eq-height">
+        <div class="col-md-9 col-md-push-3 col-sm-8 col-sm-push-4">
+            <!-- Top Filters -->
+            <div class="page-selector">
+
+                <div class="pages-box hidden-xs" id="searchString">
+
+                    <div class="description"><b>Page @Model.PageIndex of @Model.TotalPages </b>&nbsp;</div>
+
+                    <a asp-action="@Action" asp-route-sortOrder="@ViewBag.CurrentSort" asp-route-Query="@ViewBag.Query" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-pageSize="@(ViewBag.pageSize)" class="square-button @prevDisabled">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                    <a asp-action="@Action" asp-route-sortOrder="@ViewBag.CurrentSort" asp-route-Query="@ViewBag.Query" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-pageSize="@(ViewBag.pageSize)" asp-route-currentFilter="@(ViewBag.currentFilter)" class="square-button @nextDisabled">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </div>
+
+                <div class="shop-grid-controls">
+                    <div class="entry">
+                        <div class="inline-text">Sorty by</div>
+                        <div class="simple-drop-down">
+                            <select id="sortOrder">
+                                @if (ViewBag.CurrentSort == "name" || ViewBag.CurrentSort == "name_desc")
+                                {
+                                    <option value="name" selected>Title</option>
+                                }
+                                else
+                                {
+                                    <option value="name">Title</option>
+                                }
+                                @if (ViewBag.CurrentSort == "price" || ViewBag.CurrentSort == "price_desc")
+                                {
+                                    <option value="price" selected>Price</option>
+                                }
+                                else
+                                {
+                                    <option value="price">Price</option>
+                                }
+                                @if (ViewBag.CurrentSort == "date" || ViewBag.CurrentSort == "date_desc")
+                                {
+                                    <option value="date" selected>Date</option>
+                                }
+                                else
+                                {
+                                    <option value="date">Date</option>
+                                }
+                                @if (ViewBag.CurrentSort == "popularity" || ViewBag.CurrentSort == "popularity_desc")
+                                {
+                                    <option value="popularity" selected>Popularity</option>
+                                }
+                                else
+                                {
+                                    <option value="popularity">Popularity</option>
+                                }
+                            </select>
+                        </div>
+                        <div id="sortBtn" class="sort-button @SortDescendent"></div>
+                    </div>
+                    <div class="entry">
+                        <div class="view-button active grid"><i class="fas fa-th"></i></div>
+                        <div class="view-button list"><i class="fas fa-list"></i></div>
+                    </div>
+                    <div id="pageSizeEntry" class="entry pageSizeEntry">
+                        <div class="inline-text">Show</div>
+                        <div class="simple-drop-down">
+                            <select id="pageSize">
+                                @if (ViewBag.pageSize == 12)
+                                {
+                                    <option value="12" selected>12</option>
+                                }
+                                else
+                                {
+                                    <option value="12">12</option>
+                                }
+                                @if (ViewBag.pageSize == 24)
+                                {
+                                    <option value="24" selected>24</option>
+                                }
+                                else
+                                {
+                                    <option value="24">24</option>
+                                }
+                                @if (ViewBag.pageSize == 36)
+                                {
+                                    <option value="36" selected>36</option>
+                                }
+                                else
+                                {
+                                    <option value="36">36</option>
+                                }
+                                @if (ViewBag.pageSize == 48)
+                                {
+                                    <option value="48" selected>48</option>
+                                }
+                                else
+                                {
+                                    <option value="48">48</option>
+                                }
+
+                            </select>
+                        </div>
+                        <div class="inline-text">per page</div>
+                    </div>
+                </div>
+
+                <div class="clear"></div>
+            </div>
+            <!-- Grid -->
+            <div class="row shop-grid grid-view">
+                @foreach (var item in Model)
+                {
+                    @await Component.InvokeAsync("ItemsGridItem", item)
+                }
+
+                @if (Model.Count == 0)
+                {
+                    <div class="information-blocks">
+                        <div class="information-entry space col-md-12" style="margin-bottom:20px;">
+                            <div class="scene">
+                                <div class="planet">
+                                    <div class="crater"></div>
+                                    <div class="crater"></div>
+                                    <div class="crater"></div>
+                                    <div class="crater"></div>
+                                    <div class="crater"></div>
+                                    <div class="rover">
+                                        <div class="body"></div>
+                                        <div class="wheels"></div>
+                                        <div class="trace"></div>
+                                    </div>
+                                    <div class="flag">
+                                        Infinity Comex
+                                    </div>
+                                </div>
+                                <div class="message">
+                                    <p>
+                                        <br />
+                                        <b>Oops, this feels empty. 😅</b>
+                                        <br />
+                                        <br />
+                                        Try to find <a asp-area="Store" asp-controller="Products" asp-action="Index">something else</a>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <style>
+                        .scene {
+                            margin-bottom: 10px;
+                            background: #212549;
+                            background-position: center;
+                            border-radius: 10px;
+                            background-image: url('/images/Graphics/SpaceBG.jpg');
+                            font-size: 62.5%;
+                            font-family: sans-serif;
+                            padding: 0;
+                            margin: 0;
+                            height: 700px;
+                            background-size: cover;
+                            -webkit-box-shadow: 5px 5px 23px 0px rgba(15,31,54,1);
+                            -moz-box-shadow: 5px 5px 23px 0px rgba(15,31,54,1);
+                            box-shadow: 5px 5px 23px 0px rgba(15,31,54,1);
+                        }
+
+                        .planet {
+                            position: absolute;
+                            left: 50%;
+                            top: 10em;
+                            margin-left: -15em;
+                            width: 30em;
+                            height: 30em;
+                            background: #ddd;
+                            border-radius: 50%;
+                            box-shadow: inset -1.6em 0 0 0 #ccc, 0 0 1em 0 #ccc;
+                        }
+
+                            .planet .crater {
+                                position: absolute;
+                            }
+
+                                .planet .crater:nth-child(1) {
+                                    left: 5.5em;
+                                    top: 11em;
+                                    width: 7.5em;
+                                    height: 8em;
+                                    border-radius: 50%;
+                                    background: #999;
+                                    box-shadow: inset 0.5em 0 0.1em 0 #777, -0.1em 0 0 0.1px #eee, 0.4em 0 0.2em 0 #ccc;
+                                }
+
+                                .planet .crater:nth-child(2) {
+                                    left: 16.2em;
+                                    top: 25em;
+                                    width: 4em;
+                                    height: 2.8em;
+                                    border-radius: 50%;
+                                    background: #999;
+                                    -webkit-transform: rotate(-22deg);
+                                    -moz-transform: rotate(-22deg);
+                                    -ms-transform: rotate(-22deg);
+                                    transform: rotate(-22deg);
+                                    box-shadow: inset 0.2em 0.1em 0.2em 0 #777, -0.1em -0.1em 0 0.1em #eee, 0.2em 0.1em 0.2em 0 #ccc;
+                                }
+
+                                .planet .crater:nth-child(3) {
+                                    left: 25.4em;
+                                    top: 17em;
+                                    width: 2em;
+                                    height: 3em;
+                                    border-radius: 50%;
+                                    background: #999;
+                                    -webkit-transform: rotate(12deg);
+                                    -moz-transform: rotate(12deg);
+                                    -ms-transform: rotate(12deg);
+                                    transform: rotate(12deg);
+                                    box-shadow: inset 0.2em 0 0.1em 0 #777, -0.1em 0 0 0.1em #eee;
+                                }
+
+                                .planet .crater:nth-child(4) {
+                                    left: 24.4em;
+                                    top: 24.7em;
+                                    width: 0.8em;
+                                    height: 3em;
+                                    border-radius: 50%;
+                                    -webkit-transform: rotate(48deg);
+                                    -moz-transform: rotate(48deg);
+                                    -ms-transform: rotate(48deg);
+                                    transform: rotate(48deg);
+                                    box-shadow: inset 0.4em 0.1em 0 0 #ccc, inset -0.1em 0.1em 0 0 #ccc;
+                                    background: #999;
+                                }
+
+                                .planet .crater:nth-child(5) {
+                                    left: 27.4em;
+                                    top: 5.6em;
+                                    width: 0.8em;
+                                    height: 3.6em;
+                                    border-radius: 50%;
+                                    -webkit-transform: rotate(-31deg);
+                                    -moz-transform: rotate(-31deg);
+                                    -ms-transform: rotate(-31deg);
+                                    transform: rotate(-31deg);
+                                    box-shadow: inset 0.4em 0.1em 0 0 #ccc, inset -0.1em 0.1em 0 0 #ccc;
+                                    background: #999;
+                                }
+
+                            .planet .flag {
+                                position: absolute;
+                                background: #b00;
+                                padding: 0.2em 0.3em;
+                                line-height: 1.2em;
+                                color: #eee;
+                                border-radius: 0 0.1em 0.1em 0;
+                                left: 5em;
+                                white-space: nowrap;
+                                cursor: default;
+                                -webkit-transform: rotate(-32deg);
+                                -moz-transform: rotate(-32deg);
+                                -ms-transform: rotate(-32deg);
+                                transform: rotate(-32deg);
+                            }
+
+                                .planet .flag:before {
+                                    content: "";
+                                    position: absolute;
+                                    width: 0.2em;
+                                    height: 2.7em;
+                                    left: -0.1em;
+                                    top: 0;
+                                    background: #444;
+                                }
+
+                            .planet .rover {
+                                position: absolute;
+                                -webkit-transform: rotate(110deg);
+                                -moz-transform: rotate(110deg);
+                                -ms-transform: rotate(110deg);
+                                transform: rotate(110deg);
+                                left: 18.7em;
+                                top: 4.8em;
+                            }
+
+                                .planet .rover .body {
+                                    position: absolute;
+                                    z-index: 99;
+                                    width: 0.9em;
+                                    height: 1.5em;
+                                    border-radius: 0.3em;
+                                    background: #fff;
+                                    box-shadow: -0.1em 0 0 0 #ccc;
+                                }
+
+                                    .planet .rover .body:after {
+                                        content: "";
+                                        position: absolute;
+                                        top: 0.4em;
+                                        left: 0.3em;
+                                        width: 0.5em;
+                                        height: 0.7em;
+                                        box-shadow: -0.2em -0.1em 0 0 #ccc;
+                                    }
+
+                                .planet .rover .wheels {
+                                    position: absolute;
+                                    left: -0.3em;
+                                }
+
+                                    .planet .rover .wheels:after, .planet .rover .wheels:before {
+                                        content: "";
+                                        position: absolute;
+                                        z-index: 9;
+                                        background: #111;
+                                        width: 1.4em;
+                                        height: 0.6em;
+                                        border-radius: 0.2em;
+                                    }
+
+                                    .planet .rover .wheels:after {
+                                        top: 0.9em;
+                                    }
+
+                                    .planet .rover .wheels:before {
+                                        top: 0;
+                                    }
+
+                                .planet .rover .trace {
+                                    position: absolute;
+                                    left: -0.6em;
+                                    top: 1.5em;
+                                    -webkit-transform: rotate(-24deg);
+                                    -moz-transform: rotate(-24deg);
+                                    -ms-transform: rotate(-24deg);
+                                    transform: rotate(-24deg);
+                                }
+
+                                    .planet .rover .trace:before, .planet .rover .trace:after {
+                                        content: "";
+                                        position: absolute;
+                                        width: 1.2em;
+                                        height: 5em;
+                                        border-radius: 50%;
+                                        box-shadow: inset 0.2em 0.3em 0 0 #bebebe;
+                                    }
+
+                                    .planet .rover .trace:after {
+                                        left: 0;
+                                    }
+
+                                    .planet .rover .trace:before {
+                                        left: 1em;
+                                    }
+
+                        .message {
+                            position: absolute;
+                            top: 44em;
+                            color: white;
+                            width: 100%;
+                            text-align: center;
+                            cursor: default;
+                        }
+
+                            .message p {
+                                display: inline-block;
+                                font-size: 2.6em;
+                                margin-right: 25px;
+                            }
+
+                                .message p a {
+                                    color: inherit;
+                                    text-decoration: none;
+                                    border-bottom: 0.1rem dotted #999;
+                                }
+
+                                .message p b {
+                                    display: inline-block;
+                                    font-size: 2.4em;
+                                    font-weight: 400;
+                                }
+                    </style>
+
+                }
+
+            </div>
+
+            <style>
+                .square-button.disabled {
+                    pointer-events: none;
+                    cursor: not-allowed;
+                    filter: alpha(opacity=65);
+                    -webkit-box-shadow: none;
+                    box-shadow: none;
+                    opacity: .65;
+                }
+            </style>
+            <!-- Pagination -->
+            <div class="page-selector">
+                <div class="description">Page @Model.PageIndex of @Model.TotalPages</div>
+                <div class="pages-box">
+                    <a asp-action="@Action" asp-route-sortOrder="@ViewBag.CurrentSort" asp-route-Query="@ViewBag.Query" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-pageSize="@(ViewBag.pageSize)" class="square-button @prevDisabled">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                    <a asp-action="@Action" asp-route-sortOrder="@ViewBag.CurrentSort" asp-route-Query="@ViewBag.Query" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-pageSize="@(ViewBag.pageSize)" asp-route-currentFilter="@(ViewBag.currentFilter)" class="square-button @nextDisabled">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        @await Component.InvokeAsync("SearchFilters", Model)
+    </div>
+</div>
+
+<script>
+    $('#sortOrder').on('change', function () {
+        UpdateParams(true);
+    });
+
+    $('#pageSize').on('change', function () {
+        UpdateParams(false);
+    });
+
+    $('#sortBtn').on('click', function () {
+        UpdateParams(true);
+    });
+
+    function UpdateParams(updateOrder) {
+
+        var Descendent, params;
+        var Order = $("#sortOrder option:selected").val();
+
+        if (updateOrder) {
+            if (!$('#sortBtn').hasClass("active")) {
+                Order = Order + "_desc";
+            }
+
+            @if (@ViewBag.Query == null)
+            {
+                <text>
+                    params = {
+                        sortOrder: Order,
+                        pageNumber: @Model.PageIndex,
+                        pageSize: parseInt($("#pageSize option:selected").val()),
+                    };
+                </text>
+            }
+            else
+            {
+                <text>
+                    params = {
+                        sortOrder: Order,
+                        pageNumber: @Model.PageIndex,
+                        pageSize: parseInt($("#pageSize option:selected").val()),
+                        Query:"@ViewBag.Query",
+                    };
+                </text>
+            }
+        } else {
+             params = {
+                sortOrder: "@ViewBag.CurrentFilter",
+                pageNumber: @Model.PageIndex,
+                pageSize: parseInt($("#pageSize option:selected").val()),
+            };
+        }
+
+        window.open(window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + jQuery.param(params) , "_self");
+    };
+</script>
