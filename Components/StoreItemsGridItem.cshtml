@@ -16,14 +16,14 @@
 <div class="col-md-3 col-sm-3 shop-grid-item text-center">
     <div class="product-slide-entry">
         <div class="product-image">
-            <a asp-area="Store" asp-controller="Products" asp-action="Details" asp-route-id="@Model.ID">
-                <img src="@image" alt="" onerror="this.src='/Store/img/empty-image.png'" />
+            <a href="Store/Products/Details/@Model.ID">
+                <img src="@Model.PrimaryImageURL" alt="" onerror="this.src='/Store/img/empty-image.png'" />
             </a>
             @if (!Model.InStock && !Model.ByRequest)
             {
                 <div class="Item-image-label type-3"><span>Out of stock</span></div>
             }
-            <a asp-area="Store" asp-controller="Products" asp-action="Details" asp-route-id="@Model.ID" class="top-line-a right open-Item">
+            <a href="Store/Products/Details/@Model.ID" class="top-line-a right open-Item">
                 <i class="fa fa-expand"></i> <span>View Product</span>
             </a>
             <div class="bottom-line">
@@ -31,7 +31,7 @@
                     <a onclick="AddProductToCompare('@Model.ID')" class="bottom-line-a square">
                         <i class="fa fa-retweet"></i>
                     </a>
-                    <a asp-area="Store" asp-controller="Products" asp-action="Details" asp-route-id="@Model.ID" class="bottom-line-a square">
+                    <a href="Store/Products/Details/@Model.ID" class="bottom-line-a square">
                         <i class="fas fa-box-open"></i>
                     </a>
                 </div>
