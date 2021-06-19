@@ -1,5 +1,141 @@
-@{Name = "Turing Blog Template";}
+@{
+    Name = "Turing Store Template";
+}
+<!DOCTYPE html>
 
-@await ViewService.InvokeAsync("Header")
-@Body
-@await ViewService.InvokeAsync("Footer")
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    
+    <title>@ViewData["Title"]</title>
+    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+
+    <meta name="description" content="">
+
+    <meta name="author" content="">
+
+    <!-- MS Bing Validation -->
+    <meta name="msvalidate.01" content="@SuiteOptions.ABS.Portal.Options.Seo.BingVerificationCode" />
+
+    <!-- Google Validation -->
+    <meta name="google-site-verification" content="@SuiteOptions.ABS.Portal.Options.Seo.GoogleVerificationCode" />
+
+    <!-- Pinterest Validation -->
+    <meta name="p:domain_verify" content="@SuiteOptions.ABS.Portal.Options.Seo.PinterestVerificationCode" />
+
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" />
+    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The60" />
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The72" />
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The76" />
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The114" />
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The120" />
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The144" />
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The152" />
+
+    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="196x196" />
+    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="96x96" />
+    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="32x32" />
+    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="16x16" />
+    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="128x128" />
+
+    <meta name="msapplication-TileImage" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo" />
+    <meta name="msapplication-TileColor" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Color" />
+    <meta name="msapplication-square70x70logo" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo70" />
+    <meta name="msapplication-square150x150logo" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo150" />
+    <meta name="msapplication-wide310x150logo" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo310" />
+    <meta name="msapplication-square310x310logo" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo310W" />
+
+    @if (SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Enable)
+    {
+        <!-- Google Tag Manager -->
+        <script>
+            (function (w, d, s, l, i) {
+                w[l] = w[l] || []; w[l].push({
+                    'gtm.start':
+                        new Date().getTime(), event: 'gtm.js'
+                }); var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', '@SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Id');
+        </script>
+    }
+
+
+
+    <!--====== Google Font ======-->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet">
+
+    <!--====== Vendor Css ======-->
+    <link rel="stylesheet" href="/themes/turing/css/vendor.css">
+
+    <!--====== Utility-Spacing ======-->
+    <link rel="stylesheet" href="/themes/turing/css/utility.css">
+
+    <!--====== App ======-->
+    <link rel="stylesheet" href="/themes/turing/css/app.css">
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/money.js/0.0.1/money.min.js" integrity="sha512-dfZQaBBlTXvL+AUQKi7dd/9kb/KhreymnZYVdinjigqTdZUrAnLUNJRV34DUPFCdyek9mMBns3rzTlipnBKhTg==" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+    <!--====== Main App ======-->
+    <div id="app">
+        @await ViewService.InvokeAsync("Header", Model, true)
+        @Body
+        @await ViewService.InvokeAsync("Footer", Model, true)
+    </div>
+
+    <!--====== Google Analytics ======-->
+    <script>
+        window.ga = function () {
+            ga.q.push(arguments)
+        };
+        ga.q = [];
+        ga.l = +new Date;
+        ga('create', 'UA-XXXXX-Y', 'auto');
+        ga('send', 'pageview')
+    </script>
+    <script src="https://www.google-analytics.com/analytics.js" async defer></script>
+    <script src="https://unpkg.com/@@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" integrity="sha512-42kB9yDlYiCEfx2xVwq0q7hT4uf26FUgSIZBK8uiaEnTdShXjwr8Ip1V4xGJMg3mHkUt9nNuTDxunHF0/EgxLQ==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js" integrity="sha512-bUg5gaqBVaXIJNuebamJ6uex//mjxPk8kljQTdM1SwkNrQD7pjS+PerntUSD+QRWPNJ0tq54/x4zRV8bLrLhZg==" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous"></script>
+
+    <!--====== Vendor Js ======-->
+    <script src="/themes/turing/js/vendor.js"></script>
+
+    <!--====== jQuery Shopnav plugin ======-->
+    <script src="/themes/turing/js/jquery.shopnav.js"></script>
+
+    <!--====== App ======-->
+    <script src="/themes/turing/js/app.js"></script>
+
+    <!--====== Noscript ======-->
+    <noscript>
+        <div class="app-setting">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="app-setting__wrap">
+                            <h1 class="app-setting__h1">JavaScript is disabled in your browser.</h1>
+
+                            <span class="app-setting__text">Please enable JavaScript in your browser or upgrade to a
+                                JavaScript-capable browser.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </noscript>
+</body>
+
+</html>
