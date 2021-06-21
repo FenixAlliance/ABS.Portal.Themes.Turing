@@ -1,0 +1,85 @@
+@{Name = "Turing Dashboard Template";}
+
+<!DOCTYPE html>
+<html view-source="no" viewsource="no" xmlns="//www.w3.org/1999/xhtml" xmlns:b="//www.google.com/2005/gml/b" xmlns:data="//www.google.com/2005/gml/data" xmlns:expr="//www.google.com/2005/gml/expr" prefix="og: http://ogp.me/ns">
+<head>
+    @await Component.InvokeAsync("MetaTags", Model)
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/ui/lib/bootstrap/bootstrap.css" />
+
+    <!-- Tabler CSS files -->
+    <link rel="stylesheet" href="/ui/lib/tabler/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="/ui/lib/tabler/dist/css/tabler-flags.min.css" />
+    <link rel="stylesheet" href="/ui/lib/tabler/dist/css/tabler-payments.min.css" />
+    <link rel="stylesheet" href="/ui/lib/tabler/dist/css/tabler-vendors.min.css" />
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="/ui/css/dashboard.css" />
+
+    <!-- Fonts CSS files -->
+    <link rel="stylesheet" href="/ui/fonts/fontawesome/fontawesome.css" />
+
+    <!-- Fabric CSS files -->
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/css/fabric.min.css" />
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/css/fabric.components.min.css" />
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css" />
+
+    <!-- Fabric JS files -->
+    <script src="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/js/fabric.min.js"></script>
+
+</head>
+
+<body>
+    @if (SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Enable)
+    {
+        @* Google Tag Manager (noscript)  *@
+        <noscript>
+            <iframe src="https://www.googletagmanager.com/ns.html?id=@SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Id"
+                    height="0"
+                    width="0"
+                    style="display:none; visibility:hidden">
+            </iframe>
+        </noscript>
+    }
+
+    @await Component.InvokeAsync("PortalHeader", Model)
+
+    @await Component.InvokeAsync("PortalLeftSideNavigation", Model)
+
+    @await Component.InvokeAsync("PortalRightSideNavigation", Model)
+
+    @await Component.InvokeAsync("PortalResponsiveSideNav", Model)
+
+    @await Component.InvokeAsync("PortalResponsiveHeader", Model)
+
+    @if (ViewBag.SmallSpaceHeader == true)
+    {
+        <div class="header-spacer header-spacer-small"></div>
+    }
+    else
+    {
+        <div class="header-spacer"></div>
+    }
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        @await Component.InvokeAsync("ChatWindow", new { Tenant = Model, user = User })
+
+        @if (ViewBag.HideAccountHeader != true)
+        {
+            @if (Model.SelectedBusiness != null && ViewBag.ForceTenantHeader != true || ViewBag.ForceBusinessHeader == true && ViewBag.ForceTenantHeader != true)
+            {
+                @await Component.InvokeAsync("BusinessAccountHeader", new { Business = Model.SelectedBusiness })
+            }
+            if (Model.SelectedBusiness == null && ViewBag.ForceBusinessHeader != true || ViewBag.ForceTenantHeader == true && ViewBag.ForceBusinessHeader != true)
+            {
+                @await Component.InvokeAsync("AccountHeader", new { Holder = Model })
+            }
+        }
+    }
+
+    @Body
+
+</body>
+</html>
