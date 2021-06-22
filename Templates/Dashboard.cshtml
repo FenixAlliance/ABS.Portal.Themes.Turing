@@ -1,10 +1,10 @@
 @{Name = "Turing Dashboard Template";}
 
 <!DOCTYPE html>
-<html view-source="no" viewsource="no" xmlns="//www.w3.org/1999/xhtml" xmlns:b="//www.google.com/2005/gml/b" xmlns:data="//www.google.com/2005/gml/data" xmlns:expr="//www.google.com/2005/gml/expr" prefix="og: http://ogp.me/ns">
+<html view-source="no" viewsource="no" xmlns="//www.w3.org/1999/xhtml" xmlns:b="//www.google.com/2005/gml/b" xmlns:data="//www.google.com/2005/gml/data" xmlns:expr="//www.google.com/2005/gml/expr" prefix="og:http://ogp.me/ns">
 <head>
+    <base href="/" />
     @await Component.InvokeAsync("MetaTags", Model)
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/ui/lib/bootstrap/bootstrap.css" />
 
@@ -25,8 +25,10 @@
     <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/css/fabric.components.min.css" />
     <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css" />
 
-    <!-- Fabric JS files -->
+    <!-- JQuery JS files -->
     <script src="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/js/fabric.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script asp-append-version="true" type="text/javascript" src="/ui/lib/signalr/signalr.js"></script>
 
 </head>
 
@@ -47,8 +49,6 @@
 
     @await Component.InvokeAsync("PortalLeftSideNavigation", Model)
 
-    @await Component.InvokeAsync("PortalRightSideNavigation", Model)
-
     @await Component.InvokeAsync("PortalResponsiveSideNav", Model)
 
     @await Component.InvokeAsync("PortalResponsiveHeader", Model)
@@ -64,7 +64,6 @@
 
     @if (User.Identity.IsAuthenticated)
     {
-        @await Component.InvokeAsync("ChatWindow", new { Tenant = Model, user = User })
 
         @if (ViewBag.HideAccountHeader != true)
         {
@@ -80,6 +79,20 @@
     }
 
     @Body
+
+    <!-- JS Scripts -->
+    <script asp-append-version="true" type="text/javascript" src="/ui/min/js/dashboard.min.js"></script>
+    <script asp-append-version="true" type="text/javascript" src="/ui/lib/offline/js/offline.js"></script>
+    <script asp-append-version="true" type="text/javascript" src="/ui/lib/tabler/dist/js/tabler.min.js"></script>
+    <script asp-append-version="true" type="text/javascript" src="/ui/fonts/fontawesome/fontawesome.js"></script>
+    <script asp-append-version="true" type="text/javascript" src="/ui/js/modules/abs.modules.social.js"></script>
+    <script asp-append-version="true" type="text/javascript" src="/_framework/blazor.server.js"></script>
+
+    <script>
+        Offline.check()
+    </script>
+
+    @await Component.InvokeAsync("ValidationScripts", new { Holder = Model })
 
 </body>
 </html>
