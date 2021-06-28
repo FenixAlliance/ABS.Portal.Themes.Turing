@@ -1,5 +1,12 @@
 @{
     Name = "Turing Forums Template";
+
+    var CartID = Context.Request.Cookies["CartID"];
+    if (string.IsNullOrEmpty(CartID))
+    {
+        CartID = Guid.NewGuid().ToString();
+        Context.Response.Cookies.Append("CartID", CartID);
+    }
 }
 
 <!DOCTYPE html>
@@ -9,22 +16,36 @@
 <head>
 
     <meta charset="UTF-8">
-        <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/ui/lib/bootstrap/bootstrap.css" />
 
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="/ui/css/material-menu.css" />
+
+    <!-- Fonts CSS files -->
+    <link rel="stylesheet" href="/ui/fonts/fontawesome/fontawesome.css" />
+
+    
     @await Component.InvokeAsync("MetaTags", Model)
 
     <!--====== Google Font ======-->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet">
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <style>
+        .btn-just-icon{
+            color: white;
+        }
+    </style>
 </head>
 <body>
+    @await Component.InvokeAsync("ForexRates", new { CurrentUser = User, CurrentUserIP = CartID })
 
     <!--====== Main App ======-->
     <div id="app">
-        @await ViewService.InvokeAsync("ForumsHeader", Model, true)
+        @await Component.InvokeAsync("AdminTopBar", Model)
+        @await ViewService.RenderAsync("Header", Model, true)
         @Body
-        @await ViewService.InvokeAsync("ForumsFooter", Model, true)
+        @await ViewService.RenderAsync("Footer", Model, true)
     </div>
 
     <!--====== Google Analytics ======-->
@@ -40,7 +61,6 @@
     <script src="https://www.google-analytics.com/analytics.js" async defer></script>
 
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/money.js/0.0.1/money.min.js" integrity="sha512-dfZQaBBlTXvL+AUQKi7dd/9kb/KhreymnZYVdinjigqTdZUrAnLUNJRV34DUPFCdyek9mMBns3rzTlipnBKhTg==" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/@@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
@@ -50,6 +70,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous"></script>
 
+    <script asp-append-version="true" type="text/javascript" src="/ui/fonts/fontawesome/fontawesome.js"></script>
 
 
     <!--====== Noscript ======-->
@@ -61,8 +82,10 @@
                         <div class="app-setting__wrap">
                             <h1 class="app-setting__h1">JavaScript is disabled in your browser.</h1>
 
-                            <span class="app-setting__text">Please enable JavaScript in your browser or upgrade to a
-                                JavaScript-capable browser.</span>
+                            <span class="app-setting__text">
+                                Please enable JavaScript in your browser or upgrade to a
+                                JavaScript-capable browser.
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -70,7 +93,12 @@
         </div>
     </noscript>
     <!--====== End: Noscript ======-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
+    <script asp-append-version="true" type="text/javascript" src="/js/material-menu.js"></script>
+    <script asp-append-version="true" type="text/javascript" src="/ui/fonts/fontawesome/fontawesome.js"></script>
+
+    
 </body>
 
 </html>
