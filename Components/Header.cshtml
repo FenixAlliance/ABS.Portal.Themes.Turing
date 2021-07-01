@@ -17,7 +17,7 @@
 			<span></span>
 		</a>
 		<a class="smallogo">
-			<img src="@Portal.Options.Branding.HeaderLogo.DefaltLogoURL" onerror="this.src='/ui/images/GenericLogo.svg'"
+			<img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/WhiteGenericLogo.svg")" onerror="this.src='/ui/images/WhiteGenericLogo.svg'"
 				style="max-height:30px; margin-top:3px" alt="">
 		</a>
 		<a class="callusicon" href="/Account/Index">
