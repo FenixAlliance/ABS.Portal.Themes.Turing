@@ -1,7 +1,5 @@
 @{Name = "Header";}
 
-
-
 <style>
 	@@media (max-width: 600px) {
 		.material-menucontainer {
@@ -29,7 +27,7 @@
 			<div class="logo clearfix" style="display: inline-flex;">
 				<a href="/" title="Logo">
 					<img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/WhiteGenericLogo.svg")"
-						style="max-height:62px; margin-left:5%; margin-top:8px" alt="">
+						style="max-height:50px;" onerror="this.src='/ui/images/WhiteGenericLogo.svg'" alt="Logo">
 				</a>
 			</div>
 			<!--Main Menu HTML Code-->
