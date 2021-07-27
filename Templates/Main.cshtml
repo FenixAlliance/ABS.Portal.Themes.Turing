@@ -15,6 +15,7 @@
 
 <head>
 
+    <base href="/" />
     <meta charset="UTF-8">
 
     @await Component.InvokeAsync("MetaTags", Model)
@@ -92,7 +93,8 @@
     </noscript>
     <!--====== End: Noscript ======-->
 
-    
+    <script src="/_framework/blazor.server.js"></script>
+
 </body>
 
 </html>
