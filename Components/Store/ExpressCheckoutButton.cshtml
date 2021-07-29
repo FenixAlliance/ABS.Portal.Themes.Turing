@@ -1,0 +1,167 @@
+@using System
+@using Microsoft.EntityFrameworkCore
+@using System.Linq;
+@{
+    var Holder = await HolderService.GetCurrentAccountHolderAsync(User);
+    var PreOrderID = Guid.NewGuid().ToString();
+    var BillingLocations = DataContext.HolderLocation.Where(c=>c.AccountHolderID == Holder.Id).ToList();
+    var BillingLocation = DataContext.HolderLocation.Where(c=>c.AccountHolderID == Holder.Id && c.IsDefailtSuppingLocation).FirstOrDefault();
+    var BillingLocationID = BillingLocation?.ID;
+
+}
+
+
+
+@if (Model.InStock || Model.ByRequest)
+{
+
+    @await ViewService.RenderAsync("StoreExpressCheckoutScript", Model)
+
+    <script type="text/javascript" src="https://checkout.epayco.co/checkout.js"></script>
+    <script>
+        var handler = ePayco.checkout.configure({
+            key: '1288b349f683d7cb429609819104c0bc',
+            test: false
+        });
+        var ShippingAddressID = "";
+        var data = {
+            //Parametros compra (obligatorio)
+            name: "@Model.Title",
+            description: "@Model.ShortDescription",
+            invoice: "@PreOrderID",
+            currency: "usd",
+            lang: "es",
+            country: "co",
+            amount: "@Math.Round(Model.EstimatedTotalPriceInUSD).ToString().Replace(',','.')",
+            tax_base: "@Math.Round(Model.EstimatedTaxesInUSD).ToString().Replace(',', '.')",
+            tax: "@Math.Round(Model.EstimatedTaxesInUSD).ToString().Replace(',', '.')",
+
+            //Onpage="false" - Standard="true"
+            external: "false",
+
+            //Atributos opcionales
+            // Cart ID
+            extra1: CartID,
+            // Item ID
+            extra2: "@Model.ID",
+            // Holder ID
+            extra3: "@Holder.Id",
+            // Invoice ID
+            extra4: "@PreOrderID",
+            // Shipping Address ID
+            extra5: ShippingAddressID,
+            @if (Holder.SelectedBusiness != null)
+            {
+                <text>
+                // Business ID
+                extra6: "@Holder.SelectedBusiness.ID",
+                </text>
+            }
+            @if (Holder.SelectedBusiness != null)
+            {
+                <text>
+                // Billing Location ID
+                extra7: "@BillingLocationID",
+                </text>
+            }
+            confirmation: "https://fenixalliance.com.co/store/checkout/ExpressCheckoutConfirmation",
+            response: "https://fenixalliance.com.co/store/checkout/ExpressCheckoutConfirmation",
+
+            @if (Holder.SelectedBusiness == null)
+            {
+
+                <text>
+                    //Atributos cliente
+                    name_billing: "@Holder.PublicName",
+                    email_billing: "@Holder.Email",
+                    address_billing: "@BillingLocation",
+                    type_doc_billing: "cc",
+                    mobilephone_billing: "@Holder.AccountHolderWallet?.Phone",
+                    number_doc_billing: "@Holder.AccountHolderWallet?.OfficialID"
+                </text>
+
+            }
+            else
+            {
+                <text>
+                    //Atributos cliente
+                    name_billing: "@Holder.SelectedBusiness?.BusinessLegalName",
+                    number_doc_billing: "@Holder.SelectedBusiness?.TaxID",
+                    address_billing: "@BillingLocation",
+                    type_doc_billing: "nit",
+                    email_billing: "@Holder.SelectedBusiness?.BusinessEmail",
+                    mobilephone_billing: "@Holder.SelectedBusiness?.SupportPhoneNumber",
+                </text>
+            }
+        };
+    </script>
+}
+<div class="alert alert-primary" role="alert">
+    <div class="detail-info-entry-title">
+        <b>
+            @_("Express Checkout (1 Item)")
+        </b>
+    </div>
+    <div class="detail-info-entry-description">@_("If you want to purchase only this Item, you can Click on the following image to start your express checkout"):</div>
+</div>
+
+<label>
+    @_("Select your billing/shipping address:")
+    <br/>
+</label>
+<div class="simple-drop-down simple-field size-1">
+    <select id="ADDR" class="form-control">
+        <option value="">@_("Selecciona una opción")</option>
+        @foreach (var location in BillingLocations)
+        {
+            <option value="@location.ID">@location.Title</option>
+        }
+    </select>
+</div>
+
+<div class="form-group">
+    <btn class="button style-16 " onclick="CreateAddressWindow();" style="display: block; margin-top: 35px;">@_("Create new address")</btn>
+</div>
+
+<a class="button style-4" style="display:block; border-radius: 5px;" onclick="InitPayment()"><i class="fas fa-wallet"></i> @_("Secure Express Checkout")</a>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <script>
+        $(document).ready(function () {
+            $("#ADDR").change(function (e) {
+                data.extra5 = e.target.value;
+            });
+        });
+
+        function InitPayment() {
+            if (_IsMobile()) {
+                data.external = "true";
+                handler.open(data)
+            } else {
+                handler.open(data);
+            }
+        }
+
+    @if (Holder.SelectedBusiness != null)
+    {
+        <text>
+            function CreateAddressWindow() {
+                window.open("/Business/Locations/Create", "Address", "width=900,height=800");
+            }
+        </text>
+    }
+    else
+    {
+        <text>
+            function CreateAddressWindow() {
+                window.open("/Account/Addresses/Create", "Address", "width=900,height=800");
+            }
+        </text>
+    }
+
+    </script>
+}
+
+
+
