@@ -66,6 +66,7 @@
     }
 
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
     <!--====== Google Font ======-->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet">
@@ -127,6 +128,9 @@
     <script src="https://www.google-analytics.com/analytics.js" async defer></script>
     <script src="https://unpkg.com/@@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" integrity="sha512-42kB9yDlYiCEfx2xVwq0q7hT4uf26FUgSIZBK8uiaEnTdShXjwr8Ip1V4xGJMg3mHkUt9nNuTDxunHF0/EgxLQ==" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js" integrity="sha512-bUg5gaqBVaXIJNuebamJ6uex//mjxPk8kljQTdM1SwkNrQD7pjS+PerntUSD+QRWPNJ0tq54/x4zRV8bLrLhZg==" crossorigin="anonymous"></script>
 
@@ -141,6 +145,7 @@
 
     <!--====== App ======-->
     <script src="/themes/turing/js/app.js"></script>
+
     <script>
         function AddProductToCart(ProductID) {
             NProgress.start();
@@ -294,7 +299,145 @@
                 location.replace("/Store/Compare/Index");
             });
         };
-    </script>
+
+    function AddToCart(ItemID) {
+        NProgress.start();
+        $("#CartButton").attr("disabled", true);
+        $("#CartButton").css('cursor', 'wait');
+        var Count = $('#CartQuantity').text();
+        var ItemCartRecord = {  "ProductID": ItemID, "CartID": CartID, "Quantity": parseInt(Count) };
+        $.ajax({
+            url: '/api/v2/Store/CartRecords/Products',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            headers: {
+                RequestVerificationToken:
+                    $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            data: JSON.stringify(ItemCartRecord)
+        }).done(function (ItemCartRecordResult) {
+            $.ajax({
+                url: '/api/v2/Store/Products/GetFinalPriceInUSD?ItemID=' + ItemID,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                headers: {
+                    RequestVerificationToken:
+                        $('input:hidden[name="__RequestVerificationToken"]').val()
+                }
+            }).done(function (ItemPrice) {
+                $("#CartTotalPriceContainer").replaceWith("<b id='CartTotalPriceContainer'>" + CurrencyFormatter.format(TotalPrice) + "<b>");
+                $.ajax({
+                    url: '/api/v2/Store/Products/' + ItemID,
+                    type: 'GET',
+                    contentType: 'application/json; charset=utf-8',
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    }
+                }).done(function (ItemResult) {
+                    console.log(ItemResult)
+                   var CartEntryDiv = `
+                       <div id="${ItemCartRecordResult.ID}" class="cart-entry">
+                           <a href="/Store/Items/Details/${ItemID}" class="image"><img src="${ItemResult?.Images?.[0]}" alt="Product Image"></a>
+                           <div class="content">
+                               <a class="title" href="/Store/Items/Details/${ItemID}">${ItemResult.title}</a>
+                               <div class="quantity">
+                                   @_("Quantity"):${parseInt(Count)}
+                               </div>
+                               <div class="price">
+                                   ${CurrencyFormatter.format(fx.convert((ItemPrice * parseInt(Count)), { from: 'USD', to: CartCurrencyCode }))}
+                               </div>
+                           </div>
+                           <div onclick="RemoveProductFromCart('${ItemCartRecordResult.iD}','${ItemID}')"  class="button-x">
+                               <i class="fa fa-close"></i>
+                           </div>
+                       </div>;
+                   `;
+
+                    $("#cart-popup-container").prepend(CartEntryDiv);
+                    if (ProductCartRecordsCount == 0) {
+                        $("#NoProductsDivEntry").fadeOut(300, function () { $(this).remove(); });
+                    }
+                    ProductCartRecordsCount++;
+                    // Item price to cart price
+                    TotalPrice += fx.convert((ItemPrice * parseInt(Count)), { from: 'USD', to: CartCurrencyCode });
+                    $("#CartTotalPriceContainer").replaceWith("<b id='CartTotalPriceContainer'>" + CurrencyFormatter.format(TotalPrice) + "<b>");
+                    $("#CartDropdownGrandtotal").replaceWith("<b id='CartDropdownGrandtotal' class=\"grandtotal\">Subtotal: " + CurrencyFormatter.format(TotalPrice) + "<b>");
+                    toastr.success("@_("Item has been successfully added to your cart! Please visit your cart when you finish shopping.")","@_("Awesome! this Item looks amazing.") 😉");
+                    $("#CartButton").css('cursor', 'pointer');
+                    $("#CartButton").replaceWith('<a  id="CartButton" class="button style-12 mx-auto" style="border-radius: 5px;background: #e82127; border-color: #e82127 ; display:block;" onclick="RemoveFromCart(\'' + ItemCartRecordResult.id + '\',\'' + ItemID + '\')" >@_("Remove from your cart")</a>');
+                    NProgress.done();
+                });
+            });
+
+        });
+    };
+
+    function RemoveFromCart(RecordID, ItemID) {
+        NProgress.start();
+        $("#CartButton").attr("disabled", true);
+        $("#CartButton").css('cursor', 'wait');
+        $.ajax({
+            url: '/api/v2/Store/CartRecords/Products/' + RecordID,
+            type: 'GET',
+            contentType: 'application/json; charset=utf-8',
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            }
+        }).done(function (ProdCartReg) {
+            $.ajax({
+                url: '/api/v2/Store/CartRecords/Products/' + RecordID,
+                type: 'DELETE', contentType: 'application/json; charset=utf-8',
+                headers: {
+                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+            }).done(function (ItemCartRecordResult) {
+                console.log(ItemCartRecordResult)
+                $("#CartButton").css('cursor', 'pointer');
+                $("#CartButton").replaceWith('<a  id="CartButton" class="button style-12 mx-auto" style="border-radius: 5px;background: #3483FA; border-color: #3483FA; display:block;" onclick="AddToCart(\'' + ItemCartRecordResult.itemID + '\')" >@_("Add to your cart")</a>');
+                $.ajax({
+                    url: '/api/v2/Store/Products/GetFinalPriceInUSD?ItemID=' + ItemID,
+                    type: 'GET',
+                    contentType: 'application/json; charset=utf-8',
+                    headers: {
+                        RequestVerificationToken:
+                            $('input:hidden[name="__RequestVerificationToken"]').val()
+                    }
+                }).done(function (ItemPrice) {
+                    console.log(ProdCartReg);
+                    TotalPrice -= (fx.convert((ItemPrice * ProdCartReg.Quantity), { from: 'USD', to: CartCurrencyCode }));
+                    $("#CartTotalPriceContainer").replaceWith("<b id='CartTotalPriceContainer'>" + CurrencyFormatter.format(TotalPrice) + "<b>");
+                    $("#CartDropdownGrandtotal").replaceWith("<b id='CartDropdownGrandtotal' class=\"grandtotal\">Subtotal: " + CurrencyFormatter.format(TotalPrice) + "<b>");
+
+                    ProductCartRecordsCount--;
+                    if (ProductCartRecordsCount == 0) {
+                        var NoItemsDivEntry = `
+
+                            <div id="NoProductsDivEntry"  class="cart-entry">
+                                <a class="image"><img src="/images/Graphics/cod (103).png" alt="" /></a>
+                                <div class="content">
+                                    <a class="title" href="#">@_("This cart looks empty.")</a>
+                                    <div class="quantity">
+                                        @_("Let's buy something!")
+                                    </div>
+                                    <div class="price">
+                                        <a href="/Store/Items">@_("Go to Store")</a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        $("#" + RecordID).replaceWith(NoItemsDivEntry);
+                    }
+                    else {
+                        $('#' + RecordID).fadeOut(300, function () { $(this).remove(); });
+                    }
+                    toastr.info("@_("Item has been successfully removed from your cart!")","@_("Not this one? Okay") 🗑");
+                    NProgress.done();
+                });
+            });
+        });
+    };
+</script>
     <!--====== Noscript ======-->
     <noscript>
         <div class="app-setting">

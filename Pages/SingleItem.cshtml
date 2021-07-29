@@ -1,14 +1,18 @@
 @using System
+@using Microsoft.EntityFrameworkCore
 @using Newtonsoft.Json
 @using System.Linq
+@using System.Threading.Tasks
 @using System.Collections.Generic
-
+@using System.Security.Claims
+@using FenixAlliance.ABM.Models.Global.Carts.CartScopes
 @{
     var Product = (FenixAlliance.ABM.Models.Logistics.Stock.Item.Item)Model;
 
     var IP = Context.Connection.RemoteIpAddress.ToString();
     var ProductImagePlaceholder = "/Store/img/empty-image.png";
     var image = ProductImagePlaceholder;
+    var relatedProducts  =  DataContext.Item.Where(c=>c.BusinessID == Model.BusinessID).ToList();
     var MinRate = 0.0;
     var MaxRate = 0.0;
     var imageCount = 0;
@@ -27,15 +31,14 @@
         ViewBag.Image= ProductImagePlaceholder;
     }
 
-
-
     if (Model.ItemReviews != null && Model.ItemReviews.Count != 0)
     {
         AverageRating = (Product.ItemReviews.Count == 0) ? 0.0 : Product.ItemReviews.Average(c => c.ReviewScore);
         MinRate = (Product.ItemReviews.Count == 0) ? 0.0 : Product.ItemReviews.OrderBy(c => c.ReviewScore).First().ReviewScore;
         MaxRate = (Product.ItemReviews.Count == 0) ? 0.0 : Product.ItemReviews.OrderByDescending(c => c.ReviewScore).First().ReviewScore;
     }
-    
+
+    await InvokeAsync(User, Model.ID, IP);
 }
 <script>
    const ItemID = '@Model.ID';
@@ -155,7 +158,7 @@
                 </div>
             }
             </div>
-            <div class="col-lg-5">
+            <div class="col-lg-4">
                <!--====== Product Right Side Details ======-->
                <div class="pd-detail">
                   <div>
@@ -164,53 +167,50 @@
                   <div>
                      <div class="pd-detail__inline">
                         <span class="pd-detail__price">    
-                            @await Component.InvokeAsync("ItemPriceDetail", Model)
+                            @if (Model.OnDiscount)
+                            {
+                                <div class="prev">@await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })</div>
+                                <div class="current" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = true, PrintUnformatted = false })</div>
+                            }
+                            else
+                            {
+                                <div class="current" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })</div>
+                            }
                         </span>
-
-                        @if(Model.OnDiscount){
-                            <span class="pd-detail__discount">(76% OFF)</span><del class="pd-detail__del">$28.97</del>
-                        }
-
                      </div>
                   </div>
                   <div class="u-s-m-b-15">
-                     <div class="pd-detail__rating gl-rating-style">
-
-                         <i class="fas fa-star"></i>
-                         <i class="fas fa-star"></i>
-                         <i class="fas fa-star"></i>
-                         <i class="fas fa-star"></i>
-                         <i class="fas fa-star-half-alt"></i>
-
-                        <span class="pd-detail__review u-s-m-l-4">
-                        <a data-click-scroll="#view-review">@Model.ItemReviews.Count Reviews</a></span>
-                     </div>
+                        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", Model))
                   </div>
                   <div class="u-s-m-b-15">
                      <div class="pd-detail__inline">
-                        <span class="pd-detail__stock">@Model.CurrentStock in stock</span>
-                        <span class="pd-detail__left">Only 2 left</span>
+                         @if(Model.CurrentStock > 0){
+                             @if(Model.CurrentStock < 5){
+
+                                <span class="pd-detail__left">Only @Model.CurrentStock left</span>
+                             }else{
+                                <span class="pd-detail__stock">@Model.CurrentStock in stock</span>
+                             }
+                         }
                      </div>
                   </div>
                   <div class="u-s-m-b-15">
-                     <span class="pd-detail__preview-desc">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</span>
+                    <span class="pd-detail__preview-desc">
+                        @Model.ShortDescription
+                    </span>
                   </div>
 
                     @if (User.Identity.IsAuthenticated)
                     {
-
                         @if (Model.InStock || Model.ByRequest)
                         {
-                            @await Component.InvokeAsync("ExpressCheckoutButton", new { User = User, Item = Model })
+                            @await ViewService.RenderAsync("ExpressCheckoutButton", Model)
                         }
                         else
                         {
-                            <div class="message-box message-danger">
-                                <div class="message-icon"><i class="fa fa-exclamation"></i></div>
-                                <div class="message-text">
-                                    <b>@_("Express checkout is disabled for Out of Stock Items")</b>
+                            <div class="alert alert-danger">
+                                    <b>@_("Express checkout is disabled for Out of Stock Items.")</b><br/>
                                     @_("You can add it to a WishList and we will send you an email when this Item's state changes.")
-                                </div>
                             </div>
                         }
                     }
@@ -218,90 +218,61 @@
                     {
                         @if (Model.InStock || Model.ByRequest)
                         {
-                            <a class="button style-4" style="display:block;     border-radius: 5px;" href="Account/Login">@_("Login to checkout")</a>
+                            <a class="button style-4" style="display:block; border-radius: 5px;" href="Account/Login">@_("Login to checkout")</a>
                         }
                     }
 
                 @if (!Model.InStock && !Model.ByRequest)
                 {
-                    <div class="message-box message-danger">
-                        <div class="message-icon"><i class="fa fa-exclamation"></i></div>
-                        <div class="message-text">
-                            <b>@_("Cart checkout is disabled for Out of Stock Items that cannot currently be requested.")</b>
-                            @_("You can add it to a WishList and we will send you an email when this Item's state change.")
-                        </div>
+                    <div class="alert alert-danger">
+                        <b>@_("Cart checkout is disabled for Out of Stock Items that cannot currently be requested.")</b><br/>
+                        @_("You can add it to a WishList and we will send you an email when this Item's state change.")
                     </div>
                 }
                 else
                 {
                     <hr />
-                    <div class="detail-info-entry">
-                        @await Component.InvokeAsync("AddToCartButton", new { User, ItemID = Model.ID, IP = IP })
+
+
+                    <div class="u-s-m-b-15">
+                        <form class="pd-detail__form">
+                            <div class="pd-detail-inline-2">
+                            <div class="u-s-m-b-15">
+                                <!--====== Input Counter ======-->
+                                <div class="input-counter">
+                                    <span class="input-counter__minus fas fa-minus"></span>
+                                    <input class="input-counter__text input-counter--text-primary-style" id="CartQuantity" type="text" value="1" data-min="1" data-max="1000">
+                                    <span class="input-counter__plus fas fa-plus"></span>
+                                </div>
+                                <!--====== End - Input Counter ======-->
+                            </div>
+                            <div class="u-s-m-b-15">
+                                <button class="btn btn--e-brand-b-2" type="submit">Add to Cart</button>
+                            </div>
+                            </div>
+                        </form>
                     </div>
+
                 }
 
-                <div class="detail-info-entry">
-                    @await Component.InvokeAsync("AddToCompareButton", new { Tenant = User, Item = Model })
-                </div>
 
                   <div class="u-s-m-b-15">
                      <div class="pd-detail__inline">
-                        <span class="pd-detail__click-wrap"><i class="far fa-heart u-s-m-r-6"></i>
-                        <a href="signin.html">Add to Wishlist</a>
-                        <span class="pd-detail__click-count">(222)</span></span>
+                        <span class="pd-detail__click-wrap"><i class="fas fa-heart u-s-m-r-6"></i>
+                        <a onclick="AddProductToWishlist('@Model.ID')">Add to Wishlist</a>
+                        <span class="pd-detail__click-count">(@DataContext.ItemWishListRecord.Where(c=>c.ItemID == Model.ID).Count())</span></span>
                      </div>
                   </div>
 
                   <div class="u-s-m-b-15">
                      <div class="pd-detail__inline">
-                        <span class="pd-detail__click-wrap"><i class="far fa-envelope u-s-m-r-6"></i>
-                        <a href="signin.html">Email me When the price drops</a>
-                        <span class="pd-detail__click-count">(20)</span></span>
+                        <span class="pd-detail__click-wrap"><i class="fas fa-less-than-equal u-s-m-r-6"></i>
+                        <a  onclick="AddProductToCompare('@Model.ID')">@_("Add to compare table")</a>
+                        <span class="pd-detail__click-count">(@DataContext.ItemToCompareRecord.Where(c=>c.ItemID == Model.ID).Count())</span></span>
                      </div>
                   </div>
-                  <div class="u-s-m-b-15">
-                      
-                    <h3 style="font-weight:600" class="Item-title">@_("Like it? Share it!") 😃</h3>
-                    <div class="share-box" style="display: grid;">
-                        <div id="share"></div>
-                    </div>
 
-                     <ul class="pd-social-list">
-                        <li>
-                           <a class="s-fb--color-hover" href="#"><i class="fab fa-facebook-f"></i></a>
-                        </li>
-                        <li>
-                           <a class="s-tw--color-hover" href="#"><i class="fab fa-twitter"></i></a>
-                        </li>
-                        <li>
-                           <a class="s-insta--color-hover" href="#"><i class="fab fa-instagram"></i></a>
-                        </li>
-                        <li>
-                           <a class="s-wa--color-hover" href="#"><i class="fab fa-whatsapp"></i></a>
-                        </li>
-                        <li>
-                           <a class="s-gplus--color-hover" href="#"><i class="fab fa-google-plus-g"></i></a>
-                        </li>
-                     </ul>
-                  </div>
-                  <div class="u-s-m-b-15">
-                     <form class="pd-detail__form">
-                        <div class="pd-detail-inline-2">
-                           <div class="u-s-m-b-15">
-                              <!--====== Input Counter ======-->
-                              <div class="input-counter">
-                                 <span class="input-counter__minus fas fa-minus"></span>
-                                 <input class="input-counter__text input-counter--text-primary-style" type="text" value="1" data-min="1" data-max="1000">
-                                 <span class="input-counter__plus fas fa-plus"></span>
-                              </div>
-                              <!--====== End - Input Counter ======-->
-                           </div>
-                           <div class="u-s-m-b-15">
-                              <button class="btn btn--e-brand-b-2" type="submit">Add to Cart</button>
-                           </div>
-                        </div>
-                     </form>
-                  </div>
+
                   <div class="u-s-m-b-15">
                      <span class="pd-detail__label u-s-m-b-8">Product Policy:</span>
                      <ul class="pd-detail__policy-list">
@@ -319,13 +290,18 @@
                </div>
                <!--====== End - Product Right Side Details ======-->
             </div>
-            <div class="col-lg-2 information-entry product-sidebar">
-                <div class="row">
+            <div class="col-lg-3 information-entry product-sidebar">
+                <div class="card">
+                <div class="card-body">
                     @if (Model.Brand != null)
                     {
                         <div class="col-md-12  information-entry  text-center">
                             <div class="Item-column-entry detail-info-lines border-box">
-                                <div class="image">     <a asp-area="Store" asp-controller="Brands" asp-action="Details" asp-route-id="@Model.Brand.ID"><img src="@Model.Brand.LogoURL" alt="@Model.Brand.Name's Logo"></a></div>
+                                <div class="image">   
+                                     <a href="Store/Brands/Details/@Model.Brand.ID">
+                                         <img src="@Model.Brand?.LogoURL" alt="@Model.Brand.Name's Logo">
+                                    </a>
+                                </div>
                                 <h3 class="title text-center"><a asp-controller="Brands" asp-action="Details" asp-route-id="@Model.Brand.ID">@Model.Brand.Name</a></h3>
                                 <div class="description">
                                     <ul class="list-type-1">
@@ -352,7 +328,7 @@
                                         <b>
                                             @Model.Business.BusinessName
                                             <br />
-                                            <a asp-area="Social" asp-controller="Businesses" asp-action="Details" asp-route-businessID="@Model.Business.ID">
+                                            <a href="Social/Businesses/Details&businessID=@Model.Business.ID">
                                                 @_("By"): @Model.Business.BusinessLegalName
                                             </a>
                                             <br />
@@ -417,12 +393,31 @@
                                     }
                                 }
 
+                                    <div class="u-s-m-b-15">
+                                        
+                                        <h3 style="font-weight:600" class="Item-title">@_("Like it? Share it!") 😃</h3>
+                                        <div class="share-box" style="display: grid;">
+                                            <div id="share"></div>
+                                        </div>
 
-                                <div class="share-box" style="display: grid;">
-                                    <h3 style="font-weight:600" class="Item-title">@_("Like it? Share it!") 😃</h3>
-                                </div>
-                                <div class="share-box" style="display: grid;">
-                                    <div id="share"></div>
+                                        <ul class="pd-social-list text-center">
+                                            <li>
+                                                <a class="s-fb--color-hover" href="#"><i class="fab fa-facebook-f"></i></a>
+                                            </li>
+                                            <li>
+                                                <a class="s-tw--color-hover" href="#"><i class="fab fa-twitter"></i></a>
+                                            </li>
+                                            <li>
+                                                <a class="s-insta--color-hover" href="#"><i class="fab fa-instagram"></i></a>
+                                            </li>
+                                            <li>
+                                                <a class="s-wa--color-hover" href="#"><i class="fab fa-whatsapp"></i></a>
+                                            </li>
+                                            <li>
+                                                <a class="s-linkedin--color-hover" href="#"><i class="fab fa-linkedin"></i></a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -486,51 +481,50 @@
                     }
 
                      <div class="tab-pane fade show @((!Model.DisplayShowcaseTab) ? "active": string.Empty)" id="pd-specs">
-                         
+
+                         @if(!string.IsNullOrEmpty(Model.ShortDescription)){
+
                            <div class="u-s-m-b-15">
                               <p>@Html.Raw(Model.ShortDescription ?? "Empty Description")</p>
                            </div>
+                         }
 
                            @if(!string.IsNullOrEmpty(Model.YoutubeVideoID)){
                                 <div class="u-s-m-b-30"><iframe src="https://www.youtube.com/embed/@Model.YoutubeVideoID" allowfullscreen></iframe></div>
                            }
 
-                            <div class="u-s-m-b-15">
-                              <h4>PRODUCT INFORMATION</h4>
-                           </div>
-
-
                            <div class="u-s-m-b-15">
-                              <div class="pd-table gl-scroll">
-                                 <table>
-                                    <tbody>
-                                       <tr>
-                                          <td>SKU</td>
-                                          <td>@Model.SKU</td>
-                                       </tr>
-                                    </tbody>
-                                 </table>
-                              </div>
-                           </div>
-
-                           <div class="u-s-m-b-15">
-                                <h4>@_("Item Specifications")</h4>
-                                <div class="table-responsive">
-                                        <table>
+                                <div class=" table-responsive">
+                                        <table class="table">
                                             <tbody>
                                                 <tr>
-                                                <td></td>
-                                                <td>
-                                                    <div class="comment">
-                                                        <a class="comment-image"><img src="@image" alt=""></a>
-                                                        <div class="comment-content">
-                                                            <div class="comment-title"><span>@Model.Title</span></div>
-                                                            @await Component.InvokeAsync("ReviewStarsRatingBox", Model);
-                                                            @await Component.InvokeAsync("ItemPriceDetail", Model)
+                                                    <td>
+                                                        <b>
+                                                            Summary
+                                                        </b>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="comment">
+                                                            <div class="comment-content">
+                                                                <div class="comment-title"><span>@Model.Title</span></div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
+                                                    </td>
                                                 </tr>
+                                                
+                                                <tr>
+                                                    <td>
+                                                        <b>
+                                                            Reviews
+                                                        </b>
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", Model))
+                                                    </td>
+                                                </tr>
+
                                                 @if (!String.IsNullOrEmpty(Model.ShortDescription))
                                                 {
                                                 <tr>
@@ -1156,204 +1150,10 @@
          <div class="container">
             <div class="slider-fouc">
                <div class="owl-carousel product-slider" data-item="4">
-                  <div class="u-s-m-b-30">
-                     <div class="product-o product-o--hover-on">
-                        <div class="product-o__wrap">
-                           <a class="aspect aspect--bg-grey aspect--square u-d-block" href="product-detail.html">
-                           <img class="aspect__img" src="images/product/electronic/product1.jpg" alt=""></a>
-                           <div class="product-o__action-wrap">
-                              <ul class="product-o__action-list">
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#quick-look" data-tooltip="tooltip" data-placement="top" title="Quick View"><i class="fas fa-search-plus"></i></a>
-                                 </li>
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#add-to-cart" data-tooltip="tooltip" data-placement="top" title="Add to Cart"><i class="fas fa-plus-circle"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Add to Wishlist"><i class="fas fa-heart"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Email me When the price drops"><i class="fas fa-envelope"></i></a>
-                                 </li>
-                              </ul>
-                           </div>
-                        </div>
-                        <span class="product-o__category">
-                        <a href="shop-side-version-2.html">Electronics</a></span>
-                        <span class="product-o__name">
-                        <a href="product-detail.html">Beats Bomb Wireless Headphone</a></span>
-                        <div class="product-o__rating gl-rating-style"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                           <span class="product-o__review">(20)</span>
-                        </div>
-                        <span class="product-o__price">$125.00
-                        <span class="product-o__discount">$160.00</span></span>
-                     </div>
-                  </div>
-                  <div class="u-s-m-b-30">
-                     <div class="product-o product-o--hover-on">
-                        <div class="product-o__wrap">
-                           <a class="aspect aspect--bg-grey aspect--square u-d-block" href="product-detail.html">
-                           <img class="aspect__img" src="images/product/electronic/product2.jpg" alt=""></a>
-                           <div class="product-o__action-wrap">
-                              <ul class="product-o__action-list">
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#quick-look" data-tooltip="tooltip" data-placement="top" title="Quick View"><i class="fas fa-search-plus"></i></a>
-                                 </li>
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#add-to-cart" data-tooltip="tooltip" data-placement="top" title="Add to Cart"><i class="fas fa-plus-circle"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Add to Wishlist"><i class="fas fa-heart"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Email me When the price drops"><i class="fas fa-envelope"></i></a>
-                                 </li>
-                              </ul>
-                           </div>
-                        </div>
-                        <span class="product-o__category">
-                        <a href="shop-side-version-2.html">Electronics</a></span>
-                        <span class="product-o__name">
-                        <a href="product-detail.html">Red Wireless Headphone</a></span>
-                        <div class="product-o__rating gl-rating-style"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                           <span class="product-o__review">(20)</span>
-                        </div>
-                        <span class="product-o__price">$125.00
-                        <span class="product-o__discount">$160.00</span></span>
-                     </div>
-                  </div>
-                  <div class="u-s-m-b-30">
-                     <div class="product-o product-o--hover-on">
-                        <div class="product-o__wrap">
-                           <a class="aspect aspect--bg-grey aspect--square u-d-block" href="product-detail.html">
-                           <img class="aspect__img" src="images/product/electronic/product3.jpg" alt=""></a>
-                           <div class="product-o__action-wrap">
-                              <ul class="product-o__action-list">
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#quick-look" data-tooltip="tooltip" data-placement="top" title="Quick View"><i class="fas fa-search-plus"></i></a>
-                                 </li>
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#add-to-cart" data-tooltip="tooltip" data-placement="top" title="Add to Cart"><i class="fas fa-plus-circle"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Add to Wishlist"><i class="fas fa-heart"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Email me When the price drops"><i class="fas fa-envelope"></i></a>
-                                 </li>
-                              </ul>
-                           </div>
-                        </div>
-                        <span class="product-o__category">
-                        <a href="shop-side-version-2.html">Electronics</a></span>
-                        <span class="product-o__name">
-                        <a href="product-detail.html">Yellow Wireless Headphone</a></span>
-                        <div class="product-o__rating gl-rating-style"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                           <span class="product-o__review">(20)</span>
-                        </div>
-                        <span class="product-o__price">$125.00
-                        <span class="product-o__discount">$160.00</span></span>
-                     </div>
-                  </div>
-                  <div class="u-s-m-b-30">
-                     <div class="product-o product-o--hover-on">
-                        <div class="product-o__wrap">
-                           <a class="aspect aspect--bg-grey aspect--square u-d-block" href="product-detail.html">
-                           <img class="aspect__img" src="images/product/electronic/product23.jpg" alt=""></a>
-                           <div class="product-o__action-wrap">
-                              <ul class="product-o__action-list">
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#quick-look" data-tooltip="tooltip" data-placement="top" title="Quick View"><i class="fas fa-search-plus"></i></a>
-                                 </li>
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#add-to-cart" data-tooltip="tooltip" data-placement="top" title="Add to Cart"><i class="fas fa-plus-circle"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Add to Wishlist"><i class="fas fa-heart"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Email me When the price drops"><i class="fas fa-envelope"></i></a>
-                                 </li>
-                              </ul>
-                           </div>
-                        </div>
-                        <span class="product-o__category">
-                        <a href="shop-side-version-2.html">Electronics</a></span>
-                        <span class="product-o__name">
-                        <a href="product-detail.html">Razor Gear Ultra Slim 8GB Ram</a></span>
-                        <div class="product-o__rating gl-rating-style"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                           <span class="product-o__review">(20)</span>
-                        </div>
-                        <span class="product-o__price">$125.00
-                        <span class="product-o__discount">$160.00</span></span>
-                     </div>
-                  </div>
-                  <div class="u-s-m-b-30">
-                     <div class="product-o product-o--hover-on">
-                        <div class="product-o__wrap">
-                           <a class="aspect aspect--bg-grey aspect--square u-d-block" href="product-detail.html">
-                           <img class="aspect__img" src="images/product/electronic/product26.jpg" alt=""></a>
-                           <div class="product-o__action-wrap">
-                              <ul class="product-o__action-list">
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#quick-look" data-tooltip="tooltip" data-placement="top" title="Quick View"><i class="fas fa-search-plus"></i></a>
-                                 </li>
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#add-to-cart" data-tooltip="tooltip" data-placement="top" title="Add to Cart"><i class="fas fa-plus-circle"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Add to Wishlist"><i class="fas fa-heart"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Email me When the price drops"><i class="fas fa-envelope"></i></a>
-                                 </li>
-                              </ul>
-                           </div>
-                        </div>
-                        <span class="product-o__category">
-                        <a href="shop-side-version-2.html">Electronics</a></span>
-                        <span class="product-o__name">
-                        <a href="product-detail.html">Razor Gear Ultra Slim 12GB Ram</a></span>
-                        <div class="product-o__rating gl-rating-style"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                           <span class="product-o__review">(20)</span>
-                        </div>
-                        <span class="product-o__price">$125.00
-                        <span class="product-o__discount">$160.00</span></span>
-                     </div>
-                  </div>
-                  <div class="u-s-m-b-30">
-                     <div class="product-o product-o--hover-on">
-                        <div class="product-o__wrap">
-                           <a class="aspect aspect--bg-grey aspect--square u-d-block" href="product-detail.html">
-                           <img class="aspect__img" src="images/product/electronic/product30.jpg" alt=""></a>
-                           <div class="product-o__action-wrap">
-                              <ul class="product-o__action-list">
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#quick-look" data-tooltip="tooltip" data-placement="top" title="Quick View"><i class="fas fa-search-plus"></i></a>
-                                 </li>
-                                 <li>
-                                    <a data-modal="modal" data-modal-id="#add-to-cart" data-tooltip="tooltip" data-placement="top" title="Add to Cart"><i class="fas fa-plus-circle"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Add to Wishlist"><i class="fas fa-heart"></i></a>
-                                 </li>
-                                 <li>
-                                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="Email me When the price drops"><i class="fas fa-envelope"></i></a>
-                                 </li>
-                              </ul>
-                           </div>
-                        </div>
-                        <span class="product-o__category">
-                        <a href="shop-side-version-2.html">Electronics</a></span>
-                        <span class="product-o__name">
-                        <a href="product-detail.html">Razor Gear Ultra Slim 16GB Ram</a></span>
-                        <div class="product-o__rating gl-rating-style"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                           <span class="product-o__review">(20)</span>
-                        </div>
-                        <span class="product-o__price">$125.00
-                        <span class="product-o__discount">$160.00</span></span>
-                     </div>
-                  </div>
+                   @foreach(var item in relatedProducts){
+                        @await ViewService.RenderAsync("StoreItemsSliderItem", item)
+                   }
+
                </div>
             </div>
          </div>
@@ -1468,5 +1268,88 @@
             return false;
         }
     }
-
 </script>
+
+
+@functions {
+
+        public async Task InvokeAsync(ClaimsPrincipal User, string ItemID, string IP)
+        {
+            ViewData["ItemID"] = ItemID;
+            ViewData["IsIPCart"] = false;
+            ViewData["UserCanEdit"] = false;
+            ViewData["AlreadyAdded"] = false;
+            ViewData["IsBusinessCart"] = false;
+
+            if (User.Identity.IsAuthenticated)
+            {
+                // Get Current User Information
+                var GUID = HolderService.GetCurrentAccountHolderID(User);
+                var Holder = await DataContext.AccountHolder.AsNoTracking()
+                    .Include(c => c.AccountHolderCart).ThenInclude(c => c.ItemCartRecords).ThenInclude(c => c.Item)
+                    .Include(c => c.SelectedBusiness).ThenInclude(c => c.BusinessCart).ThenInclude(c => c.ItemCartRecords).ThenInclude(c => c.Item)
+                    .FirstOrDefaultAsync(m => m.Id == GUID);
+
+                ViewData["EndUser"] = Holder;
+
+                if (Holder.SelectedBusiness != null)
+                {
+                    ViewData["IsBusinessCart"] = true;
+                    ViewData["UserCanEdit"] = await DataContext.Item.AsNoTracking().AnyAsync(c => c.ID == ItemID && c.BusinessID == Holder.SelectedBusiness.ID);
+
+                    foreach (var item in Holder.SelectedBusiness.BusinessCart.ItemCartRecords)
+                    {
+
+                        if (item.ItemID == ItemID)
+                        {
+                            ViewData["AlreadyAdded"] = true;
+                            ViewData["RecordID"] = item.ID;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var item in Holder.AccountHolderCart.ItemCartRecords)
+                    {
+                        if (item.ItemID == ItemID)
+                        {
+                            ViewData["AlreadyAdded"] = true;
+                            ViewData["RecordID"] = item.ID;
+                        }
+
+                    }
+                }
+
+            }
+            else
+            {
+                if (!IPCartExist(IP))
+                {
+                    var IPCart = new GuestCart();
+                    var DefaultCurrency = await DataContext.Currency.AsNoTracking().FirstOrDefaultAsync(c => c.ISOCode == "COP" && c.CountryID == "COL");
+                    IPCart.IP = IP;
+                    IPCart.Currency = DefaultCurrency;
+                    await DataContext.AddAsync(IPCart);
+                    await DataContext.SaveChangesAsync();
+                }
+
+                var ViewIPCart = await DataContext.GuestCart.AsNoTracking().Include(c => c.ItemCartRecords).FirstOrDefaultAsync(c => c.IP == IP);
+                ViewData["ViewIPCart"] = ViewIPCart;
+
+                ViewData["IsIPCart"] = true;
+                foreach (var item in ViewIPCart.ItemCartRecords)
+                {
+                    if (item.ItemID == ItemID)
+                    {
+                        ViewData["AlreadyAdded"] = true;
+                        ViewData["RecordID"] = item.ID;
+                    }
+                }
+            }
+        }
+
+        private bool IPCartExist(string IP)
+        {
+            return DataContext.GuestCart.Any(c => c.IP == IP);
+        }
+}
