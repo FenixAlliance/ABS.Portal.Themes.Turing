@@ -14,7 +14,23 @@
     var GoogleCategories =  DataContext.ItemGoogleCategory.ToList();
 
 }
+    <style>
 
+        .scrollbar {
+            float: left;
+            height: 400px;
+            background: #F5F5F5;
+            overflow-y: scroll;
+        }
+
+
+        #wrapper {
+            text-align: center;
+            width: 500px;
+            margin: auto;
+        }
+
+    </style>
 
 <!--====== Main Header ======-->
 <header class="header--style-1">
@@ -27,7 +43,7 @@
 
                 <!--====== Main Logo ======-->
                 <a class="main-logo" href="/Store">
-                    <img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/GenericLogo.svg")" onerror="this.src='/ui/images/GenericLogo.svg'" style="max-width:300px !important" alt="Logo">
+                    <img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/GenericLogo.svg")" onerror="this.src='/ui/images/GenericLogo.svg'" style="height:40px" alt="Logo">
                 </a>
                 <!--====== End - Main Logo ======-->
                 <!--====== Search Form ======-->
@@ -193,14 +209,14 @@
                                 <span class="js-menu-toggle"></span>
                                 <div class="mega-menu">
                                     <div class="mega-menu-wrap">
-                                        <div class="mega-menu-list">
+                                        <div id="wrapper" class="mega-menu-list">
 
 
-                                            <ul>
+                                            <ul class="scrollbar">
                                                 @foreach (var item in GoogleCategories.Where(c=>c.ParentItemGoogleCategoryID == null))
                                                 {
                                                     <li class="js-active">
-                                                        <a href="shop-side-version-2.html">
+                                                        <a href="javascript:void(0)">
                                                             <span>@item.Name</span>
                                                         </a>
 
@@ -226,13 +242,13 @@
                                                             <ul>
 
                                                                 <li class="mega-list-title">
-                                                                    <a href="shop-side-version-2.html">@subCategory.Name</a>
+                                                                    <a href="javascript:void(0)">@subCategory.Name</a>
                                                                 </li>
                                                                 
                                                                 @foreach (var subSubCategory in GoogleCategories.Where(c=>c.ParentItemGoogleCategoryID == subCategory.ID))
                                                                 {
                                                                     <li>
-                                                                        <a href="shop-side-version-2.html">@subSubCategory.Name</a>
+                                                                        <a href="javascript:void(0)">@subSubCategory.Name</a>
                                                                     </li>
                                                                 }
                                                             </ul>
@@ -270,98 +286,38 @@
                         <ul class="ah-list ah-list--design2 ah-list--link-color-secondary">
 
                             <li>
+                                <a href="/Store/Products">PRODUCTS</a>
+                            </li>
+
+
+                            <li>
                                 <a href="/Store/Deals/NewArrivals">NEW ARRIVALS</a>
                             </li>
-                            @if(User.Identity.IsAuthenticated){
-                                <li class="has-dropdown">
 
-                                    <a>PAGES<i class="fas fa-angle-down u-s-m-l-6"></i></a>
-
-                                    <!--====== Dropdown ======-->
-
-                                    <span class="js-menu-toggle"></span>
-
-                                    <ul style="width:170px">
-                                        <li class="has-dropdown has-dropdown--ul-left-100">
-
-                                            <a>Home<i class="fas fa-angle-down i-state-right u-s-m-l-6"></i></a>
-
-                                            <!--====== Dropdown ======-->
-
-                                            <span class="js-menu-toggle"></span>
-                                            <ul style="width:118px">
-                                                <li>
-
-                                                    <a href="index.html">Home 1</a>
-                                                </li>
-                                                <li>
-
-                                                    <a href="index-2.html">Home 2</a>
-                                                </li>
-                                                <li>
-
-                                                    <a href="index-3.html">Home 3</a>
-                                                </li>
-                                            </ul>
-                                            <!--====== End - Dropdown ======-->
-                                        </li>
-                                        <li class="has-dropdown has-dropdown--ul-left-100">
-
-                                            <a>Product Details<i class="fas fa-angle-down i-state-right u-s-m-l-6"></i></a>
-
-                                            <!--====== Dropdown ======-->
-
-                                            <span class="js-menu-toggle"></span>
-                                            <ul style="width:200px">
-                                                <li>
-
-                                                    <a href="product-detail.html">Product Details</a>
-                                                </li>
-                                                <li>
-
-                                                    <a href="product-detail-variable.html">Product Details Variable</a>
-                                                </li>
-                                                <li>
-
-                                                    <a href="product-detail-affiliate.html">Product Details Affiliate</a>
-                                                </li>
-                                            </ul>
-                                            <!--====== End - Dropdown ======-->
-                                        </li>
-
-                                        <li>
-                                            <a href="/Support/Contact">Contact</a>
-                                        </li>
-
-
-                                    </ul>
-                                    <!--====== End - Dropdown ======-->
-                                </li>
-                            }
 
                             @if(Categories is not null && Categories.Count != 0) {
 
-                                <li class="has-dropdown">
+                            <li class="has-dropdown">
 
-                                    <a>
-                                        CATEGORIES
-                                        <i class="fas fa-angle-down u-s-m-l-6"></i>
-                                    </a>
+                                <a>
+                                    CATEGORIES
+                                    <i class="fas fa-angle-down u-s-m-l-6"></i>
+                                </a>
 
-                                    <!--====== Dropdown ======-->
-                                    <span class="js-menu-toggle"></span>
+                                <!--====== Dropdown ======-->
+                                <span class="js-menu-toggle"></span>
 
-                                    <ul style="width:200px">
-                                        @foreach (var item in Categories)
-                                        {
-                                            <li>
+                                <ul style="width:200px">
+                                    @foreach (var item in Categories)
+                                    {
+                                    <li>
 
-                                                <a href="/Store/Categories/@item.ID">Blog Left Sidebar</a>
-                                            </li>
-                                        }
-                                    </ul>
-                                    <!--====== End - Dropdown ======-->
-                                </li>
+                                        <a href="/Store/Categories/@item.ID">Blog Left Sidebar</a>
+                                    </li>
+                                    }
+                                </ul>
+                                <!--====== End - Dropdown ======-->
+                            </li>
                             }
 
                             <li>

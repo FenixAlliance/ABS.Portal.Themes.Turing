@@ -20,16 +20,8 @@
                             <div class="shop-p__meta-wrap u-s-m-b-60">
 
                                 <span class="shop-p__meta-text-1">FOUND @Model.Count RESULTS</span>
-                                <span class="shop-p__meta-text-1">Page @(Model.PageIndex) of @Model.TotalPages </span>
-                                <div class="shop-p__meta-text-2">
+                                <span class="shop-p__meta-text-1">Page @(Model.PageIndex +1) of @Model.TotalPages </span>
 
-                                    <span>Related Searches:</span>
-
-                                    <a class="gl-tag btn--e-brand-shadow" href="#">men's clothing</a>
-
-                                    <a class="gl-tag btn--e-brand-shadow" href="#">mobiles &amp; tablets</a>
-
-                                    <a class="gl-tag btn--e-brand-shadow" href="#">books &amp; audible</a></div>
                             </div>
                             <div class="shop-p__tool-style">
                                 <div class="tool-style__group u-s-m-b-8">
@@ -402,62 +394,9 @@
 
                                 @foreach (FenixAlliance.ABM.Models.Logistics.Stock.Item.Item item in Model)
                                 {
-                                    <div class="col-lg-3 col-md-4 col-sm-6">
-                                        <div class="product-m">
-                                            <div class="product-m__thumb">
+                                    @await ViewService.RenderAsync("StoreItemsGridItem", item)
 
-                                                <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Products/Details/@item.ID">
-                                                    <img class="aspect__img" src="@item.PrimaryImageURL" alt="" onerror="this.src='/Store/img/empty-image.png'" alt="">
-                                                </a>
-                                                <div class="product-m__quick-look">
-                                                    <a class="fas fa-search" data-modal="modal" data-modal-id="#quick-look" data-tooltip="tooltip" data-placement="top" title="" data-original-title="Quick Look"></a>
-                                                </div>
-                                                <div class="product-m__add-cart">
-
-                                                    <a class="btn--e-brand" data-modal="modal" data-modal-id="#add-to-cart">Add to Cart</a>
-                                                </div>
-                                            </div>
-                                            <div class="product-m__content">
-
-                                                <div class="product-m__category">
-                                                    <a href="/Store/Categories/@item.ItemCategory?.ID">@item.ItemCategory?.Title</a>
-                                                </div>
-
-                                                <div class="product-m__name">
-                                                    <a href="/Store/Products/Details/@item.ID">
-                                                        @item.Title
-                                                    </a>
-                                                </div>
-
-                                                <div class="product-m__rating gl-rating-style">
-
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star"></i>
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                    <i class="far fa-star"></i>
-                                                    <i class="far fa-star"></i>
-
-                                                    <span class="product-m__review">@(item?.ItemReviews?.Count)</span>
-
-                                                </div>
-
-                                                <div class="product-m__price">
-                                                    $125.00
-                                                </div>
-
-                                                <div class="product-m__hover">
-                                                    <div class="product-m__preview-description">
-                                                        <span>
-                                                            @item.ShortDescription
-                                                        </span>
-                                                    </div>
-                                                    <div class="product-m__wishlist">
-                                                        <a class="far fa-heart" href="#" data-tooltip="tooltip" data-placement="top" title="" data-original-title="Add to Wishlist"></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                              
                                 }
                             </div>
                         </div>
@@ -488,7 +427,6 @@
     <!--====== End - Section 1 ======-->
 </div>
 
-@await Component.InvokeAsync("SearchFilters", Model)
 
 <!--====== Side Filters ======-->
 <div class="shop-a" id="side-filter">
