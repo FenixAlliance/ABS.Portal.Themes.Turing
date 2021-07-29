@@ -12,7 +12,7 @@
     var IP = Context.Connection.RemoteIpAddress.ToString();
     var ProductImagePlaceholder = "/Store/img/empty-image.png";
     var image = ProductImagePlaceholder;
-    var relatedProducts  =  DataContext.Item.Where(c=>c.BusinessID == Model.BusinessID).ToList();
+    var relatedProducts  =  DataContext.Item.Where(c=>c.BusinessID == Model.BusinessID).Take(6).ToList();
     var MinRate = 0.0;
     var MaxRate = 0.0;
     var imageCount = 0;
