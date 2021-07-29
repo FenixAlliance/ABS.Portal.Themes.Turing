@@ -404,18 +404,19 @@
 
                             <!--====== Pagination ======-->
                             <ul class="shop-p__pagination">
-
-                                <li>
-                                    <a class="fas fa-angle-left" href="/Store/Products/@Action?sortOrder=@ViewBag.CurrentSort&Query=@ViewBag.Query&pageIndex=@(Model.PageIndex - 1)&pageSize=@(ViewBag.pageSize)" class="square-button @prevDisabled"></a></li>
-                                </li>
-
+                                @if(Model.PageIndex != 0){
+                                    <li>
+                                        <a class="fas fa-angle-left" href="/Store/Products/@Action?sortOrder=@ViewBag.CurrentSort&Query=@ViewBag.Query&pageIndex=@(Model.PageIndex - 1)&pageSize=@(ViewBag.pageSize)" class="square-button @prevDisabled"></a>
+                                    </li>
+                                }
                                 <li class="is-active">
-                                    @Model.PageIndex
+                                    @(Model.PageIndex +1)
                                 </li>
-
-                                <li>
-                                    <a class="fas fa-angle-right" href="/Store/Products/@Action?sortOrder=@ViewBag.CurrentSort&Query=@ViewBag.Query&pageIndex=@(Model.PageIndex + 1)&pageSize=@(ViewBag.pageSize)" class="square-button @nextDisabled"></a></li>
-                                </li>
+                                @if(Model.PageIndex + 1 < Model.TotalPages){
+                                    <li>
+                                        <a class="fas fa-angle-right" href="/Store/Products/@Action?sortOrder=@ViewBag.CurrentSort&Query=@ViewBag.Query&pageIndex=@(Model.PageIndex + 1)&pageSize=@(ViewBag.pageSize)" class="square-button @nextDisabled"></a>
+                                    </li>
+                                }
                             </ul>
                             <!--====== End - Pagination ======-->
                         </div>
