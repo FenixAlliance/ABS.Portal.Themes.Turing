@@ -1,48 +1,47 @@
+  @{
+      var Posts = Model as System.Collections.Generic.List<FenixAlliance.ABM.Models.Content.Posts.BlogPost>;
+  }
 
 
-<div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
+
+  <!--Main layout-->
+  <main class="my-5">
+    <div class="container">
+      <!--Section: Content-->
+      <section class="text-center">
+        <h4 class="mb-5"><strong>Latest posts</strong></h4>
+
         <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    There are @Model.Count blogs
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
+            @foreach (var item in Posts)
+            {
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <div class="card">
+                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                        <img src="@(item.HighlightImage ?? "/ui/images/generic-blogpost-image.png")" onerror="this.src='/ui/images/generic-blogpost-image.png'"  class="img-fluid" />
+                        <a href="#!">
+                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text">
+                            @item.Excerpt
+                        </p>
+                        <a href="/Blog/Posts/Details/@item.ID" class="btn btn-primary">Read</a>
+                    </div>
+                    </div>
+                </div>
+            }
+
+            @if(Model.Count == 0){
+                <h2>No posts to show</h2>
+            }
+
         </div>
+
+      </section>
+      <!--Section: Content-->
+
     </div>
-</div>
+  </main>
+  <!--Main layout-->
