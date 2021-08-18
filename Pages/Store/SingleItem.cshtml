@@ -1146,20 +1146,7 @@
          </div>
       </div>
       <!--====== End - Section Intro ======-->
-      <!--====== Section Content ======-->
-      <div class="section__content">
-         <div class="container">
-            <div class="slider-fouc">
-               <div class="owl-carousel product-slider" data-item="4">
-                   @foreach(var item in relatedProducts){
-                        @await ViewService.RenderAsync("StoreItemsSliderItem", item)
-                   }
-
-               </div>
-            </div>
-         </div>
-      </div>
-      <!--====== End - Section Content ======-->
+      @await ViewService.RenderAsync("StoreItemsSlider", relatedProducts)
    </div>
    <!--====== End - Section 1 ======-->
 </div>
