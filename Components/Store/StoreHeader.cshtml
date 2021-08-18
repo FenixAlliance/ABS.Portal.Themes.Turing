@@ -41,7 +41,6 @@
         width: 500px;
         margin: auto;
     }
-
 </style>
 <script>
     //Select Language
@@ -96,7 +95,7 @@
 
                                     <!--====== Dropdown ======-->
 
-                                <span class="js-menu-toggle"></span>
+                                    <span class="js-menu-toggle"></span>
                                     <ul style="width:120px">
                                         <li>
                                             <a href="/Account/Index">
@@ -115,7 +114,7 @@
                                         </li>
                                     </ul>
                                     <!--====== End - Dropdown ======-->
-                            </li>
+                                </li>
                             }
                             else
                             {
@@ -143,21 +142,19 @@
 
                                         <span class="js-menu-toggle"></span>
 
-                                        <ul style="width:120px">
+                                        <ul>
 
                                             <li>
-                                                <a  class="u-c-brand">
+                                                <a class="u-c-brand">
                                                     @requestCulture.RequestCulture.Culture.TwoLetterISOLanguageName
                                                 </a>
                                             </li>
 
-                                            @foreach (var item in cultureItems)
+                                            @foreach (var culture in cultureItems)
                                             {
                                                 <li>
-                                                    @{var value = @item.Value;}
-
-                                                    <a href="#" onclick="SelectLang('@(value.Replace(" ", ""))')">
-                                                        <i class="fas fa-language"></i>&nbsp; @item.Text
+                                                    <a href="javascript:void(0)" onclick="SelectLang('@(@culture.Value.Replace(" ",""))')">
+                                                        <i class="fas fa-language"></i>&nbsp; @culture.Text
                                                     </a>
                                                 </li>
                                             }
@@ -176,17 +173,10 @@
                                         <ul style="width:225px">
 
                                             <li>
-                                                <a class="u-c-brand">$ - US DOLLAR</a>
+                                                <a class="u-c-brand">
+                                                <script>document.write(CartCurrencyCode);</script></a>
                                             </li>
 
-                                            <li>
-
-                                                <a>£ - BRITISH POUND STERLING</a>
-                                            </li>
-                                            <li>
-
-                                                <a>€ - EURO</a>
-                                            </li>
                                         </ul>
                                         <!--====== End - Dropdown ======-->
                                     </li>
@@ -284,7 +274,7 @@
                                                         </div>
                                                     }
                                                     <!--====== End - Mega Menu Row ======-->
-                                            </div>
+                                                </div>
                                                 <br>
                                             </div>
                                             <!--====== End - Electronics ======-->
@@ -334,7 +324,7 @@
                                     </a>
 
                                     <!--====== Dropdown ======-->
-                                <span class="js-menu-toggle"></span>
+                                    <span class="js-menu-toggle"></span>
 
                                     <ul style="width:200px">
                                         @foreach (var item in Categories)
@@ -346,7 +336,7 @@
                                         }
                                     </ul>
                                     <!--====== End - Dropdown ======-->
-                            </li>
+                                </li>
                             }
 
                             <li>
@@ -363,195 +353,9 @@
                     <!--====== End - Menu ======-->
                 </div>
                 <!--====== End - Dropdown Main plugin ======-->
-                <!--====== Dropdown Main plugin ======-->
-                <div class="menu-init" id="navigation3">
 
-                    <button class="btn btn--icon toggle-button toggle-button--secondary fas fa-shopping-bag toggle-button-shop" type="button"></button>
+                @ViewService.RenderAsync("StoreCartDropdown", Model)
 
-                    <span class="total-item-round">2</span>
-
-                    <!--====== Menu ======-->
-                    <div class="ah-lg-mode">
-
-                        <span class="ah-close">✕ Close</span>
-
-                        <!--====== List ======-->
-                        <ul class="ah-list ah-list--design1 ah-list--link-color-secondary">
-                            <li>
-
-                                <a href="/"><i class="fas fa-home "></i></a>
-                            </li>
-                            <li>
-
-                                <a href="/Account/Wishlists"><i class="far fa-heart"></i></a>
-                            </li>
-                            <li class="has-dropdown">
-
-                                <a class="mini-cart-shop-link">
-                                    <i class="fas fa-shopping-bag"></i>
-
-                                    <span class="total-item-round">2</span>
-                                </a>
-
-                                <!--====== Dropdown ======-->
-
-                                <span class="js-menu-toggle"></span>
-                                <div class="mini-cart">
-
-                                    <!--====== Mini Product Container ======-->
-                                    <div class="mini-product-container gl-scroll u-s-m-b-15">
-
-                                        <!--====== Card for mini cart ======-->
-                                        <div class="card-mini-product">
-                                            <div class="mini-product">
-                                                <div class="mini-product__image-wrapper">
-
-                                                    <a class="mini-product__link" href="product-detail.html">
-
-                                                        <img class="u-img-fluid" src="images/product/electronic/product3.jpg" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="mini-product__info-wrapper">
-
-                                                    <span class="mini-product__category">
-
-                                                        <a href="shop-side-version-2.html">Electronics</a>
-                                                    </span>
-
-                                                    <span class="mini-product__name">
-
-                                                        <a href="product-detail.html">Yellow Wireless Headphone</a>
-                                                    </span>
-
-                                                    <span class="mini-product__quantity">1 x</span>
-
-                                                    <span class="mini-product__price">$8</span>
-                                                </div>
-                                            </div>
-
-                                            <a class="mini-product__delete-link far fa-trash-alt"></a>
-                                        </div>
-                                        <!--====== End - Card for mini cart ======-->
-                                        <!--====== Card for mini cart ======-->
-                                        <div class="card-mini-product">
-                                            <div class="mini-product">
-                                                <div class="mini-product__image-wrapper">
-
-                                                    <a class="mini-product__link" href="product-detail.html">
-
-                                                        <img class="u-img-fluid" src="images/product/electronic/product18.jpg" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="mini-product__info-wrapper">
-
-                                                    <span class="mini-product__category">
-
-                                                        <a href="shop-side-version-2.html">Electronics</a>
-                                                    </span>
-
-                                                    <span class="mini-product__name">
-
-                                                        <a href="product-detail.html">Nikon DSLR Camera 4k</a>
-                                                    </span>
-
-                                                    <span class="mini-product__quantity">1 x</span>
-
-                                                    <span class="mini-product__price">$8</span>
-                                                </div>
-                                            </div>
-
-                                            <a class="mini-product__delete-link far fa-trash-alt"></a>
-                                        </div>
-                                        <!--====== End - Card for mini cart ======-->
-                                        <!--====== Card for mini cart ======-->
-                                        <div class="card-mini-product">
-                                            <div class="mini-product">
-                                                <div class="mini-product__image-wrapper">
-
-                                                    <a class="mini-product__link" href="product-detail.html">
-
-                                                        <img class="u-img-fluid" src="images/product/women/product8.jpg" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="mini-product__info-wrapper">
-
-                                                    <span class="mini-product__category">
-
-                                                        <a href="shop-side-version-2.html">Women Clothing</a>
-                                                    </span>
-
-                                                    <span class="mini-product__name">
-
-                                                        <a href="product-detail.html">New Dress D Nice Elegant</a>
-                                                    </span>
-
-                                                    <span class="mini-product__quantity">1 x</span>
-
-                                                    <span class="mini-product__price">$8</span>
-                                                </div>
-                                            </div>
-
-                                            <a class="mini-product__delete-link far fa-trash-alt"></a>
-                                        </div>
-                                        <!--====== End - Card for mini cart ======-->
-                                        <!--====== Card for mini cart ======-->
-                                        <div class="card-mini-product">
-                                            <div class="mini-product">
-                                                <div class="mini-product__image-wrapper">
-
-                                                    <a class="mini-product__link" href="product-detail.html">
-
-                                                        <img class="u-img-fluid" src="images/product/men/product8.jpg" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="mini-product__info-wrapper">
-
-                                                    <span class="mini-product__category">
-
-                                                        <a href="shop-side-version-2.html">Men Clothing</a>
-                                                    </span>
-
-                                                    <span class="mini-product__name">
-
-                                                        <a href="product-detail.html">New Fashion D Nice Elegant</a>
-                                                    </span>
-
-                                                    <span class="mini-product__quantity">1 x</span>
-
-                                                    <span class="mini-product__price">$8</span>
-                                                </div>
-                                            </div>
-
-                                            <a class="mini-product__delete-link far fa-trash-alt"></a>
-                                        </div>
-                                        <!--====== End - Card for mini cart ======-->
-                                    </div>
-                                    <!--====== End - Mini Product Container ======-->
-                                    <!--====== Mini Product Statistics ======-->
-                                    <div class="mini-product-stat">
-                                        <div class="mini-total">
-
-                                            <span class="subtotal-text">SUBTOTAL</span>
-
-                                            <span class="subtotal-value">$16</span>
-                                        </div>
-                                        <div class="mini-action">
-
-                                            <a class="mini-link btn--e-brand-b-2" href="checkout.html">PROCEED TO CHECKOUT</a>
-
-                                            <a class="mini-link btn--e-transparent-secondary-b-2" href="cart.html">VIEW CART</a>
-                                        </div>
-                                    </div>
-                                    <!--====== End - Mini Product Statistics ======-->
-                                </div>
-                                <!--====== End - Dropdown ======-->
-                            </li>
-                        </ul>
-                        <!--====== End - List ======-->
-                    </div>
-                    <!--====== End - Menu ======-->
-                </div>
-                <!--====== End - Dropdown Main plugin ======-->
             </div>
             <!--====== End - Secondary Nav ======-->
         </div>
