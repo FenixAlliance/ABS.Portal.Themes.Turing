@@ -3,11 +3,12 @@
 @{
     var IP = Context.Connection.RemoteIpAddress;
 
+    var Cart = ViewData["Cart"] as FenixAlliance.ABM.Models.Global.Carts.Cart;
 }
 
 <script>
     var TotalPrice = 0;
-    var ProductCartRecordsCount = @Model.ItemCartRecords.Count;
+    var ProductCartRecordsCount = @Cart.ItemCartRecords.Count;
 </script>
 
 <!--====== Dropdown Main plugin ======-->
@@ -40,7 +41,7 @@
 
                     <i class="fas fa-shopping-bag"></i>
 
-                    <span class="total-item-round">@Model.ItemCartRecords.Count</span>
+                    <span class="total-item-round">@Cart.ItemCartRecords.Count</span>
 
                 </a>
 
@@ -212,7 +213,7 @@
     {
         <div class="cart-box popup">
             <div id="cart-popup-container" class="popup-container">
-                @if (Model.ItemCartRecords.Count == 0)
+                @if (Cart.ItemCartRecords.Count == 0)
                 {
                     <div id="NoProductsDivEntry" class="cart-entry">
                         <a class="image">
@@ -227,7 +228,7 @@
                 }
                 else
                 {
-                    @foreach (var PCR in Model.ItemCartRecords)
+                    @foreach (var PCR in Cart.ItemCartRecords)
                     {
                         var image = "/Store/img/empty-image.png";
                         var ProductImagePlaceholder = "/Store/img/empty-image.png";
@@ -302,7 +303,7 @@
     {
         <div class="cart-box popup">
             <div id="cart-popup-container" class="popup-container">
-                @if (Model.ItemCartRecords.Count == 0)
+                @if (Cart.ItemCartRecords.Count == 0)
                 {
                     <div id="NoProductsDivEntry" class="cart-entry">
                         <a class="image">
@@ -317,7 +318,7 @@
                 }
                 else
                 {
-                    @foreach (var PCR in Model.ItemCartRecords)
+                    @foreach (var PCR in Cart.ItemCartRecords)
                     {
 
                         var image = "/Store/img/empty-image.png";
@@ -397,7 +398,7 @@ else
 {
     <div class="cart-box popup">
         <div id="cart-popup-container" class="popup-container">
-            @if (Model.ItemCartRecords.Count() == 0)
+            @if (Cart.ItemCartRecords.Count() == 0)
             {
                 <div id="NoProductsDivEntry" class="cart-entry">
                     <a class="image">
@@ -413,7 +414,7 @@ else
             }
             else
             {
-                @foreach (var PCR in Model.ItemCartRecords)
+                @foreach (var PCR in Cart.ItemCartRecords)
                 {
                     var image = "/Store/img/empty-image.png";
                     var ProductImagePlaceholder = "/Store/img/empty-image.png";
