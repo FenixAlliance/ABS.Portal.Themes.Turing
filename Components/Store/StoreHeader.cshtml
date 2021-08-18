@@ -154,7 +154,7 @@
                                             @foreach (var item in cultureItems)
                                             {
                                                 <li>
-                                                    @{var value = @item.Value}
+                                                    @{var value = @item.Value;}
 
                                                     <a href="#" onclick="SelectLang('@(value.Replace(" ", ""))')">
                                                         <i class="fas fa-language"></i>&nbsp; @item.Text
