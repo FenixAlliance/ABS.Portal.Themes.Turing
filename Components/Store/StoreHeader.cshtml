@@ -7,8 +7,6 @@
 @{
     var CurrentUserIP = ViewBag.UserIP;
     var CartCurrencyID = ViewBag.CartCurrencyID;
-    var IP = Context.Connection.RemoteIpAddress.ToString();
-    var Cart = ViewData["Cart"] as FenixAlliance.ABM.Models.Global.Carts.Cart;
     var Items = ViewBag.Items as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.Item.Item>;
     var Brands = ViewBag.Brands as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands.ItemBrand>;
     var Categories = ViewBag.Categories as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory>;

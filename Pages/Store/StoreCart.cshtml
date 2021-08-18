@@ -1,50 +1,423 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@{Title = "Home";}
-@{Slug = "/Home";}
 
-<div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
-        <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    Store
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+@using System.Linq
+@using System.Collections.Generic
+@using FenixAlliance.ABM.Models.Global.Carts.CartRecords.ItemRecords;
+
+@{ 
+    var model = Model as List<FenixAlliance.ABM.Models.Global.Carts.CartRecords.ItemRecords.ItemCartRecord>;
+}
+
+<div class="breadcrumb-box">
+    <a asp-area="" asp-controller="Home" asp-action="Index">Homepage</a>
+    <a asp-area="Store" asp-controller="Home" asp-action="Index">Store</a>
+    <a href="#">@ViewData["Title"]</a>
+</div>
+
+<div id="NotInColombia" class="message-box message-warning" style="display:none">
+    <div class="message-icon"><i class="fa fa-times"></i></div>
+    <div class="message-text"><b>Item Shipment is not yet availiable in your country,</b> Please select only digital Items.</div>
+    <div class="message-close"><i class="fa fa-times"></i></div>
+</div>
+<script>
+    if (CurrentCountryISO2 !== "CO") {
+        $("#NotInColombia").show();
+    }
+    var TotalTaxes = 0.0;
+    var TotalCartCost = 0.0;
+    var TotalShippingCost = 0.0;
+    var TotalPoliciesCost = 0.0;
+
+</script>
+<div class="information-blocks">
+    <h3 class="cart-column-title size-1">Hi @User.Identity.Name. 😃 Welcome to your cart.</h3>
+    <div class="cart-submit-buttons-box">
+        <a asp-area="Store" asp-controller="Products" asp-action="Index" class="button style-15">Continue Shopping</a>
+        <a onclick="location.reload()" class="button style-15">Update Bag</a>
+    </div>
+    <div class="table-responsive">
+        <table class="cart-table">
+            <tbody>
+
+                <tr>
+                    <th class="column-1">Item Name</th>
+                    <th class="column-2">Base</th>
+                    <th class="column-3">Tax</th>
+                    <th class="column-3">Qty</th>
+                    <th class="column-4">Total</th>
+                    <th class="column-5"></th>
+                </tr>
+
+                @if (model.Count == 0)
+                {
+                    <tr>
+                        <td><h3>Nothing here yet. <a asp-area="Store" asp-controller="Products" asp-action="Index">Let's go shopping</a>.</h3></td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (ItemCartRecord item in model)
+                    {
+
+                        <tr id="@item.ID">
+                            <td>
+
+
+                                <div class="traditional-cart-entry">
+                                    <script>
+                                        var ShippingCost = 0.0;
+                                        var WarrantyCost = 0.0;
+                                        var RefundPolicyCost = 0.0;
+                                        var ReturnPolicyCost = 0.0;
+                                        @{
+
+                                            var image = "/Store/img/empty-image.png";
+                                            var ProductImagePlaceholder = "/Store/img/empty-image.png";
+                                            if (item.Item?.ItemImages != null && item.Item?.ItemImages.Count != 0)
+                                            {
+                                                image = item.Item.ItemImages?.First()?.FileUploadURL ?? ProductImagePlaceholder;
+                                            }
+                                            else
+                                            {
+                                                image = ProductImagePlaceholder;
+                                            }
+
+
+                                            if (item.ItemShippingPolicy != null)
+                                            {
+                                                <text>
+                                                    ShippingCost += (@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') * (@item.ItemShippingPolicy.Percentage.ToString().Replace(',', '.')/100));
+                                                    ShippingCost += ( fx.convert(@item.ItemShippingPolicy.Value.ToString().Replace(',', '.'), { from: '@item.ItemShippingPolicy.Currency.ISOCode', to: "USD" }) );
+
+                                                </text>
+                                            }
+                                            if (item.WarrantyPolicy != null)
+                                            {
+                                                <text>
+                                                    WarrantyCost += (@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') * (@item.WarrantyPolicy.Percentage.ToString().Replace(',', '.')/100));
+                                                    WarrantyCost += ( fx.convert(@item.WarrantyPolicy.Value.ToString().Replace(',', '.'), { from: '@item.WarrantyPolicy.Currency.ISOCode', to: "USD" }) );
+                                                </text>
+                                            }
+                                            if (item.RefundPolicy != null)
+                                            {
+                                                <text>
+                                                    RefundPolicyCost += (@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') * (@item.RefundPolicy.Percentage.ToString().Replace(',', '.')/100));
+                                                    RefundPolicyCost += ( fx.convert(@item.RefundPolicy.Value.ToString().Replace(',', '.'), { from: '@item.RefundPolicy.Currency.ISOCode', to: "USD" }) );
+                                                </text>
+                                            }
+                                            if (item.ReturnPolicy != null)
+                                            {
+                                                <text>
+                                                    ReturnPolicyCost += (@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') * (@item.ReturnPolicy.Percentage.ToString().Replace(',', '.')/100));
+                                                    ReturnPolicyCost += ( fx.convert(@item.ReturnPolicy.Value.ToString().Replace(',', '.'), { from: '@item.ReturnPolicy.Currency.ISOCode', to: "USD" }) );
+                                                </text>
+                                            }
+                                        }
+                                    </script>
+                                    <a href="#" class="image"><img src="@image" alt=""></a>
+                                    <div class="content">
+                                        <div class="cell-view">
+                                            <a class="title" asp-area="Store" asp-controller="Products" asp-action="Details" asp-route-id="@item.Item.ID">@item.Item.Title</a>
+                                            <p>SKU:</p>
+                                            <div class="inline-description"> @Html.Raw(item.Item.SKU)</div>
+                                            <p>Shipping from:</p>
+                                            <div class="inline-description"> <b>@(item?.Item?.ShippingCountry?.Name ?? "Unknown")</b></div>
+
+                                            <p>
+                                                Shipping:&nbsp;
+
+                                                <script>
+                                                    document.write(CurrencyFormatter.format(fx.convert(ShippingCost, { from: 'USD', to: CartCurrencyCode })));
+                                                </script>
+                                            </p>
+
+                                            @if (item.Item.ItemShippingPolicyRecords.Count == 0)
+                                            {
+                                                <p style="font-size:8px;line-height:10px;color:red">This Item cannot be shipped now and wont be copied to your order yet. If you proceed, it will instead be added to your default WishList.</p>
+                                            }
+                                            <div class="simple-drop-down simple-field size-1">
+                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemShipmentPolicySelector">
+                                                    @if (item.Item.ItemShippingPolicyRecords.Count == 0)
+                                                    {
+                                                        <option value="" disabled selected>No options availiable. Canno't be shipped yet.</option>
+                                                    }
+                                                    @foreach (var Policy in item.Item.ItemShippingPolicyRecords)
+                                                    {
+                                                        if (Policy.ItemShippingPolicyID == item.ItemShippingPolicyID)
+                                                        {
+                                                            <option selected value="@Policy.ItemShippingPolicyID">@Policy.ItemShippingPolicy.Title</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@Policy.ItemShippingPolicyID">@Policy.ItemShippingPolicy.Title</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <p>
+                                                Shipping Address:&nbsp;
+                                            </p>
+                                            <p style="font-size:8px;line-height:10px;color:red">Please <a asp-area="" asp-controller="Account" asp-action="SignIn">Log in</a> to create a shipping address.</p>
+
+                                            <p>
+                                                Warranty Policy:&nbsp;
+
+                                                <script>
+                                                    document.write(CurrencyFormatter.format(fx.convert(WarrantyCost, { from: 'USD', to: CartCurrencyCode })));
+                                                </script>
+                                            </p>
+                                            <div class="simple-drop-down simple-field size-1">
+                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemWarrantyPolicySelector">
+                                                    @if (item.Item.ItemWarrantyPolicyRecords.Count == 0)
+                                                    {
+                                                        <option value="" disabled selected>No options availiable</option>
+                                                    }
+                                                    @if (item.WarrantyPolicy == null)
+                                                    {
+                                                        <option selected value="">Please select your warranty</option>
+                                                    }
+                                                    @foreach (var Policy in item.Item.ItemWarrantyPolicyRecords)
+                                                    {
+                                                        if (Policy.WarrantyPolicyID == item.WarrantyPolicyID)
+                                                        {
+                                                            <option selected value="@Policy.WarrantyPolicyID">@Policy.WarrantyPolicy.Title</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@Policy.WarrantyPolicyID">@Policy.WarrantyPolicy.Title</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <p>
+                                                Refund Policy:&nbsp;
+
+                                                <script>
+                                                    document.write(CurrencyFormatter.format(fx.convert(RefundPolicyCost, { from: 'USD', to: CartCurrencyCode })));
+                                                </script>
+                                            </p>
+                                            <div class="simple-drop-down simple-field size-1">
+                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemRefundPolicySelector">
+                                                    @if (item.Item.ItemRefundPolicyRecords.Count == 0)
+                                                    {
+                                                        <option value="" disabled selected>No options availiable</option>
+                                                    }
+                                                    @foreach (var Policy in item.Item.ItemRefundPolicyRecords)
+                                                    {
+                                                        if (Policy.RefundPolicyID == item.RefundPolicyID)
+                                                        {
+                                                            <option selected value="@Policy.RefundPolicyID">@Policy.RefundPolicy.Title</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@Policy.RefundPolicyID">@Policy.RefundPolicy.Title</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+
+
+                                            <p>
+                                                Return Policy:&nbsp;
+
+                                                <script>
+                                                    document.write(CurrencyFormatter.format(fx.convert(ReturnPolicyCost, { from: 'USD', to: CartCurrencyCode })));
+                                                </script>
+                                            </p>
+                                            <div class="simple-drop-down simple-field size-1">
+                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemReturnPolicySelector">
+                                                    @if (item.Item.ItemReturnPolicyRecords.Count == 0)
+                                                    {
+                                                        <option value="" disabled selected>No options availiable</option>
+                                                    }
+                                                    @foreach (var Policy in item.Item.ItemReturnPolicyRecords)
+                                                    {
+                                                        if (Policy.ReturnPolicyID == item.ReturnPolicyID)
+                                                        {
+                                                            <option selected value="@Policy.ReturnPolicyID">@Policy.ReturnPolicy.Title</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@Policy.ReturnPolicyID">@Policy.ReturnPolicy.Title</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            @if (item.Item.ByRequest)
+                                            {
+                                                <p style="color:darkblue">Ordered as a request. Trackcking code will be added once available on your nearest warehouse.</p>
+                                            }
+                                            @if (item.Item.InStock != true)
+                                            {
+                                                <p style="color:red"> This Item is currently out of stock.</p>
+                                            }
+
+                                            <script>
+                                                // Increase Total Taxes
+                                                TotalTaxes += (@item.Item.EstimatedTaxesInUSD.ToString().Replace(',', '.') * @item.Quantity);
+                                                TotalPoliciesCost += (WarrantyCost + RefundPolicyCost + ReturnPolicyCost) * @item.Quantity;
+                                                TotalShippingCost += (ShippingCost) * @item.Quantity ;
+                                                TotalCartCost += ((@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') + ShippingCost +  WarrantyCost + RefundPolicyCost + ReturnPolicyCost) * @item.Quantity);
+                                            </script>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <script> document.write(CurrencyFormatter.format(fx.convert(@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') - @item.Item.EstimatedTaxesInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));</script>
+                            </td>
+                            <td>
+                                <div class="subtotal">
+                                    <script>
+                                        document.write(CurrencyFormatter.format(fx.convert( @item.Item.EstimatedTaxesInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));
+                                    </script>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="quantity-selector detail-info-entry">
+                                    <div id="@item.ID-Count" class="entry number">@item.Quantity</div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="subtotal">
+                                    <script>
+                                        document.write(CurrencyFormatter.format(fx.convert((@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',','.') * @item.Quantity.ToString().Replace(',', '.')), { from: 'USD', to: CartCurrencyCode })));
+                                    </script>
+                                </div>
+                            </td>
+
+                            <td>
+                                <a onclick="DeleteCartRecord('@item.ID')" class="remove-button"><i class="fa fa-times"></i></a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <br />
+    <hr />
+    <br />
+    <div class="row">
+        @*<div class="col-md-4 information-entry">
+                @await Component.InvokeAsync("GetShippingEstimatesBox", User)
+            </div>*@
+        <div class="col-md-8 information-entry">
+            <h3 class="cart-column-title">Discount Codes <span class="inline-label red">Promotion</span></h3>
+            <form asp-area="Store" asp-action="">
+                <label>Enter your coupon code if you have one.</label>
+                <input type="text" name="couponID" value="" placeholder="Coupon ID" class="simple-field size-1">
+                <div class="button style-16" style="margin-top: 10px;"> Apply Coupon <input type="submit"></div>
+            </form>
+        </div>
+        <div class="col-md-4 information-entry">
+            <div class="cart-summary-box">
+                <div class="sub-total">
+                    Policies:
+                    <script>document.write(CurrencyFormatter.format(fx.convert(TotalPoliciesCost, { from: 'USD', to: CartCurrencyCode })));</script>
+                </div>
+                <div class="sub-total">
+                    Shipping Cost:
+                    <script>document.write(CurrencyFormatter.format(fx.convert(TotalShippingCost, { from: 'USD', to: CartCurrencyCode })));</script>
+                </div>
+                <div class="sub-total">
+                    Shipping Tax:
+                    <script>document.write(CurrencyFormatter.format(fx.convert(TotalShippingCost * 0.19, { from: 'USD', to: CartCurrencyCode })));</script>
+                </div>
+                <div class="sub-total">
+                    Order Taxes:
+                    <script>
+                        document.write(CurrencyFormatter.format(fx.convert(TotalTaxes, { from: 'USD', to: CartCurrencyCode })));
+                    </script>
+                </div>
+                <div class="sub-total">
+                    Subtotal:
+                    <script>document.write(CurrencyFormatter.format(fx.convert((TotalCartCost - TotalTaxes), { from: 'USD', to: CartCurrencyCode })));</script>
+                </div>
+                <div class="grand-total">
+                    Grand Total:
+                    <script>document.write(CurrencyFormatter.format(fx.convert(TotalCartCost, { from: 'USD', to: CartCurrencyCode })))</script>
+                </div>
+                <a class="button style-4" style="margin-top: 10px; border-color: #3483FA; display:block;" asp-area="" asp-controller="Account" asp-action="SignIn">Sign In / Sing Up to Checkout</a>
             </div>
         </div>
     </div>
 </div>
+<hr />
+<div class="message-box message-warning">
+    <div class="message-icon"><i class="fa fa-exclamation"></i></div>
+    <div class="message-text"><b>A Note about shipments:</b> If you order several Items, there may be additional packages or independent shipments for each Item. Due to the various speed of each shipment, these packages may or may not arrive at the same time. If you are concerned about an order not received in its entirety, please contact the Alliance ID Support Team at <a href="tel:12065886716">+01 (206) 588 6717</a>, drop us a line at <a href="mailto:support@fenix-alliance.com">support@fenix-alliance.com</a> or visit our <a asp-area="Support" asp-controller="Home" asp-action="Index">Support Center</a> for more options.</div>
+</div>
+
+<script>
+    function CartSubmitValidation() {
+        toastr.info('Please calculate your shipping costs.')
+    }
+
+    // Update Item Cart Record
+    function UpdatePCR(PCRID, ItemID) {
+
+        var ItemRefundPolicy = $("#" + PCRID + "-ItemRefundPolicySelector").val();
+        var ItemReturnPolicy = $("#" + PCRID + "-ItemReturnPolicySelector").val();
+        var ItemWarrantyPolicy = $("#" + PCRID + "-ItemWarrantyPolicySelector").val();
+        var ItemShipmentPolicy = $("#" + PCRID + "-ItemShipmentPolicySelector").val();
+        var Quantity = parseInt($("#" + PCRID + "-Count").text())
+        var Payload = '{"ID":"' + PCRID + '","Quantity":' + Quantity;
+
+
+        if (ItemShipmentPolicy !== null && ItemShipmentPolicy !== "") {
+            Payload += ', "ItemShipmentPolicyID": "' + ItemShipmentPolicy + '"';
+        }
+        if (ItemWarrantyPolicy !== null && ItemWarrantyPolicy !== "") {
+            Payload += ', "WarrantyPolicyID" : "' + ItemWarrantyPolicy + '"';
+        }
+        if (ItemReturnPolicy !== null && ItemReturnPolicy !== "") {
+            Payload += ', "ReturnPolicyID": "' + ItemReturnPolicy + '"';
+        }
+        if (ItemID !== null && ItemID !== "") {
+            Payload += ', "ItemID": "' + ItemID + '"';
+        }
+        if (CartID !== null) {
+            Payload += ', "CartID": "' + CartID + '"';
+        }
+        if (ItemRefundPolicy !== null && ItemRefundPolicy !== "") {
+            Payload += ', "RefundPolicyID": "' + ItemRefundPolicy + '"';
+        }
+        Payload += '}';
+
+        console.log(Payload);
+
+        $.ajax({
+            url: '/api/v2/Store/CartRecords/Products/' + PCRID,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: Payload,
+        }).done(function (result) {
+            toastr.success('Item Cart Record', 'Succesfully updated');
+            location.reload();
+        });
+    };
+
+    function DeleteCartRecord(ID) {
+        $.ajax({
+            url: '/api/v2/Store/CartRecords/Products/' + ID,
+            type: 'DELETE',
+            contentType: 'application/json; charset=utf-8',
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+        }).done(function (result) {
+            $("#" + ID).fadeOut(500, function () { $(this).remove(); });
+            toastr.success('Item Cart Record', 'Succesfully deleted');
+            location.reload();
+        });
+    };
+</script>
+

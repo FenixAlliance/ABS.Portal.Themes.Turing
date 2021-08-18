@@ -109,6 +109,12 @@
     </PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="comps\**" />
+    <Compile Remove="comps\**" />
+    <EmbeddedResource Remove="comps\**" />
+    <None Remove="comps\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="FenixAlliance.ABS.Core" Version="1.2.0" />
   </ItemGroup>
 </Project>

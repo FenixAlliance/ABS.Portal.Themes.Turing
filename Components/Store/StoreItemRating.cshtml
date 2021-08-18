@@ -5,7 +5,7 @@
 <div class="product-m__rating gl-rating-style">
     @if(Model.ItemReviews is null || Model.ItemReviews?.Count == 0){
 
-        <span class="product-m__review">@(await DataContext.ItemReview.AsAsyncEnumerable().Where(c=>c.ItemID == Model.ID).CountAsync()) Reviews</span>
+        <span class="product-m__review">0 Reviews</span>
 
     }else{
 
