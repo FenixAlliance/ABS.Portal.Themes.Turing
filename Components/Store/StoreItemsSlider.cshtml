@@ -1,0 +1,13 @@
+<!--====== Section Content ======-->
+<div class="section__content">
+    <div class="container">
+    <div class="slider-fouc">
+        <div class="owl-carousel product-slider" data-item="4">
+            @foreach(var item in Model){
+                @await ViewService.RenderAsync("StoreItemsSliderItem", item)
+            }
+        </div>
+    </div>
+    </div>
+</div>
+<!--====== End - Section Content ======-->
