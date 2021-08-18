@@ -13,7 +13,7 @@
     var IP = Context.Connection.RemoteIpAddress.ToString();
     var ProductImagePlaceholder = "/Store/img/empty-image.png";
     var image = ProductImagePlaceholder;
-    var relatedProducts  =  DataContext.Item.Where(c=>c.BusinessID == Model.BusinessID).Take(6).ToList();
+    var relatedProducts  =  DataContext.Item.AsAsyncEnumerable().Where(c=>c.BusinessID == Model.BusinessID).Take(6).ToListAsync();
     var MinRate = 0.0;
     var MaxRate = 0.0;
     var imageCount = 0;
@@ -261,7 +261,7 @@
                      <div class="pd-detail__inline">
                         <span class="pd-detail__click-wrap"><i class="fas fa-heart u-s-m-r-6"></i>
                         <a onclick="AddProductToWishlist('@Model.ID')">Add to Wishlist</a>
-                        <span class="pd-detail__click-count">(@DataContext.ItemWishListRecord.Where(c=>c.ItemID == Model.ID).Count())</span></span>
+                        <span class="pd-detail__click-count">(@DataContext.ItemWishListRecord.AsAsyncEnumerable().Where(c=>c.ItemID == Model.ID).CountAsync())</span></span>
                      </div>
                   </div>
 
@@ -269,7 +269,7 @@
                      <div class="pd-detail__inline">
                         <span class="pd-detail__click-wrap"><i class="fas fa-less-than-equal u-s-m-r-6"></i>
                         <a  onclick="AddProductToCompare('@Model.ID')">@_("Add to compare table")</a>
-                        <span class="pd-detail__click-count">(@DataContext.ItemToCompareRecord.Where(c=>c.ItemID == Model.ID).Count())</span></span>
+                        <span class="pd-detail__click-count">(@DataContext.ItemToCompareRecord.AsAsyncEnumerable().Where(c=>c.ItemID == Model.ID).CountAsync())</span></span>
                      </div>
                   </div>
 
