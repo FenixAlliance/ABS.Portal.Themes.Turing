@@ -1,5 +1,8 @@
 ﻿@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
 
+@using System.Linq
+@using Microsoft.EntityFrameworkCore
+
 @{
     var IP = Context.Connection.RemoteIpAddress;
 
