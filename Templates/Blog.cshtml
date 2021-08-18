@@ -1,5 +1,7 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+
 @{
-        var CartID = Context.Request.Cookies["CartID"];
+    var CartID = Context.Request.Cookies["CartID"];
     if (string.IsNullOrEmpty(CartID))
     {
         CartID = Guid.NewGuid().ToString();

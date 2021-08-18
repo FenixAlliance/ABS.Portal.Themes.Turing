@@ -1,13 +1,14 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
 @using System
 @using Microsoft.EntityFrameworkCore
 @using System.Linq;
+
 @{
     var Holder = await HolderService.GetCurrentAccountHolderAsync(User);
     var PreOrderID = Guid.NewGuid().ToString();
-    var BillingLocations = DataContext.HolderLocation.Where(c=>c.AccountHolderID == Holder.Id).ToList();
-    var BillingLocation = DataContext.HolderLocation.Where(c=>c.AccountHolderID == Holder.Id && c.IsDefailtSuppingLocation).FirstOrDefault();
+    var BillingLocations = await DataContext.HolderLocation.AsAsyncEnumerable().Where(c => c.AccountHolderID == Holder.Id).ToListAsync();
+    var BillingLocation = await DataContext.HolderLocation.AsAsyncEnumerable().Where(c => c.AccountHolderID == Holder.Id && c.IsDefailtSuppingLocation).FirstOrDefaultAsync();
     var BillingLocationID = BillingLocation?.ID;
-
 }
 
 
@@ -50,49 +51,49 @@
             extra4: "@PreOrderID",
             // Shipping Address ID
             extra5: ShippingAddressID,
-            @if (Holder.SelectedBusiness != null)
-            {
-                <text>
-                // Business ID
-                extra6: "@Holder.SelectedBusiness.ID",
-                </text>
-            }
-            @if (Holder.SelectedBusiness != null)
-            {
-                <text>
-                // Billing Location ID
-                extra7: "@BillingLocationID",
-                </text>
-            }
+        @if (Holder.SelectedBusiness != null)
+        {
+            <text>
+                    // Business ID
+                    extra6: "@Holder.SelectedBusiness.ID",
+            </text>
+        }
+        @if (Holder.SelectedBusiness != null)
+        {
+            <text>
+                    // Billing Location ID
+                    extra7: "@BillingLocationID",
+            </text>
+        }
             confirmation: "https://fenixalliance.com.co/store/checkout/ExpressCheckoutConfirmation",
             response: "https://fenixalliance.com.co/store/checkout/ExpressCheckoutConfirmation",
 
-            @if (Holder.SelectedBusiness == null)
-            {
+        @if (Holder.SelectedBusiness == null)
+        {
 
-                <text>
-                    //Atributos cliente
-                    name_billing: "@Holder.PublicName",
-                    email_billing: "@Holder.Email",
-                    address_billing: "@BillingLocation",
-                    type_doc_billing: "cc",
-                    mobilephone_billing: "@Holder.AccountHolderWallet?.Phone",
-                    number_doc_billing: "@Holder.AccountHolderWallet?.OfficialID"
-                </text>
+            <text>
+                        //Atributos cliente
+                        name_billing: "@Holder.PublicName",
+                        email_billing: "@Holder.Email",
+                        address_billing: "@BillingLocation",
+                        type_doc_billing: "cc",
+                        mobilephone_billing: "@Holder.AccountHolderWallet?.Phone",
+                        number_doc_billing: "@Holder.AccountHolderWallet?.OfficialID"
+            </text>
 
-            }
-            else
-            {
-                <text>
-                    //Atributos cliente
-                    name_billing: "@Holder.SelectedBusiness?.BusinessLegalName",
-                    number_doc_billing: "@Holder.SelectedBusiness?.TaxID",
-                    address_billing: "@BillingLocation",
-                    type_doc_billing: "nit",
-                    email_billing: "@Holder.SelectedBusiness?.BusinessEmail",
-                    mobilephone_billing: "@Holder.SelectedBusiness?.SupportPhoneNumber",
-                </text>
-            }
+        }
+        else
+        {
+            <text>
+                        //Atributos cliente
+                        name_billing: "@Holder.SelectedBusiness?.BusinessLegalName",
+                        number_doc_billing: "@Holder.SelectedBusiness?.TaxID",
+                        address_billing: "@BillingLocation",
+                        type_doc_billing: "nit",
+                        email_billing: "@Holder.SelectedBusiness?.BusinessEmail",
+                        mobilephone_billing: "@Holder.SelectedBusiness?.SupportPhoneNumber",
+            </text>
+        }
         };
     </script>
 }
@@ -107,7 +108,7 @@
 
 <label>
     @_("Select your billing/shipping address:")
-    <br/>
+    <br />
 </label>
 <div class="simple-drop-down simple-field size-1">
     <select id="ADDR" class="form-control">
@@ -128,37 +129,37 @@
 @if (User.Identity.IsAuthenticated)
 {
     <script>
-        $(document).ready(function () {
-            $("#ADDR").change(function (e) {
-                data.extra5 = e.target.value;
+            $(document).ready(function () {
+                $("#ADDR").change(function (e) {
+                    data.extra5 = e.target.value;
+                });
             });
-        });
 
-        function InitPayment() {
-            if (_IsMobile()) {
-                data.external = "true";
-                handler.open(data)
-            } else {
-                handler.open(data);
+            function InitPayment() {
+                if (_IsMobile()) {
+                    data.external = "true";
+                    handler.open(data)
+                } else {
+                    handler.open(data);
+                }
             }
+
+        @if (Holder.SelectedBusiness != null)
+        {
+            <text>
+                    function CreateAddressWindow() {
+                        window.open("/Business/Locations/Create", "Address", "width=900,height=800");
+                    }
+            </text>
         }
-
-    @if (Holder.SelectedBusiness != null)
-    {
-        <text>
-            function CreateAddressWindow() {
-                window.open("/Business/Locations/Create", "Address", "width=900,height=800");
-            }
-        </text>
-    }
-    else
-    {
-        <text>
-            function CreateAddressWindow() {
-                window.open("/Account/Addresses/Create", "Address", "width=900,height=800");
-            }
-        </text>
-    }
+        else
+        {
+            <text>
+                    function CreateAddressWindow() {
+                        window.open("/Account/Addresses/Create", "Address", "width=900,height=800");
+                    }
+            </text>
+        }
 
     </script>
 }
