@@ -5,6 +5,14 @@
 
 @{
     var MainMenu = await MenusService.GetMenuContextAsync("Portal.Header");
+
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+
+    var cultureItems = RequestLocalizationOptions.Value.SupportedUICultures
+    .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
+    .ToList();
+
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 }
 
 <style>
@@ -65,12 +73,15 @@
             if (TopLevelItem.ChildMenuItems != null && TopLevelItem.ChildMenuItems.Count() != 0)
             {
                 <li class="dropdown nav-item">
+
                     <a href="#" id="nav_@TopLevelItem.Name">
                         <i class="@TopLevelItem.Icon"></i>
                         @_(TopLevelItem.Name)
                         <span class="arrow"></span>
                     </a>
+
                     <ul class="material-menu-submenu">
+
                         <li>
                             <a href="#">
                                 <b> @_(TopLevelItem.Category)</b>
@@ -209,13 +220,7 @@
         }
 
         <li class="nav-item dropdown">
-            @{
-                var requestCulture = Context.Features.Get<IRequestCultureFeature>();
-                var cultureItems = RequestLocalizationOptions.Value.SupportedUICultures
-                .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
-                .ToList();
-                var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
-            }
+
             <a class="nav-link dropdown-toggle" href="#" id="SelectLang" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 @requestCulture.RequestCulture.Culture.TwoLetterISOLanguageName - <script>document.write(CartCurrencyCode);</script>
             </a>

@@ -1,6 +1,8 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
 @using System.Linq
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.AspNetCore.Localization
 
 @{
     var CurrentUserIP = ViewBag.UserIP;
@@ -11,27 +13,44 @@
     var Brands = ViewBag.Brands as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands.ItemBrand>;
     var Categories = ViewBag.Categories as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory>;
     var ExchangeRates = FenixAlliance.ABM.SDK.Helpers.Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(ViewBag.ExchangeRates);
-        
-    var GoogleCategories =  DataContext.ItemGoogleCategory.ToList();
+
+    var GoogleCategories = DataContext.ItemGoogleCategory.ToList();
+
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+
+    var cultureItems = RequestLocalizationOptions.Value.SupportedUICultures
+    .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
+    .ToList();
+
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
+
 
 }
-    <style>
+<style>
 
-        .scrollbar {
-            float: left;
-            height: 400px;
-            background: #F5F5F5;
-            overflow-y: scroll;
-        }
+    .scrollbar {
+        float: left;
+        height: 400px;
+        background: #F5F5F5;
+        overflow-y: scroll;
+    }
 
 
-        #wrapper {
-            text-align: center;
-            width: 500px;
-            margin: auto;
-        }
+    #wrapper {
+        text-align: center;
+        width: 500px;
+        margin: auto;
+    }
 
-    </style>
+</style>
+<script>
+    //Select Language
+    function SelectLang(value) {
+        cookie = "c=" + value.trim() + "|uic=" + value.trim();
+        Cookies.set('.AspNetCore.Culture', cookie);
+        window.location.reload();
+    }
+</script>
 
 <!--====== Main Header ======-->
 <header class="header--style-1">
@@ -69,14 +88,15 @@
 
                         <!--====== List ======-->
                         <ul class="ah-list ah-list--design1 ah-list--link-color-secondary">
-                            @if(User.Identity.IsAuthenticated){
+                            @if (User.Identity.IsAuthenticated)
+                            {
                                 <li class="has-dropdown" data-tooltip="tooltip" data-placement="left" title="Account">
 
                                     <a><i class="far fa-user-circle"></i></a>
 
                                     <!--====== Dropdown ======-->
 
-                                    <span class="js-menu-toggle"></span>
+                                <span class="js-menu-toggle"></span>
                                     <ul style="width:120px">
                                         <li>
                                             <a href="/Account/Index">
@@ -95,8 +115,10 @@
                                         </li>
                                     </ul>
                                     <!--====== End - Dropdown ======-->
-                                </li>
-                            }else{
+                            </li>
+                            }
+                            else
+                            {
                                 <li class="has-dropdown" data-tooltip="tooltip" data-placement="left" title="Login">
                                     <a href="/Account/Login"><i class="far fa-user-circle"></i></a>
                                 </li>
@@ -112,31 +134,38 @@
                                 <ul style="width:120px">
                                     <li class="has-dropdown has-dropdown--ul-right-100">
 
-                                        <a>Language<i class="fas fa-angle-down u-s-m-l-6"></i></a>
+                                        <a>
+                                            Language
+                                            <i class="fas fa-angle-down u-s-m-l-6"></i>
+                                        </a>
 
                                         <!--====== Dropdown ======-->
 
                                         <span class="js-menu-toggle"></span>
+
                                         <ul style="width:120px">
-                                            <li>
 
-                                                <a class="u-c-brand">ENGLISH</a>
-                                            </li>
                                             <li>
-
-                                                <a>ARABIC</a>
+                                                <a  class="u-c-brand">
+                                                    @requestCulture.RequestCulture.Culture.TwoLetterISOLanguageName
+                                                </a>
                                             </li>
-                                            <li>
 
-                                                <a>FRANCAIS</a>
-                                            </li>
-                                            <li>
+                                            @foreach (var item in cultureItems)
+                                            {
+                                                <li>
+                                                    @{var value = @item.Value}
 
-                                                <a>ESPANOL</a>
-                                            </li>
+                                                    <a href="#" onclick="SelectLang('@(value.Replace(" ", ""))')">
+                                                        <i class="fas fa-language"></i>&nbsp; @item.Text
+                                                    </a>
+                                                </li>
+                                            }
+
                                         </ul>
                                         <!--====== End - Dropdown ======-->
                                     </li>
+
                                     <li class="has-dropdown has-dropdown--ul-right-100">
 
                                         <a>Currency<i class="fas fa-angle-down u-s-m-l-6"></i></a>
@@ -147,7 +176,6 @@
                                         <ul style="width:225px">
 
                                             <li>
-
                                                 <a class="u-c-brand">$ - US DOLLAR</a>
                                             </li>
 
@@ -214,7 +242,7 @@
 
 
                                             <ul class="scrollbar">
-                                                @foreach (var item in GoogleCategories.Where(c=>c.ParentItemGoogleCategoryID == null))
+                                                @foreach (var item in GoogleCategories.Where(c => c.ParentItemGoogleCategoryID == null))
                                                 {
                                                     <li class="js-active">
                                                         <a href="javascript:void(0)">
@@ -229,7 +257,7 @@
                                         @{
                                             var first = true;
                                         }
-                                        @foreach (var item in GoogleCategories.Where(c=>c.ParentItemGoogleCategoryID == null))
+                                        @foreach (var item in GoogleCategories.Where(c => c.ParentItemGoogleCategoryID == null))
                                         {
                                             <!--====== Electronics ======-->
                                             <div class="mega-menu-content @((first) ? "js-active" : string.Empty )">
@@ -237,16 +265,16 @@
                                                     first = false;
                                                 }
                                                 <div class="row">
-                                                @foreach (var subCategory in GoogleCategories.Where(c=>c.ParentItemGoogleCategoryID == item.ID))
-                                                {
+                                                    @foreach (var subCategory in GoogleCategories.Where(c => c.ParentItemGoogleCategoryID == item.ID))
+                                                    {
                                                         <div class="col-lg-3">
                                                             <ul>
 
                                                                 <li class="mega-list-title">
                                                                     <a href="javascript:void(0)">@subCategory.Name</a>
                                                                 </li>
-                                                                
-                                                                @foreach (var subSubCategory in GoogleCategories.Where(c=>c.ParentItemGoogleCategoryID == subCategory.ID))
+
+                                                                @foreach (var subSubCategory in GoogleCategories.Where(c => c.ParentItemGoogleCategoryID == subCategory.ID))
                                                                 {
                                                                     <li>
                                                                         <a href="javascript:void(0)">@subSubCategory.Name</a>
@@ -256,7 +284,7 @@
                                                         </div>
                                                     }
                                                     <!--====== End - Mega Menu Row ======-->
-                                                </div>
+                                            </div>
                                                 <br>
                                             </div>
                                             <!--====== End - Electronics ======-->
@@ -272,7 +300,6 @@
                     <!--====== End - Menu ======-->
                 </div>
                 <!--====== End - Dropdown Main plugin ======-->
-
                 <!--====== Dropdown Main plugin ======-->
                 <div class="menu-init" id="navigation2">
 
@@ -296,28 +323,29 @@
                             </li>
 
 
-                            @if(Categories is not null && Categories.Count != 0) {
+                            @if (Categories is not null && Categories.Count != 0)
+                            {
 
-                            <li class="has-dropdown">
+                                <li class="has-dropdown">
 
-                                <a>
-                                    CATEGORIES
-                                    <i class="fas fa-angle-down u-s-m-l-6"></i>
-                                </a>
+                                    <a>
+                                        CATEGORIES
+                                        <i class="fas fa-angle-down u-s-m-l-6"></i>
+                                    </a>
 
-                                <!--====== Dropdown ======-->
+                                    <!--====== Dropdown ======-->
                                 <span class="js-menu-toggle"></span>
 
-                                <ul style="width:200px">
-                                    @foreach (var item in Categories)
-                                    {
-                                    <li>
+                                    <ul style="width:200px">
+                                        @foreach (var item in Categories)
+                                        {
+                                            <li>
 
-                                        <a href="/Store/Categories/@item.ID">Blog Left Sidebar</a>
-                                    </li>
-                                    }
-                                </ul>
-                                <!--====== End - Dropdown ======-->
+                                                <a href="/Store/Categories/@item.ID">Blog Left Sidebar</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                    <!--====== End - Dropdown ======-->
                             </li>
                             }
 
