@@ -14,7 +14,7 @@
         .Include(c=>c.BusinessProfileRecord).ThenInclude(c=>c.AccountHolder)
         .OrderBy(c=>c.Timestamp)
         .Take(4)
-        .AsAsyncEnumerable().ToListAsync();
+        .ToListAsync();
 }
 
 <!--====== App Content ======-->
