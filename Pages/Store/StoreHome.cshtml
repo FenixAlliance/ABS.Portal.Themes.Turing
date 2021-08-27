@@ -7,14 +7,14 @@
 @{
     Title = "Home";
     Slug = "/Home";
-    List<FenixAlliance.ABM.Models.Content.Posts.BlogPost> posts = await DataContext.BlogPost
+    List<FenixAlliance.ABM.Models.Content.Posts.BlogPost> posts = DataContext.BlogPost
         .Include(c=>c.BlogPostComments)
         .Include(c=>c.TaxonomyRecords).ThenInclude(c=>c.Taxonomy)
         .Include(c=>c.BlogPostCategoryRecords).ThenInclude(c=>c.Taxonomy)
         .Include(c=>c.BusinessProfileRecord).ThenInclude(c=>c.AccountHolder)
         .OrderBy(c=>c.Timestamp)
         .Take(4)
-        .ToListAsync();
+        .ToList();
 }
 
 <!--====== App Content ======-->
