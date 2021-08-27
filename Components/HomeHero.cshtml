@@ -1,13 +1,26 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using Microsoft.EntityFrameworkCore;
+@using System.Linq;
+@{
+    Name = "HomeHero";
 
-@{Name = "HomeHero";}
+    var holder = await HolderService.GetCurrentAccountHolderAsync(User);
 
+    var Holder = await DataContext.AccountHolder.Include(c=>c.BusinessProfileRecords).AsAsyncEnumerable().Where(c => c.Id == "").FirstOrDefaultAsync();
+}
+
+@Portal.Options.Branding.HeaderLogo.
 <div class="row">
     <div class="col-md-12">
         <div class="jumbotron">
             <h2>
                 Welcome to the Alliance Business Suite!
             </h2>
+            @holder.Name
+            @foreach (var business in Holder.BusinessProfileRecords)
+            {
+                <h1>@business.ID</h1>
+            }
             <p>
                 This is a the home page template for a simple web application. It includes a large callout called
                 the hero unit and three supporting pieces of content. Use it as a starting point to create

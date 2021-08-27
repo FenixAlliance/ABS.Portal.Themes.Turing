@@ -9,10 +9,8 @@
 
     }else{
 
-        @{
-            var avg = (Model as FenixAlliance.ABM.Models.Logistics.Stock.Item.Item).ItemReviews.ToList().Average(c=>c.ReviewScore);
-            var stars = 0;
-        }
+        var avg = (Model as FenixAlliance.ABM.Models.Logistics.Stock.Item.Item).ItemReviews.ToList().Average(c=>c.ReviewScore);
+        var stars = 0;
         
         @for(var i = 0; i < Math.Floor(avg); i++){ 
             <i class="fas fa-star"></i>
