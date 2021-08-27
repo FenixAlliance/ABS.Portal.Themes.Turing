@@ -7,7 +7,12 @@
 @{
     Title = "Home";
     Slug = "/Home";
-    List<FenixAlliance.ABM.Models.Content.Posts.BlogPost> posts = await DataContext.BlogPost.Include(c=>c.BlogPostComments).Include(c=>c.BusinessProfileRecord).ThenInclude(c=>c.AccountHolder).AsAsyncEnumerable().ToListAsync();
+    List<FenixAlliance.ABM.Models.Content.Posts.BlogPost> posts = await DataContext.BlogPost
+        .Include(c=>c.BlogPostComments)
+        .Include(c=>c.TaxonomyRecords).ThenInclude(c=>c.Taxonomy)
+        .Include(c=>c.BlogPostCategoryRecords).ThenInclude(c=>c.Taxonomy)
+        .Include(c=>c.BusinessProfileRecord).ThenInclude(c=>c.AccountHolder)
+        .AsAsyncEnumerable().ToListAsync();
 }
 
 <!--====== App Content ======-->
@@ -63,7 +68,7 @@
                             <div class="bp-mini bp-mini--img u-h-100">
                                 <div class="bp-mini__thumbnail">
                                     <!--====== Image Code ======-->
-                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block" href="/Blog/Posts/Details/@post.ID">
+                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block" style="height: 200px;" href="/Blog/Posts/Details/@post.ID">
                                         <img class="aspect__img" src="@((!string.IsNullOrEmpty(post.HighlightImage)) ? post.HighlightImage : " /ui/images/generic-blogpost-image.png")" alt="">
                                     </a>
                                     <!--====== End - Image Code ======-->
@@ -80,7 +85,7 @@
                                         <span class="bp-mini__stat-wrap">
                                             <span class="bp-mini__preposition">By</span>
                                             <span class="bp-mini__author">
-                                                <a href="javascript:void(0)">@post?.BusinessProfileRecord?.AccountHolder?.PublicName</a>
+                                                <a href="/Social/Holders/@post?.BusinessProfileRecord?.AccountHolder?.Id">@post?.BusinessProfileRecord?.AccountHolder?.PublicName</a>
                                             </span>
                                         </span>
                                         <span class="bp-mini__stat">
@@ -93,18 +98,21 @@
                                         </span>
                                     </div>
                                     <div class="bp-mini__category">
-                                        <a>Learning</a>
-                                        <a>News</a>
-                                        <a>Health</a>
+                                        @foreach (var item in post.BlogPostCategoryRecords)
+                                        {
+                                            <a>@item?.Taxonomy?.Title</a>
+                                        }
                                     </div>
                                     <span class="bp-mini__h1">
                                         <a href="/Blog/Posts/Details/@post.ID">@post.Title</a>
                                     </span>
                                     <p class="bp-mini__p">@post.Excerpt</p>
+
                                     <div class="blog-t-w">
-                                        <a class="gl-tag btn--e-transparent-hover-brand-b-2">Travel</a>
-                                        <a class="gl-tag btn--e-transparent-hover-brand-b-2">Culture</a>
-                                        <a class="gl-tag btn--e-transparent-hover-brand-b-2">Place</a>
+                                        @foreach (var item in post?.TaxonomyRecords ?? new())
+                                        {
+                                            <a class="gl-tag btn--e-transparent-hover-brand-b-2">@item.Taxonomy?.Title</a>
+                                        }
                                     </div>
                                 </div>
                             </div>
