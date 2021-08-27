@@ -12,6 +12,8 @@
         .Include(c=>c.TaxonomyRecords).ThenInclude(c=>c.Taxonomy)
         .Include(c=>c.BlogPostCategoryRecords).ThenInclude(c=>c.Taxonomy)
         .Include(c=>c.BusinessProfileRecord).ThenInclude(c=>c.AccountHolder)
+        .OrderBy(c=>c.Timestamp)
+        .Take(4)
         .AsAsyncEnumerable().ToListAsync();
 }
 
@@ -66,9 +68,9 @@
                     {
                         <div class="col-lg-4 col-md-6 u-s-m-b-30">
                             <div class="bp-mini bp-mini--img u-h-100">
-                                <div class="bp-mini__thumbnail">
+                                <div class="bp-mini__thumbnail" style="height: 200px;">
                                     <!--====== Image Code ======-->
-                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block" style="height: 200px;" href="/Blog/Posts/Details/@post.ID">
+                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block"  href="/Blog/Posts/Details/@post.ID">
                                         <img class="aspect__img" src="@((!string.IsNullOrEmpty(post.HighlightImage)) ? post.HighlightImage : " /ui/images/generic-blogpost-image.png")" alt="">
                                     </a>
                                     <!--====== End - Image Code ======-->
