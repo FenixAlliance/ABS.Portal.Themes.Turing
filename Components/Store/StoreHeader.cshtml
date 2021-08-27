@@ -60,7 +60,7 @@
 
                 <!--====== Main Logo ======-->
                 <a class="main-logo" href="/Store">
-                    <img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/GenericLogo.svg")" onerror="this.src='/ui/images/GenericLogo.svg'" style="height:40px" alt="Logo">
+                    <img src="@(Portal.Options?.Store?.Logo ?? "/ui/images/GenericLogo.svg")" onerror="this.src='/ui/images/GenericLogo.svg'" style="height:40px" alt="Logo">
                 </a>
                 <!--====== End - Main Logo ======-->
                 <!--====== Search Form ======-->
