@@ -1,5 +1,4 @@
 ﻿@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-
 @using System.Linq
 @using Microsoft.EntityFrameworkCore
 
@@ -18,7 +17,7 @@
 
     <button class="btn btn--icon toggle-button toggle-button--secondary fas fa-shopping-bag toggle-button-shop" type="button"></button>
 
-    <span class="total-item-round">2</span>
+    <span class="total-item-round">@Cart.ItemCartRecords.Count</span>
 
     <!--====== Menu ======-->
     <div class="ah-lg-mode">
@@ -130,7 +129,7 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                            <a onclick="RemoveProductFromCart('@PCR.ID','@PCR.ItemID') class="mini-product__delete-link far fa-trash-alt"></a>
+                                            <a onclick="RemoveProductFromCart('@PCR.ID','@PCR.ItemID')" class="mini-product__delete-link far fa-trash-alt"></a>
                                         </div>
                                         <!--====== End - Card for mini cart ======-->
 
@@ -214,7 +213,7 @@
                                     </div>
                                     <div class="cart-buttons">
                                         <div class="column">
-                                            <a href="Store/Carts/GuestCart" class="button style-3">@_("view cart")</a>
+                                            <a href="/Store/Cart" class="button style-3">@_("view cart")</a>
                                             <div class="clear"></div>
                                         </div>
                                         <div class="column">
@@ -251,7 +250,7 @@
 
                             <a class="mini-link btn--e-brand-b-2" href="store/Checkout/PlaceOrderFromCart">PROCEED TO CHECKOUT</a>
 
-                            <a class="mini-link btn--e-transparent-secondary-b-2" href="/Store/Carts/@Cart.Type">VIEW CART</a>
+                            <a class="mini-link btn--e-transparent-secondary-b-2" href="/Store/Cart">VIEW CART</a>
                         </div>
                     </div>
                     <!--====== End - Mini Product Statistics ======-->
