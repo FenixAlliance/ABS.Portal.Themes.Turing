@@ -71,8 +71,8 @@
                             <div class="bp-mini bp-mini--img u-h-100">
                                 <div class="bp-mini__thumbnail" style="height: 200px;">
                                     <!--====== Image Code ======-->
-                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block"  href="/Blog/Posts/Details/@post.ID">
-                                        <img class="aspect__img" src="@((!string.IsNullOrEmpty(post.HighlightImage)) ? post.HighlightImage : " /ui/images/generic-blogpost-image.png")" alt="">
+                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block"  href="/Blog/Posts/Details/@post.ID" style="height: 200px;">
+                                        <img class="aspect__img" src="@((!string.IsNullOrEmpty(post.HighlightImage)) ? post.HighlightImage : " /ui/images/generic-blogpost-image.png")" alt="@post.Title" style="height: 200px;">
                                     </a>
                                     <!--====== End - Image Code ======-->
                                 </div>
