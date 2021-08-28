@@ -1,0 +1,103 @@
+﻿@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@{
+
+}
+
+
+<div class="section" style="padding:0px">
+    <div class="container-fluid">
+        <div class="E404" style="min-height:1000px;">
+            <div class="content">
+                <h1>404</h1>
+                <h2>
+                    @_("We are under construction!") 😃
+                </h2>
+                <h3 class="tite">
+                    @_("Apparently, the page you wanted got lost in the cloud.")<br /> @_("Sorry about that.")
+                </h3>
+                <h5>
+                    @_("This is probably our fault. We are still in Development.")
+                </h5>
+                @if (Model.ShowRequestId)
+                {
+                    <p>
+                        <strong style="color:white">Request ID:</strong> <code class="text-white">@Model.RequestId</code>
+                    </p>
+                }
+
+            </div>
+        </div>
+        <div class="cloud"></div>
+        <div class="cloud bt"></div>
+        <div class="cloud rt"></div>
+    </div>
+</div>
+<style>
+    @@import 'https://fonts.googleapis.com/css?family=Secular+One|Source+Sans+Pro';
+
+    .E404 {
+        display: flex;
+        height: 100%;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        background: #00c6ff;
+        color: white;
+        /* fallback for old browsers */
+        background: -webkit-linear-gradient(to left, #00c6ff, #0072ff);
+        /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(to left, #00c6ff, #0072ff);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    }
+
+    h1 {
+        font-size: 10em;
+        font-family: 'Secular One', sans-serif;
+        margin: 0;
+    }
+
+    .cloud {
+        width: 175px;
+        height: 60px;
+        background: white;
+        border-radius: 100px;
+        position: absolute;
+        z-index: 5;
+        top: 55%;
+        left: 10%;
+    }
+
+        .cloud.bt {
+            top: 30%;
+            left: 20%;
+        }
+
+        .cloud.rt {
+            top: 35%;
+            left: 80%;
+        }
+
+        .cloud:after, .cloud:before {
+            content: '';
+            position: absolute;
+            background: white;
+            z-index: -1
+        }
+
+        .cloud:after {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 25px;
+            border-radius: 50%;
+        }
+
+        .cloud:before {
+            width: 90px;
+            height: 90px;
+            top: -45px;
+            right: 25px;
+            border-radius: 200px;
+        }
+</style>

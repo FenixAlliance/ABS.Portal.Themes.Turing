@@ -1,0 +1,26 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+  @{
+
+  }
+
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="text-danger">
+                    @_("Unexpected Error.")
+                </h1>
+                <h2 class="text-danger">
+                    @_("An error occurred while processing your request.")
+                </h2>
+
+                @if (Model.ShowRequestId)
+                {
+                    <p>
+                        <strong>@_("Request ID:")</strong> <code>@Model.RequestId</code>
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
