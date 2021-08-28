@@ -12,6 +12,7 @@
         .Include(c=>c.TaxonomyRecords).ThenInclude(c=>c.Taxonomy)
         .Include(c=>c.BlogPostCategoryRecords).ThenInclude(c=>c.Taxonomy)
         .Include(c=>c.BusinessProfileRecord).ThenInclude(c=>c.AccountHolder)
+        .Where(c=>c.Published)
         .OrderBy(c=>c.Timestamp)
         .Take(4)
         .ToList();
