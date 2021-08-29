@@ -13,60 +13,7 @@
     <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
 
-
-
-    <!-- MS Bing Validation -->
-    <meta name="msvalidate.01" content="@SuiteOptions.ABS.Portal.Options.Seo.BingVerificationCode" />
-
-    <!-- Google Validation -->
-    <meta name="google-site-verification" content="@SuiteOptions.ABS.Portal.Options.Seo.GoogleVerificationCode" />
-
-    <!-- Pinterest Validation -->
-    <meta name="p:domain_verify" content="@SuiteOptions.ABS.Portal.Options.Seo.PinterestVerificationCode" />
-
-    <title>@ViewData["Title"]</title>
-
-
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" />
-    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The60" />
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The72" />
-    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The76" />
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The114" />
-    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The120" />
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The144" />
-    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The152" />
-
-    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="196x196" />
-    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="96x96" />
-    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="32x32" />
-    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="16x16" />
-    <link rel="icon" type="image/png" href="@SuiteOptions.ABS.Portal.Options.Branding.AppleIcon.The57" sizes="128x128" />
-
-    <meta name="msapplication-TileImage" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo" />
-    <meta name="msapplication-TileColor" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Color" />
-    <meta name="msapplication-square70x70logo" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo70" />
-    <meta name="msapplication-square150x150logo" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo150" />
-    <meta name="msapplication-wide310x150logo" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo310" />
-    <meta name="msapplication-square310x310logo" content="@SuiteOptions.ABS.Portal.Options.Branding.MSAppTile.Logo310W" />
-
-    @if (SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Enable)
-    {
-        <!-- Google Tag Manager -->
-        <script>
-            (function (w, d, s, l, i) {
-                w[l] = w[l] || []; w[l].push({
-                    'gtm.start':
-                        new Date().getTime(), event: 'gtm.js'
-                }); var f = d.getElementsByTagName(s)[0],
-                    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-            })(window, document, 'script', 'dataLayer', '@SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Id');
-        </script>
-    }
-
+    @await Component.InvokeAsync("MetaTags", Portal)
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
@@ -81,10 +28,9 @@
 
     <!--====== App ======-->
     <link rel="stylesheet" href="/themes/turing/css/app.css">
-    <script
-        src="https://code.jquery.com/jquery-3.6.0.min.js"
-        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/money.js/0.0.1/money.min.js" integrity="sha512-dfZQaBBlTXvL+AUQKi7dd/9kb/KhreymnZYVdinjigqTdZUrAnLUNJRV34DUPFCdyek9mMBns3rzTlipnBKhTg==" crossorigin="anonymous"></script>
 
 </head>
@@ -92,11 +38,11 @@
 <body>
 
     
-    @if (SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Enable)
+    @if (Portal.Options.Integrations.Google.GoogleTagManager.Enable)
     {
         @* Google Tag Manager (noscript) *@
         <noscript>
-            <iframe src="https://www.googletagmanager.com/ns.html?id=@SuiteOptions?.ABP?.Integrations?.Google?.GoogleTagManager?.Id"
+            <iframe src="https://www.googletagmanager.com/ns.html?id=@Portal.Options.Integrations?.Google?.GoogleTagManager?.Id"
                     height="0"
                     width="0"
                     style="display:none; visibility:hidden">

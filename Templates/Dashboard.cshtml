@@ -36,11 +36,11 @@
 </head>
 
 <body>
-    @if (SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Enable)
+    @if (Portal.Options.Integrations.Google.GoogleTagManager.Enable)
     {
         @* Google Tag Manager (noscript)  *@
         <noscript>
-            <iframe src="https://www.googletagmanager.com/ns.html?id=@SuiteOptions.ABP.Integrations.Google.GoogleTagManager.Id"
+            <iframe src="https://www.googletagmanager.com/ns.html?id=@Portal.Options.Integrations.Google.GoogleTagManager.Id"
                     height="0"
                     width="0"
                     style="display:none; visibility:hidden">
