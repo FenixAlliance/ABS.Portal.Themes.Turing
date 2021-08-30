@@ -17,25 +17,25 @@
             {
                 <div class="col-lg-4 col-md-12 mb-4">
                     <div class="card">
-                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-                        <a href="/Blog/Posts/Details/@item.ID">
-                            <img src="@(item.HighlightImage ?? "/ui/images/generic-blogpost-image.png")" onerror="this.src='/ui/images/generic-blogpost-image.png'"  class="img-fluid" />
-                        </a>
-                        <a href="/Blog/Posts/Details/@item.ID">
-                            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">
+                        <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
                             <a href="/Blog/Posts/Details/@item.ID">
-                                @item.Title
+                                <img src="@(item.HighlightImage ?? "/ui/images/generic-blogpost-image.png")" onerror="this.src='/ui/images/generic-blogpost-image.png'"  class="img-fluid" />
                             </a>
-                        </h5>
-                        <p class="card-text">
-                            @item.Excerpt
-                        </p>
-                        <a href="/Blog/Posts/Details/@item.ID" class="btn btn-primary">Read</a>
-                    </div>
+                            <a href="/Blog/Posts/Details/@item.ID">
+                                <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="/Blog/Posts/Details/@item.ID">
+                                    @item.Title
+                                </a>
+                            </h5>
+                            <p class="card-text">
+                                @item.Excerpt
+                            </p>
+                            <a href="/Blog/Posts/Details/@item.ID" class="btn btn-primary">Read</a>
+                        </div>
                     </div>
                 </div>
             }
