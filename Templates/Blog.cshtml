@@ -32,6 +32,10 @@
         .btn-just-icon {
             color: white;
         }
+
+        img {
+            max-width: 100%
+        }
     </style>
 </head>
 <body>
@@ -39,7 +43,6 @@
 
     <!--====== Main App ======-->
     <div id="app">
-        @await Component.InvokeAsync("AdminTopBar", Model)
         @await ViewService.RenderAsync("Header", Model, true)
         @Body
         @await ViewService.RenderAsync("Footer", Model, true)

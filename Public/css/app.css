@@ -117,7 +117,9 @@ a, a:hover, a:focus {
  * Basic style for image element
  */
 img {
-  border: 0; }
+  border: 0;
+  max-width:100%
+}
   img:focus {
     outline: none; }
 
