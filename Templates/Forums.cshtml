@@ -44,9 +44,9 @@
 
     <!--====== Main App ======-->
     <div id="app">
-        @await ViewService.RenderAsync("Header", Model, true)
+        @await ViewService.RenderAsync("Header", Model)
         @Body
-        @await ViewService.RenderAsync("Footer", Model, true)
+        @await ViewService.RenderAsync("Footer", Model)
     </div>
 
     <!--====== Google Analytics ======-->
