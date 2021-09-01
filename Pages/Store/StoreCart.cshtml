@@ -1,70 +1,72 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
 
 @using System.Linq
+@using System.Security.Claims
 @using System.Collections.Generic
 @using FenixAlliance.ABM.Models.Global.Carts.CartRecords.ItemRecords;
 
-@{ 
+@{
     var model = Model as List<FenixAlliance.ABM.Models.Global.Carts.CartRecords.ItemRecords.ItemCartRecord>;
+
+    var shippingAddresses = new List<FenixAlliance.ABM.Models.Global.Locations.LocationScopes.HolderLocation>();
+
+    if (User.Identity.IsAuthenticated)
+    {
+        string id = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        shippingAddresses = await DataContext.HolderLocation.AsAsyncEnumerable().Where(c => c.AccountHolderID == id).ToListAsync();
+    }
 }
 
-<div class="breadcrumb-box">
-    <a asp-area="" asp-controller="Home" asp-action="Index">Homepage</a>
-    <a asp-area="Store" asp-controller="Home" asp-action="Index">Store</a>
-    <a href="#">@ViewData["Title"]</a>
-</div>
-
-<div id="NotInColombia" class="message-box message-warning" style="display:none">
-    <div class="message-icon"><i class="fa fa-times"></i></div>
-    <div class="message-text"><b>Item Shipment is not yet availiable in your country,</b> Please select only digital Items.</div>
-    <div class="message-close"><i class="fa fa-times"></i></div>
-</div>
 <script>
-    if (CurrentCountryISO2 !== "CO") {
-        $("#NotInColombia").show();
-    }
+
     var TotalTaxes = 0.0;
     var TotalCartCost = 0.0;
     var TotalShippingCost = 0.0;
     var TotalPoliciesCost = 0.0;
-
 </script>
-<div class="information-blocks">
-    <h3 class="cart-column-title size-1">Hi @User.Identity.Name. 😃 Welcome to your cart.</h3>
-    <div class="cart-submit-buttons-box">
-        <a asp-area="Store" asp-controller="Products" asp-action="Index" class="button style-15">Continue Shopping</a>
-        <a onclick="location.reload()" class="button style-15">Update Bag</a>
+
+
+<div class="u-s-p-b-60">
+
+    <!--====== Section Intro ======-->
+    <div class="section__intro u-s-m-b-60">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section__text-wrap">
+                        <h1 class="section__heading u-c-secondary">SHOPPING CART</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="table-responsive">
-        <table class="cart-table">
-            <tbody>
+    <!--====== End - Section Intro ======-->
+    <!--====== Section Content ======-->
+    <div class="section__content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 u-s-m-b-30">
+                    <div class="table-responsive">
+                        <table class="table-p">
+                            <tbody>
+                                @if (model.Count == 0)
+                                {
+                                    <tr>
+                                        <td><h3 class="text-center">Nothing here yet. <a href="Store/Products/Index">Let's go shopping</a>.</h3></td>
+                                    </tr>
+                                }
 
-                <tr>
-                    <th class="column-1">Item Name</th>
-                    <th class="column-2">Base</th>
-                    <th class="column-3">Tax</th>
-                    <th class="column-3">Qty</th>
-                    <th class="column-4">Total</th>
-                    <th class="column-5"></th>
-                </tr>
-
-                @if (model.Count == 0)
-                {
-                    <tr>
-                        <td><h3>Nothing here yet. <a asp-area="Store" asp-controller="Products" asp-action="Index">Let's go shopping</a>.</h3></td>
-                    </tr>
-                }
-                else
-                {
-                    @foreach (ItemCartRecord item in model)
-                    {
-
-                        <tr id="@item.ID">
-                            <td>
+                                @foreach (ItemCartRecord item in model)
+                                {
 
 
-                                <div class="traditional-cart-entry">
-                                    <script>
+
+                                    <!--====== Row ======-->
+                                    <tr id="@item.ID">
+
+
+                                        <td>
+                                            <script>
                                         var ShippingCost = 0.0;
                                         var WarrantyCost = 0.0;
                                         var RefundPolicyCost = 0.0;
@@ -113,250 +115,416 @@
                                                 </text>
                                             }
                                         }
-                                    </script>
-                                    <a href="#" class="image"><img src="@image" alt=""></a>
-                                    <div class="content">
-                                        <div class="cell-view">
-                                            <a class="title" asp-area="Store" asp-controller="Products" asp-action="Details" asp-route-id="@item.Item.ID">@item.Item.Title</a>
-                                            <p>SKU:</p>
-                                            <div class="inline-description"> @Html.Raw(item.Item.SKU)</div>
-                                            <p>Shipping from:</p>
-                                            <div class="inline-description"> <b>@(item?.Item?.ShippingCountry?.Name ?? "Unknown")</b></div>
+                                            </script>
 
-                                            <p>
-                                                Shipping:&nbsp;
+                                            <div class="table-p__box">
+                                                <div class="table-p__img-wrap">
 
-                                                <script>
-                                                    document.write(CurrencyFormatter.format(fx.convert(ShippingCost, { from: 'USD', to: CartCurrencyCode })));
-                                                </script>
-                                            </p>
+                                                    <img class="u-img-fluid" src="@image" alt="@item.Item.Title">
+                                                </div>
+                                                <div class="table-p__info">
 
-                                            @if (item.Item.ItemShippingPolicyRecords.Count == 0)
-                                            {
-                                                <p style="font-size:8px;line-height:10px;color:red">This Item cannot be shipped now and wont be copied to your order yet. If you proceed, it will instead be added to your default WishList.</p>
-                                            }
-                                            <div class="simple-drop-down simple-field size-1">
-                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemShipmentPolicySelector">
-                                                    @if (item.Item.ItemShippingPolicyRecords.Count == 0)
+                                                    <span class="table-p__name">
+
+                                                        <a href="/Store/Products/Details/@item.Item.ID">@item.Item.Title</a>
+                                                    </span>
+                                                    @if (item.Item.ItemCategory is not null)
                                                     {
-                                                        <option value="" disabled selected>No options availiable. Canno't be shipped yet.</option>
+                                                        <span class="table-p__category">
+                                                            <a href="/Store/Categories/Details/@item.Item.ItemCategory.ID">@item.Item.ItemCategory.Title</a>
+                                                        </span>
                                                     }
-                                                    @foreach (var Policy in item.Item.ItemShippingPolicyRecords)
-                                                    {
-                                                        if (Policy.ItemShippingPolicyID == item.ItemShippingPolicyID)
+
+                                                    <ul class="table-p__variant-list">
+                                                        <li>
+                                                            <span>SKU: @Html.Raw(item.Item.SKU)</span>
+                                                        </li>
+                                                        <li>
+                                                            <span>Ships from:  <b>@(item?.Item?.ShippingCountry?.Name ?? "Unknown")</b></span>
+                                                        </li>
+                                                    </ul>
+
+                                                    <div class="cell-view table-p__variant-list">
+
+                                                        <a class="title" href="Store/Products/Details/@item.Item.ID">@item.Item.Title</a>
+
+                                                        <span>
+                                                            Shipping:&nbsp;
+
+                                                            <script>
+                                                                document.write(CurrencyFormatter.format(fx.convert(ShippingCost, { from: 'USD', to: CartCurrencyCode })));
+                                                            </script>
+                                                        </span>
+
+                                                        @if (item.Item.ItemShippingPolicyRecords.Count == 0)
                                                         {
-                                                            <option selected value="@Policy.ItemShippingPolicyID">@Policy.ItemShippingPolicy.Title</option>
+                                                            <span style="color:red">This Item cannot be shipped now and wont be copied to your order yet. If you proceed, it will instead be added to your default WishList.</span>
+                                                        }
+                                                        <div class="simple-drop-down simple-field size-1">
+                                                            <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemShipmentPolicySelector">
+                                                                @if (item.Item.ItemShippingPolicyRecords.Count == 0)
+                                                                {
+                                                                    <option value="" disabled selected>No options availiable. Canno't be shipped yet.</option>
+                                                                }
+                                                                @foreach (var Policy in item.Item.ItemShippingPolicyRecords)
+                                                                {
+                                                                    if (Policy.ItemShippingPolicyID == item.ItemShippingPolicyID)
+                                                                    {
+                                                                        <option selected value="@Policy.ItemShippingPolicyID">@Policy.ItemShippingPolicy.Title</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="@Policy.ItemShippingPolicyID">@Policy.ItemShippingPolicy.Title</option>
+                                                                    }
+                                                                }
+                                                            </select>
+                                                        </div>
+
+                                                        <span>
+                                                            Shipping Address:&nbsp;
+                                                        </span>
+
+                                                        @if (!User.Identity.IsAuthenticated)
+                                                        {
+                                                            <span style="color:red">Please <a href="/account/login">Log in</a> to create a shipping address.</span>
                                                         }
                                                         else
                                                         {
-                                                            <option value="@Policy.ItemShippingPolicyID">@Policy.ItemShippingPolicy.Title</option>
+                                                            <div class="simple-drop-down simple-field size-1">
+
+                                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ShippingAddresses">
+                                                                    @if (shippingAddresses.Count == 0)
+                                                                    {
+                                                                        <option value="" disabled selected>No addresses availiable</option>
+                                                                    }
+
+                                                                    @foreach (var address in shippingAddresses)
+                                                                    {
+                                                                        <option value="@address.ID">@address.Title</option>
+                                                                    }
+                                                                </select>
+                                                                <span style="color:red">Please <a href="/account/login">Create</a> a shipping address.</span>
+
+                                                            </div>
                                                         }
-                                                    }
-                                                </select>
-                                            </div>
 
-                                            <p>
-                                                Shipping Address:&nbsp;
-                                            </p>
-                                            <p style="font-size:8px;line-height:10px;color:red">Please <a asp-area="" asp-controller="Account" asp-action="SignIn">Log in</a> to create a shipping address.</p>
+                                                        <span>
+                                                            Warranty Policy:&nbsp;
 
-                                            <p>
-                                                Warranty Policy:&nbsp;
+                                                            <script>
+                                                                document.write(CurrencyFormatter.format(fx.convert(WarrantyCost, { from: 'USD', to: CartCurrencyCode })));
+                                                            </script>
+                                                        </span>
 
-                                                <script>
-                                                    document.write(CurrencyFormatter.format(fx.convert(WarrantyCost, { from: 'USD', to: CartCurrencyCode })));
-                                                </script>
-                                            </p>
-                                            <div class="simple-drop-down simple-field size-1">
-                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemWarrantyPolicySelector">
-                                                    @if (item.Item.ItemWarrantyPolicyRecords.Count == 0)
-                                                    {
-                                                        <option value="" disabled selected>No options availiable</option>
-                                                    }
-                                                    @if (item.WarrantyPolicy == null)
-                                                    {
-                                                        <option selected value="">Please select your warranty</option>
-                                                    }
-                                                    @foreach (var Policy in item.Item.ItemWarrantyPolicyRecords)
-                                                    {
-                                                        if (Policy.WarrantyPolicyID == item.WarrantyPolicyID)
+                                                        <div class="simple-drop-down simple-field size-1">
+                                                            <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemWarrantyPolicySelector">
+                                                                @if (item.Item.ItemWarrantyPolicyRecords.Count == 0)
+                                                                {
+                                                                    <option value="" disabled selected>No options availiable</option>
+                                                                }
+                                                                @if (item.WarrantyPolicy == null)
+                                                                {
+                                                                    <option selected value="">Please select your warranty</option>
+                                                                }
+                                                                @foreach (var Policy in item.Item.ItemWarrantyPolicyRecords)
+                                                                {
+                                                                    if (Policy.WarrantyPolicyID == item.WarrantyPolicyID)
+                                                                    {
+                                                                        <option selected value="@Policy.WarrantyPolicyID">@Policy.WarrantyPolicy.Title</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="@Policy.WarrantyPolicyID">@Policy.WarrantyPolicy.Title</option>
+                                                                    }
+                                                                }
+                                                            </select>
+
+                                                        </div>
+
+                                                        <span>
+                                                            Refund Policy:&nbsp;
+                                                            <script>
+                                                                document.write(CurrencyFormatter.format(fx.convert(RefundPolicyCost, { from: 'USD', to: CartCurrencyCode })));
+                                                            </script>
+                                                        </span>
+
+                                                        <div class="simple-drop-down simple-field size-1">
+                                                            <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemRefundPolicySelector">
+                                                                @if (item.Item.ItemRefundPolicyRecords.Count == 0)
+                                                                {
+                                                                    <option value="" disabled selected>No options availiable</option>
+                                                                }
+                                                                @foreach (var Policy in item.Item.ItemRefundPolicyRecords)
+                                                                {
+                                                                    if (Policy.RefundPolicyID == item.RefundPolicyID)
+                                                                    {
+                                                                        <option selected value="@Policy.RefundPolicyID">@Policy.RefundPolicy.Title</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="@Policy.RefundPolicyID">@Policy.RefundPolicy.Title</option>
+                                                                    }
+                                                                }
+                                                            </select>
+                                                        </div>
+
+
+                                                        <p>
+                                                            Return Policy:&nbsp;
+
+                                                            <script>
+                                                                document.write(CurrencyFormatter.format(fx.convert(ReturnPolicyCost, { from: 'USD', to: CartCurrencyCode })));
+                                                            </script>
+                                                        </p>
+                                                        <div class="simple-drop-down simple-field size-1">
+                                                            <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemReturnPolicySelector">
+                                                                @if (item.Item.ItemReturnPolicyRecords.Count == 0)
+                                                                {
+                                                                    <option value="" disabled selected>No options availiable</option>
+                                                                }
+                                                                @foreach (var Policy in item.Item.ItemReturnPolicyRecords)
+                                                                {
+                                                                    if (Policy.ReturnPolicyID == item.ReturnPolicyID)
+                                                                    {
+                                                                        <option selected value="@Policy.ReturnPolicyID">@Policy.ReturnPolicy.Title</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="@Policy.ReturnPolicyID">@Policy.ReturnPolicy.Title</option>
+                                                                    }
+                                                                }
+                                                            </select>
+                                                        </div>
+                                                        @if (item.Item.ByRequest)
                                                         {
-                                                            <option selected value="@Policy.WarrantyPolicyID">@Policy.WarrantyPolicy.Title</option>
+                                                            <p style="color:darkblue">Ordered as a request. Trackcking code will be added once available on your nearest warehouse.</p>
                                                         }
-                                                        else
+                                                        @if (item.Item.InStock != true)
                                                         {
-                                                            <option value="@Policy.WarrantyPolicyID">@Policy.WarrantyPolicy.Title</option>
+                                                            <p style="color:red"> This Item is currently out of stock.</p>
                                                         }
-                                                    }
-                                                </select>
-                                            </div>
 
-                                            <p>
-                                                Refund Policy:&nbsp;
-
-                                                <script>
-                                                    document.write(CurrencyFormatter.format(fx.convert(RefundPolicyCost, { from: 'USD', to: CartCurrencyCode })));
-                                                </script>
-                                            </p>
-                                            <div class="simple-drop-down simple-field size-1">
-                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemRefundPolicySelector">
-                                                    @if (item.Item.ItemRefundPolicyRecords.Count == 0)
-                                                    {
-                                                        <option value="" disabled selected>No options availiable</option>
-                                                    }
-                                                    @foreach (var Policy in item.Item.ItemRefundPolicyRecords)
-                                                    {
-                                                        if (Policy.RefundPolicyID == item.RefundPolicyID)
-                                                        {
-                                                            <option selected value="@Policy.RefundPolicyID">@Policy.RefundPolicy.Title</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="@Policy.RefundPolicyID">@Policy.RefundPolicy.Title</option>
-                                                        }
-                                                    }
-                                                </select>
-                                            </div>
-
-
-                                            <p>
-                                                Return Policy:&nbsp;
-
-                                                <script>
-                                                    document.write(CurrencyFormatter.format(fx.convert(ReturnPolicyCost, { from: 'USD', to: CartCurrencyCode })));
-                                                </script>
-                                            </p>
-                                            <div class="simple-drop-down simple-field size-1">
-                                                <select onchange="UpdatePCR('@item.ID','@item.ItemID')" id="@item.ID-ItemReturnPolicySelector">
-                                                    @if (item.Item.ItemReturnPolicyRecords.Count == 0)
-                                                    {
-                                                        <option value="" disabled selected>No options availiable</option>
-                                                    }
-                                                    @foreach (var Policy in item.Item.ItemReturnPolicyRecords)
-                                                    {
-                                                        if (Policy.ReturnPolicyID == item.ReturnPolicyID)
-                                                        {
-                                                            <option selected value="@Policy.ReturnPolicyID">@Policy.ReturnPolicy.Title</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="@Policy.ReturnPolicyID">@Policy.ReturnPolicy.Title</option>
-                                                        }
-                                                    }
-                                                </select>
-                                            </div>
-                                            @if (item.Item.ByRequest)
-                                            {
-                                                <p style="color:darkblue">Ordered as a request. Trackcking code will be added once available on your nearest warehouse.</p>
-                                            }
-                                            @if (item.Item.InStock != true)
-                                            {
-                                                <p style="color:red"> This Item is currently out of stock.</p>
-                                            }
-
-                                            <script>
+                                                        <script>
                                                 // Increase Total Taxes
                                                 TotalTaxes += (@item.Item.EstimatedTaxesInUSD.ToString().Replace(',', '.') * @item.Quantity);
                                                 TotalPoliciesCost += (WarrantyCost + RefundPolicyCost + ReturnPolicyCost) * @item.Quantity;
                                                 TotalShippingCost += (ShippingCost) * @item.Quantity ;
                                                 TotalCartCost += ((@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') + ShippingCost +  WarrantyCost + RefundPolicyCost + ReturnPolicyCost) * @item.Quantity);
-                                            </script>
+                                                        </script>
 
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
+                                                    </div>
 
-                            <td>
-                                <script> document.write(CurrencyFormatter.format(fx.convert(@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') - @item.Item.EstimatedTaxesInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));</script>
-                            </td>
-                            <td>
-                                <div class="subtotal">
-                                    <script>
-                                        document.write(CurrencyFormatter.format(fx.convert( @item.Item.EstimatedTaxesInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));
-                                    </script>
-                                </div>
-                            </td>
 
-                            <td>
-                                <div class="quantity-selector detail-info-entry">
-                                    <div id="@item.ID-Count" class="entry number">@item.Quantity</div>
-                                </div>
-                            </td>
+                                                </div>
+                                            </div>
+                                        </td>
 
-                            <td>
-                                <div class="subtotal">
-                                    <script>
-                                        document.write(CurrencyFormatter.format(fx.convert((@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',','.') * @item.Quantity.ToString().Replace(',', '.')), { from: 'USD', to: CartCurrencyCode })));
-                                    </script>
-                                </div>
-                            </td>
 
-                            <td>
-                                <a onclick="DeleteCartRecord('@item.ID')" class="remove-button"><i class="fa fa-times"></i></a>
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-    <br />
-    <br />
-    <hr />
-    <br />
-    <div class="row">
-        @*<div class="col-md-4 information-entry">
-                @await Component.InvokeAsync("GetShippingEstimatesBox", User)
-            </div>*@
-        <div class="col-md-8 information-entry">
-            <h3 class="cart-column-title">Discount Codes <span class="inline-label red">Promotion</span></h3>
-            <form asp-area="Store" asp-action="">
-                <label>Enter your coupon code if you have one.</label>
-                <input type="text" name="couponID" value="" placeholder="Coupon ID" class="simple-field size-1">
-                <div class="button style-16" style="margin-top: 10px;"> Apply Coupon <input type="submit"></div>
-            </form>
-        </div>
-        <div class="col-md-4 information-entry">
-            <div class="cart-summary-box">
-                <div class="sub-total">
-                    Policies:
-                    <script>document.write(CurrencyFormatter.format(fx.convert(TotalPoliciesCost, { from: 'USD', to: CartCurrencyCode })));</script>
+                                        <td>
+                                            <span class="table-p__price">
+                                                <script> document.write(CurrencyFormatter.format(fx.convert(@item.Item.EstimatedTotalPriceInUSD.ToString().Replace(',', '.') - @item.Item.EstimatedTaxesInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));</script>
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span class="table-p__price">
+                                                <script>document.write(CurrencyFormatter.format(fx.convert( @item.Item.EstimatedTaxesInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));</script>
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <div class="table-p__input-counter-wrap">
+
+                                                <!--====== Input Counter ======-->
+                                                <div class="input-counter">
+
+                                                    <span class="input-counter__minus fas fa-minus"></span>
+
+                                                    <input id="@item.ID-CartQuantity" class="input-counter__text input-counter--text-primary-style" type="text" value="@item.Quantity" data-min="1" data-max="1000">
+
+                                                    <span class="input-counter__plus fas fa-plus"></span>
+
+                                                </div>
+                                                <!--====== End - Input Counter ======-->
+
+                                            </div>
+
+                                        </td>
+
+                                        <td>
+                                            <div class="table-p__del-wrap">
+                                                <a class="far fa-trash-alt table-p__delete-link" onclick="RemoveStockItemFromCart('@item.ID')"></a>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    <!--====== End - Row ======-->
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="sub-total">
-                    Shipping Cost:
-                    <script>document.write(CurrencyFormatter.format(fx.convert(TotalShippingCost, { from: 'USD', to: CartCurrencyCode })));</script>
+                <div class="col-lg-12">
+                    <div class="route-box">
+                        <div class="route-box__g1">
+
+                            <a class="route-box__link" href="/Store">
+                                <i class="fas fa-long-arrow-alt-left"></i>
+                                <span>CONTINUE SHOPPING</span>
+                            </a>
+                        </div>
+
+                        <div class="route-box__g2">
+
+                            <a class="route-box__link" href="cart.html">
+                                <i class="fas fa-trash"></i>
+                                <span>CLEAR CART</span>
+                            </a>
+
+                            <a class="route-box__link" onclick="location.reload()">
+                                <i class="fas fa-sync"></i>
+
+                                <span>UPDATE CART</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="sub-total">
-                    Shipping Tax:
-                    <script>document.write(CurrencyFormatter.format(fx.convert(TotalShippingCost * 0.19, { from: 'USD', to: CartCurrencyCode })));</script>
-                </div>
-                <div class="sub-total">
-                    Order Taxes:
-                    <script>
-                        document.write(CurrencyFormatter.format(fx.convert(TotalTaxes, { from: 'USD', to: CartCurrencyCode })));
-                    </script>
-                </div>
-                <div class="sub-total">
-                    Subtotal:
-                    <script>document.write(CurrencyFormatter.format(fx.convert((TotalCartCost - TotalTaxes), { from: 'USD', to: CartCurrencyCode })));</script>
-                </div>
-                <div class="grand-total">
-                    Grand Total:
-                    <script>document.write(CurrencyFormatter.format(fx.convert(TotalCartCost, { from: 'USD', to: CartCurrencyCode })))</script>
-                </div>
-                <a class="button style-4" style="margin-top: 10px; border-color: #3483FA; display:block;" asp-area="" asp-controller="Account" asp-action="SignIn">Sign In / Sing Up to Checkout</a>
             </div>
         </div>
     </div>
-</div>
-<hr />
-<div class="message-box message-warning">
-    <div class="message-icon"><i class="fa fa-exclamation"></i></div>
-    <div class="message-text"><b>A Note about shipments:</b> If you order several Items, there may be additional packages or independent shipments for each Item. Due to the various speed of each shipment, these packages may or may not arrive at the same time. If you are concerned about an order not received in its entirety, please contact the Alliance ID Support Team at <a href="tel:12065886716">+01 (206) 588 6717</a>, drop us a line at <a href="mailto:support@fenix-alliance.com">support@fenix-alliance.com</a> or visit our <a asp-area="Support" asp-controller="Home" asp-action="Index">Support Center</a> for more options.</div>
+    <!--====== End - Section Content ======-->
 </div>
 
+
+
+
+
+
+
+<div class="u-s-p-b-60">
+
+    <!--====== Section Content ======-->
+    <div class="section__content">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 u-s-m-b-30">
+                    <form class="f-cart">
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 u-s-m-b-30">
+                                <div class="f-cart__pad-box">
+                                    <h1 class="gl-h1">ESTIMATE SHIPPING AND TAXES</h1>
+
+                                    <span class="gl-text u-s-m-b-30">Enter your destination to get a shipping estimate.</span>
+                                    <div class="u-s-m-b-30">
+
+                                        <!--====== Select Box ======-->
+
+                                        <label class="gl-label" for="shipping-country">COUNTRY *</label><select class="select-box select-box--primary-style" id="shipping-country">
+                                            <option selected="" value="">Choose Country</option>
+                                            <option value="uae">United Arab Emirate (UAE)</option>
+                                            <option value="uk">United Kingdom (UK)</option>
+                                            <option value="us">United States (US)</option>
+                                        </select>
+                                        <!--====== End - Select Box ======-->
+                                    </div>
+                                    <div class="u-s-m-b-30">
+
+                                        <!--====== Select Box ======-->
+
+                                        <label class="gl-label" for="shipping-state">STATE/PROVINCE *</label><select class="select-box select-box--primary-style" id="shipping-state">
+                                            <option selected="" value="">Choose State/Province</option>
+                                            <option value="al">Alabama</option>
+                                            <option value="al">Alaska</option>
+                                            <option value="ny">New York</option>
+                                        </select>
+                                        <!--====== End - Select Box ======-->
+                                    </div>
+                                    <div class="u-s-m-b-30">
+
+                                        <label class="gl-label" for="shipping-zip">ZIP/POSTAL CODE *</label>
+
+                                        <input class="input-text input-text--primary-style" type="text" id="shipping-zip" placeholder="Zip/Postal Code">
+                                    </div>
+                                    <div class="u-s-m-b-30">
+
+                                        <a class="f-cart__ship-link btn--e-transparent-brand-b-2" href="cart.html">CALCULATE SHIPPING</a>
+                                    </div>
+
+                                    <span class="gl-text">Note: There are some countries where free shipping is available otherwise our flat rate charges or country delivery charges will be apply.</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 u-s-m-b-30">
+                                <div class="f-cart__pad-box">
+                                    <h1 class="gl-h1">NOTE</h1>
+
+                                    <span class="gl-text u-s-m-b-30">Add Special Note About Your Product</span>
+                                    <div>
+
+                                        <label for="f-cart-note"></label><textarea class="text-area text-area--primary-style" id="f-cart-note"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 u-s-m-b-30">
+                                <div class="f-cart__pad-box">
+                                    <div class="u-s-m-b-30">
+                                        <table class="f-cart__table">
+                                            <tbody>
+                                                <tr>
+                                                    <td>POLICIES</td>
+                                                    <td>
+                                                        <script>document.write(CurrencyFormatter.format(fx.convert(TotalPoliciesCost, { from: 'USD', to: CartCurrencyCode })));</script>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>SHIPPING</td>
+                                                    <td><script>document.write(CurrencyFormatter.format(fx.convert(TotalShippingCost, { from: 'USD', to: CartCurrencyCode })));</script></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>SHIPPING TAX</td>
+                                                    <td>
+                                                        <script>document.write(CurrencyFormatter.format(fx.convert(TotalShippingCost * 0.19, { from: 'USD', to: CartCurrencyCode })));</script>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>TAX</td>
+                                                    <td>
+                                                        <script>document.write(CurrencyFormatter.format(fx.convert(TotalTaxes, { from: 'USD', to: CartCurrencyCode })));</script>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>SUBTOTAL</td>
+                                                    <td>
+                                                        <script>document.write(CurrencyFormatter.format(fx.convert((TotalCartCost - TotalTaxes), { from: 'USD', to: CartCurrencyCode })));</script>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>GRAND TOTAL</td>
+                                                    <td>
+                                                        <script>document.write(CurrencyFormatter.format(fx.convert(TotalCartCost, { from: 'USD', to: CartCurrencyCode })))</script>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn--e-brand-b-2" type="submit"> PROCEED TO CHECKOUT</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--====== End - Section Content ======-->
+</div>
+
+
+
 <script>
+
     function CartSubmitValidation() {
         toastr.info('Please calculate your shipping costs.')
     }
