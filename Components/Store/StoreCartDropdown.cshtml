@@ -28,12 +28,16 @@
         <ul class="ah-list ah-list--design1 ah-list--link-color-secondary">
 
             <li>
-
                 <a href="/"><i class="fas fa-home "></i></a>
             </li>
 
             <li>
                 <a href="/Account/Wishlists"><i class="far fa-heart"></i></a>
+            </li>
+            <li>
+                <b id="CartTotalPriceContainer">
+
+                </b>
             </li>
 
             <li class="has-dropdown">
@@ -53,188 +57,85 @@
                 <div class="mini-cart">
 
                     <!--====== Mini Product Container ======-->
-                    <div class="mini-product-container gl-scroll u-s-m-b-15">
+                    <div id="cart-popup-container" class="mini-product-container gl-scroll u-s-m-b-15">
 
-
-                        @if (User.Identity.IsAuthenticated)
+                        @if (Cart.ItemCartRecords.Count == 0)
                         {
-                                @if (Cart.ItemCartRecords.Count == 0)
-                                {
-                                    <div id="NoProductsDivEntry" class="cart-entry">
-                                        <a class="image">
-                                            <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_cy82iv.json" background="transparent" speed="1" style="width:80%;" loopcontrolsautoplay></lottie-player>
-                                        </a>
-                                        <div class="content">
-                                            <a class="title" href="#">@_("You dont have Items in your cart.")</a>
-                                            <div class="quantity">@_("Let's add some!")</div>
-                                            <div class="price"><a href="Store/Home/Index">@_("Go to Store")</a> </div>
-                                        </div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    @foreach (var PCR in Cart.ItemCartRecords)
-                                    {
-
-                                        var image = "/Store/img/empty-image.png";
-                                        var ProductImagePlaceholder = "/Store/img/empty-image.png";
-                                        if (PCR.Item?.ItemImages != null && PCR.Item?.ItemImages.Count != 0)
-                                        {
-                                            image = PCR.Item.ItemImages?.First()?.FileUploadURL ?? ProductImagePlaceholder;
-                                        }
-                                        else
-                                        {
-                                            image = ProductImagePlaceholder;
-                                        }
-
-                                        <!--====== Card for mini cart ======-->
-                                        <div id="@PCR.ID" class="card-mini-product">
-                                            <div class="mini-product">
-                                                <div class="mini-product__image-wrapper">
-
-                                                    <a class="mini-product__link" href="/Store/Products/Details/@PCR.Item.ID">
-
-                                                        <img class="u-img-fluid" src="@image" alt="" onerror="this.src='/Store/img/empty-image.png'" alt="">
-                                                    </a>
-                                                </div>
-                                                <div class="mini-product__info-wrapper">
-
-                                                    <span class="mini-product__category">
-                                                        <a href="/Store/Categories/Details/@PCR.Item.">Electronics</a>
-                                                    </span>
-
-                                                    <span class="mini-product__name">
-                                                        <a  href="/Store/Products/Details/@PCR.Item.ID">@PCR.Item.Title</a>
-                                                    </span>
-
-                                                    <span class="mini-product__quantity">@PCR.Quantity x</span>
-
-                                                    <span class="mini-product__price">
-                                                        @if (PCR.Item.OnDiscount)
-                                                        {
-                                                                <script>
-                                                            document.write(CurrencyFormatter.format(@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = true, PrintUnformatted = true })));
-                                                            TotalPrice += (@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = true, PrintUnformatted = true }));
-                                                                </script>
-                                                        }
-                                                        else
-                                                        {
-                                                                <script>
-                                                            document.write(CurrencyFormatter.format(@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = false, PrintUnformatted = true })));
-                                                            TotalPrice += (@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = false, PrintUnformatted = true }));
-                                                                </script>
-                                                        }
-
-
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <a onclick="RemoveProductFromCart('@PCR.ID','@PCR.ItemID')" class="mini-product__delete-link far fa-trash-alt"></a>
-                                        </div>
-                                        <!--====== End - Card for mini cart ======-->
-
-
- 
-                                    }
-                                }
-
-
+                            <div id="NoProductsDivEntry" class="cart-entry">
+                                <a class="image">
+                                    <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_cy82iv.json" background="transparent" speed="1" style="width:80%;" loopcontrolsautoplay></lottie-player>
+                                </a>
+                                <div class="content">
+                                    <a class="title" href="#">@_("You dont have Items in your cart.")</a>
+                                    <div class="quantity">@_("Let's add some!")</div>
+                                    <div class="price"><a href="Store/Home/Index">@_("Go to Store")</a> </div>
+                                </div>
+                            </div>
                         }
                         else
                         {
-                            <div class="cart-box popup">
-                                <div id="cart-popup-container" class="popup-container">
-                                    @if (Cart.ItemCartRecords.Count() == 0)
-                                    {
-                                        <div id="NoProductsDivEntry" class="cart-entry">
-                                            <a class="image">
-                                                <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_cy82iv.json" background="transparent" speed="1" style="width:80%;" loopcontrolsautoplay></lottie-player>
+                            @foreach (var PCR in Cart.ItemCartRecords)
+                            {
+
+                                var image = "/Store/img/empty-image.png";
+                                var ProductImagePlaceholder = "/Store/img/empty-image.png";
+                                if (PCR.Item?.ItemImages != null && PCR.Item?.ItemImages.Count != 0)
+                                {
+                                    image = PCR.Item.ItemImages?.First()?.FileUploadURL ?? ProductImagePlaceholder;
+                                }
+                                else
+                                {
+                                    image = ProductImagePlaceholder;
+                                }
+
+                                <!--====== Card for mini cart ======-->
+                                <div id="@PCR.ID" class="card-mini-product">
+                                    <div class="mini-product">
+                                        <div class="mini-product__image-wrapper">
+
+                                            <a class="mini-product__link" href="/Store/Products/Details/@PCR.Item.ID">
+
+                                                <img class="u-img-fluid" src="@image" onerror="this.src='/Store/img/empty-image.png'" alt="@PCR.Item.Title">
+
                                             </a>
-                                            <div class="content">
-                                                <a class="title" href="#">@_("You dont have Items in your cart.")</a>
-                                                <div class="quantity">@_("Let's add some!")</div>
-                                                <div class="price"><a style="text-decoration:underline;cursor:pointer;" href="Store/Products/Index">@_("Go to Store")</a> </div>
-                                            </div>
                                         </div>
-                                    }
-                                    else
-                                    {
-                                        @foreach (var PCR in Cart.ItemCartRecords)
-                                        {
-                                            var image = "/Store/img/empty-image.png";
-                                            var ProductImagePlaceholder = "/Store/img/empty-image.png";
-                                            if (PCR.Item?.ItemImages != null && PCR.Item?.ItemImages.Count != 0)
-                                            {
-                                                image = PCR.Item.ItemImages?.First()?.FileUploadURL ?? ProductImagePlaceholder;
-                                            }
-                                            else
-                                            {
-                                                image = ProductImagePlaceholder;
-                                            }
+                                        <div class="mini-product__info-wrapper">
 
-                                            <div id="@PCR.ID" class="cart-entry ">
-                                                <a class="image" href="Store/Products/Details" asp-route-id="@PCR.Item.ID"><img src="@image" alt="Product Image" onerror="this.src='/Store/img/empty-image.png'" /></a>
-                                                <div class="content">
-                                                    <a class="title" href="Store/Products/Details" asp-route-id="@PCR.Item.ID">@PCR.Item.Title</a>
-                                                    <div class="quantity">@_("Quantity"): @PCR.Quantity</div>
-                                                    @if (PCR.Item.OnDiscount)
-                                                    {
-                                                        <div class="price">
-                                                            <script>
-                                                                document.write(CurrencyFormatter.format(@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = true, PrintUnformatted = true })));
-                                                                TotalPrice += (@PCR.Quantity *  @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = true, PrintUnformatted = true }));
-                                                            </script>
-                                                        </div>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="price">
-                                                            <script>
-                                                                document.write(CurrencyFormatter.format((@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = false, PrintUnformatted = true }))));
-                                                                TotalPrice += (@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = false, PrintUnformatted = true }));
-                                                            </script>
-                                                        </div>
-                                                    }
-                                                </div>
-                                                <div onclick="RemoveProductFromCart('@PCR.ID','@PCR.ItemID')" class="button-x"><i class="fa fa-close"></i></div>
-                                            </div>
+                                            <span class="mini-product__category">
+                                                <a href="/Store/Categories/Details/@PCR.Item.ItemCategoryID">Electronics</a>
+                                            </span>
 
-                                        }
-                                    }
-                                    <div class="summary">
-                                        <div id="CartDropdownGrandtotal" class="grandtotal">
-                                            Subtotal:
-                                            <span>
-                                                <script>
-                                                    document.write(CurrencyFormatter.format(TotalPrice));
-                                                </script>
+                                            <span class="mini-product__name">
+                                                <a href="/Store/Products/Details/@PCR.Item.ID">@PCR.Item.Title</a>
+                                            </span>
+
+                                            <span class="mini-product__quantity">x @PCR.Quantity</span>
+
+                                            <span class="mini-product__price">
+
+                                                @if (PCR.Item.OnDiscount)
+                                                {
+                                                    <script>
+                                                            document.write(CurrencyFormatter.format(@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = true, PrintUnformatted = true })));
+                                                            TotalPrice += (@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = true, PrintUnformatted = true }));
+                                                    </script>
+                                                }
+                                                else
+                                                {
+                                                    <script>
+                                                            document.write(CurrencyFormatter.format(@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = false, PrintUnformatted = true })));
+                                                            TotalPrice += (@PCR.Quantity * @await Component.InvokeAsync("ItemPrice", new { Item = PCR.Item, DisplayDiscountPrice = false, PrintUnformatted = true }));
+                                                    </script>
+                                                }
+
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="cart-buttons">
-                                        <div class="column">
-                                            <a href="/Store/Cart" class="button style-3">@_("view cart")</a>
-                                            <div class="clear"></div>
-                                        </div>
-                                        <div class="column">
-                                            <a href="/Account/SignIn" class="button style-4">@_("Login")</a>
-                                            <div class="clear"></div>
-                                        </div>
-                                        <div class="clear"></div>
-                                    </div>
+                                    <a onclick="RemoveStockItemFromCart('@PCR.ID','@PCR.ItemID')" class="mini-product__delete-link far fa-trash-alt"></a>
                                 </div>
-                            </div>
-
-                            <a class="header-functionality-entry open-cart-popup" href="Store/Carts/GuestCart">
-                                <i class="fa fa-shopping-cart"></i><span>@_("Your guest cart")</span>&nbsp; &nbsp;
-                                <span>
-                                    <b id="CartTotalPriceContainer">
-                                        <script>document.write(CurrencyFormatter.format(TotalPrice));</script>
-                                    </b>
-                                </span>
-                            </a>
+                                <!--====== End - Card for mini cart ======-->
+                            }
                         }
-
                     </div>
                     <!--====== End - Mini Product Container ======-->
                     <!--====== Mini Product Statistics ======-->
@@ -244,11 +145,17 @@
                             <span class="subtotal-text">SUBTOTAL</span>
 
                             <span class="subtotal-value">
-                            <script>document.write(CurrencyFormatter.format(TotalPrice));</script></span>
+                                <b id="CartTotalPriceContainer">
+                                    <script>
+                                        document.write(CurrencyFormatter.format(TotalPrice));
+                                    </script>
+                                </b>
+                            </span>
+
                         </div>
                         <div class="mini-action">
 
-                            <a class="mini-link btn--e-brand-b-2" href="store/Checkout/PlaceOrderFromCart">PROCEED TO CHECKOUT</a>
+                            <a class="mini-link btn--e-brand-b-2" href="/Store/Checkout/PlaceOrderFromCart">PROCEED TO CHECKOUT</a>
 
                             <a class="mini-link btn--e-transparent-secondary-b-2" href="/Store/Cart">VIEW CART</a>
                         </div>
@@ -263,3 +170,10 @@
     <!--====== End - Menu ======-->
 </div>
 <!--====== End - Dropdown Main plugin ======-->
+
+
+<script>
+    $(document).ready(function () {
+        $("#CartTotalPriceContainer").text(CurrencyFormatter.format(TotalPrice))
+    });
+</script>

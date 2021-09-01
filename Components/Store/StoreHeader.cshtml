@@ -22,8 +22,8 @@
 
     var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 
-
 }
+
 <style>
 
     .scrollbar {
@@ -70,7 +70,7 @@
 
                     <input class="input-text input-text--border-radius input-text--style-1" type="text" id="main-search" required name="Query" value="" placeholder="@_("Search by SKU, Name, MPN...")">
 
-                    <button class="btn btn--icon fas fa-search main-search-button" type="submit"></button>
+                    <button class="btn btn--icon fas fa-search main-search-button" style="top:70%" type="submit"></button>
                 </form>
                 <!--====== End - Search Form ======-->
                 <!--====== Dropdown Main plugin ======-->
@@ -172,7 +172,8 @@
 
                                             <li>
                                                 <a class="u-c-brand">
-                                                <script>document.write(CartCurrencyCode);</script></a>
+                                                    <script>document.write(CartCurrencyCode);</script>
+                                                </a>
                                             </li>
 
                                         </ul>
@@ -181,14 +182,21 @@
                                 </ul>
                                 <!--====== End - Dropdown ======-->
                             </li>
-                            <li data-tooltip="tooltip" data-placement="left" title="Contact">
 
-                                <a href="tel:+0900901904"><i class="fas fa-phone-volume"></i></a>
-                            </li>
-                            <li data-tooltip="tooltip" data-placement="left" title="Mail">
+                            @if (!string.IsNullOrEmpty(@Portal?.Options?.Contact?.PhoneNumber1))
+                            {
+                                <li data-tooltip="tooltip" data-placement="left" title="Contact">
+                                    <a href="tel:+@Portal.Options.Contact.PhoneNumber1"><i class="fas fa-phone-volume"></i></a>
+                                </li>
+                            }
 
-                                <a href="mailto:contact@@domain.com"><i class="far fa-envelope"></i></a>
-                            </li>
+                            @if (!string.IsNullOrEmpty(@Portal?.Options?.Contact?.Email1))
+
+                            {
+                                <li data-tooltip="tooltip" data-placement="left" title="Mail">
+                                    <a href="mailto:@Portal.Options.Contact.Email1"><i class="far fa-envelope"></i></a>
+                                </li>
+                            }
                         </ul>
                         <!--====== End - List ======-->
                     </div>
@@ -329,7 +337,7 @@
                                         {
                                             <li>
 
-                                                <a href="/Store/Categories/@item.ID">Blog Left Sidebar</a>
+                                                <a href="/Store/Categories/@item.ID">@item.Title</a>
                                             </li>
                                         }
                                     </ul>
