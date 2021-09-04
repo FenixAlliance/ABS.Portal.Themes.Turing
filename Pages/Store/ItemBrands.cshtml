@@ -1,4 +1,6 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using System.Collections.Generic
+@using System.Linq
 
 @{
     Title = "Home";
@@ -6,44 +8,66 @@
     var Brands = Model as List<FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands.ItemBrand>;
 }
 
-<div class="information-blocks">
-    <div class="row">
-        <div class="information-blocks">
-            <div class="block-header">
-                <h3 class="title">@_("Brands")</h3>
-                <div class="description">@_("To fulfill your passion for technology.")</div>
-            </div>
-        </div>
-        <br />
-        @foreach (var Brand in Brands)
-        {
-            <div class="col-sm-6 col-md-3 information-entry" style="margin-bottom:15px">
-                <div class="Item-column-entry">
-                    <div class="image"><a href="Store/Brands/Details/@Brand.ID">
-                        <img alt="@Brand.Name's Logo" style="height:500px;" src="@Brand.LogoURL"></a>
-                    </div>
-                    <h3 class="title"><a href="Store/Brands/Details/@Brand.ID">@Brand.Name</a></h3>
-                    <div class="description">
-                        <ul class="list-type-1">
-                            <li>
-                                <a href="Store/Brands/Details/@Brand.ID">
-                                    <i class="fa fa-angle-right"></i>(@Brand.Items.Union(Brand.BrandRecords.Select(c => c.Item)).Count()) Items.
-                                </a>
-                            </li>
-                            <li><a href="@Brand.WebsiteURL" target="_blank"><i class="fa fa-home"></i>Visit Website</a></li>
-                        </ul>
-                    </div>
-                    @if (Brand.Trending)
-                    {
-                        <div class="hot-mark yellow"><i class="fas fa-badge-percent"></i></div>
-                    }
-                    @if (Brand.Trending)
-                    {
-                        <div class="hot-mark red"><i class="fas fa-badge"></i></div>
-                    }
+<div class="u-s-p-t-90">
+    <div class="container">
+        <div class="row">
+            <div class="information-blocks">
+                <div class="block-header text-center">
+                    <h1 class="title">@_("Brands")</h1>
+                    <div class="description">@_("To fulfill your passion for technology.")</div>
                 </div>
             </div>
-        }
+            </div>
+            <br />
+            <div class="row  is-grid-active">
+                @foreach (var Brand in Brands)
+                {
+
+
+
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="product-m">
+                            <div class="product-m__thumb">
+
+                                <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Brands/Details/@Brand.ID">
+
+                                    <img class="aspect__img" src="@Brand.LogoURL" alt="@Brand.Name's Logo">
+                                </a>
+
+                                <div class="product-m__add-cart">
+
+                                    <a class="btn--e-brand" href="/Store/Brands/Details/@Brand.ID">View Products</a>
+                                </div>
+                            </div>
+                            <div class="product-m__content">
+                                <div class="product-m__category">
+                                    @if (Brand.Trending)
+                                    {
+                                        <a href="/Store/Brands/Details/@Brand.ID">Trending</a>
+                                    }
+                                </div>
+                                <div class="product-m__name text-center">
+
+                                    <a href="/Store/Brands/Details/@Brand.ID">@Brand.Name</a>
+
+                                </div>
+
+
+
+                                <div class="product-m__hover">
+                                    <div class="product-m__preview-description">
+                                        <span>
+                                            @Brand.Description
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                }
+            </div>
     </div>
 </div>
 

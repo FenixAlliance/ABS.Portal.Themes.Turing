@@ -1,50 +1,53 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@{Title = "Home";}
-@{Slug = "/Home";}
+@using FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands
+@using FenixAlliance.ABM.Models.Logistics.Stock.Item
+@using FenixAlliance.ABM.SDK.Helpers
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    var brand = (ItemBrand)Model;
+    ViewData["Title"] = "Items by " + brand.Name;
+    List<Item> ItemsList = (List<Item>)brand.Items;
+}
 
 <div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
-        <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    Store
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="product-slide-entry">
+                <div class="product-image">
+                    <a href="Store/Brands/Details/@Model.ID"> 
+                        <img src="@Model.LogoURL" alt="">
+                    </a>
+                </div>
+                <a class="tag text-center" href="@Model.WebsiteURL" target="_blank"><i class="fas fa-home"></i> Manufacturer Hompage</a>
+                <a class="title text-center" asp-area="Store" asp-controller="Brands" asp-action="Details" asp-route-id="@Model.ID">@Model.Name</a>
+                <a class="tag text-center">Products: (@ItemsList.Count())</a>
             </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
+            <div class="clear"></div>
         </div>
+        <div class="col-md-6 my-auto">
+            <hr />
+            <div>
+                <a asp-action="Index">Back to  List</a>
+            </div>
+            <hr />
+            @Model.Name
+            <hr />
+            @if (!string.IsNullOrEmpty(Model.Code))
+            {
+                @Model.Code
+
+            }
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                @Model.Description
+
+            }
+        </div>
+
     </div>
 </div>
+
+@await Component.InvokeAsync("ItemsGrid", ListPaggingHelpers<Item>.Paginate(ItemsList, ViewBag.pageIndex ?? 1, ViewBag.pageSize ?? 24))
