@@ -1,0 +1,50 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands
+@using FenixAlliance.ABM.Models.Logistics.Stock.Item
+@using FenixAlliance.ABM.SDK.Helpers
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    var brand = (ItemBrand)Model;
+    ViewData["Title"] = "Items by " + brand.Name;
+    List<Item> ItemsList = (List<Item>)brand.Items;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="product-slide-entry">
+                <div class="product-image">
+                    <a href="Store/Brands/Details/@Model.ID"> 
+                        <img src="@Model.LogoURL" alt="">
+                    </a>
+                </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="col-md-6 my-auto">
+
+            @Model.Name
+            @if (!string.IsNullOrEmpty(Model.Code))
+            {
+            <hr />
+                @Model.Code
+            }
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+            <hr />
+                @Model.Description
+            }
+
+            <hr />
+                    <a href="/Store/Brands/">Back to List</a>
+            <hr />
+        </div>
+
+    </div>
+</div>
+
+@await Component.InvokeAsync("ItemsGrid", ListPaggingHelpers<Item>.Paginate(ItemsList, ViewBag.pageIndex ?? 1, ViewBag.pageSize ?? 24))

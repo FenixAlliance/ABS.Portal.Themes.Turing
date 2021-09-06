@@ -1,0 +1,238 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using System.Linq
+
+@{
+    var CompareRecords = (IEnumerable<FenixAlliance.ABM.Models.Global.Carts.CartRecords.CompareRecords.ItemToCompareRecord>)Model;
+}
+
+<div class="information-blocks">
+    <div class="row">
+        <div class="col-md-12 information-entry">
+            <div class="table-responsive">
+                <table class="compare-table">
+                    <tbody>
+                        <tr>
+                            <td>
+                                Item
+                            </td>
+                            @foreach (var item in CompareRecords)
+                            {
+
+                                var image = "/Store/img/empty-image.png";
+                                var ProductImagePlaceholder = "/Store/img/empty-image.png";
+                                if (item.Item.ItemImages != null && item.Item.ItemImages.Count != 0)
+                                {
+                                    image = item.Item.ItemImages?.First()?.FileUploadURL ?? ProductImagePlaceholder;
+                                }
+                                else
+                                {
+                                    image = ProductImagePlaceholder; ;
+                                }
+
+                                <td class="@item.ID">
+                                    <div class="comment">
+                                        <div class="button-x" style="cursor:pointer" id="@item.ID"><i class="fa fa-close"></i></div>
+                                        <a class="comment-image" asp-area="Store" asp-controller="Products" asp-action="Details" asp-route-id="@item.Item.ID"><img src="@image" alt=""></a>
+                                        <div class="comment-content">
+                                            <div class="comment-title"><span><a asp-area="Store" asp-controller="Products" asp-action="Details" asp-route-id="@item.Item.ID">@item.Item.Title</a></span></div>
+                                             @await Component.InvokeAsync("ItemPriceDetail",  item.Item)
+                                            <div class="price">
+                                                <div class="prev">@await Component.InvokeAsync("ItemPrice", new { Item = item.Item, CurrentUser = User})</div>
+                                                <div class="current" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = item.Item, CurrentUser = User})</div>
+                                            </div>
+
+                                            <script>
+                                                $(document).ready(function () {
+                                                    $("#@item.ID").click(function () {
+                                                        $.ajax({
+                                                            url: '/api/v2/Store/CompareRecords/Products/@item.ID',
+                                                            type: 'DELETE', contentType: 'application/json; charset=utf-8',
+                                                            headers: {
+                                                                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                                                            },
+                                                        }).done(function (result) {
+                                                            $(".@item.ID").hide('slow', function () { $(".@item.ID").remove(); });
+                                                        });
+                                                    });
+                                                });
+                                            </script>
+
+                                        </div>
+                                    </div>
+
+                                </td>
+
+                            }
+
+                        </tr>
+                        <tr>
+                            <td><b>Description</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    <div class="article-container style-1">
+                                        <p>@Html.Raw(item.Item.ShortDescription)</p>
+                                    </div>
+                                </td>
+                            }
+
+                        </tr>
+                        <tr>
+                            <td><b>SKU number:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @item.Item.SKU
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>Item Type:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @item.Item.ItemType
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>Manufacturer:</b></td>
+
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @(item.Item.Brand?.Name ?? "Unknown")
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>Item Series:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @item.Item.Series
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>Tags:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @foreach (var cat in item.Item.ItemTagRecords)
+                                    {
+                                        <span class="badge badge-primary">@cat.ItemTag.Title</span>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>Categories:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @foreach (var cat in item.Item.ItemCategoryRecords)
+                                    {
+                                        <span class="badge badge-success">@cat.ItemCategory.Title</span>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>Attributes:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @if (item.Item.ItemAttributeOptionRecords.Count == 0)
+                                    {
+                                        <p>None</p>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var cat in item.Item.ItemAttributeOptionRecords)
+                                        {
+                                            <span class="badge badge-primary">@cat.AttributeOption.Name</span>
+                                        }
+                                    }
+
+                                </td>
+                            }
+                        </tr>
+
+                        <tr>
+                            <td><b>Shipping Country:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    <div class="comment">
+                                        <a class="comment-image" href="#"><img src="@item.Item.ShippingCountry?.CountryFlagUrl" alt=""></a>
+                                        <div class="comment-content">
+                                            <div class="comment-title"><span> @item.Item.ShippingCountry?.Name</span></div>
+                                            <div class="comment-text"><span>@item.Item.ShippingCountry?.Region</span></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>System requirements:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @if (item.Item.SystemRequirements != null)
+                                    {
+                                        @item.Item?.SystemRequirements
+                                    }
+                                    else
+                                    {
+                                        <text>
+                                            None
+                                        </text>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>Taxable:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @item.Item.Taxable
+                                </td>
+                            }
+                        </tr>
+
+
+                        <tr>
+                            <td><b>On Pre-Sale:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @item.Item.PreSale
+                                </td>
+                            }
+                        </tr>
+                        <tr>
+                            <td><b>Operating System:</b></td>
+                            @foreach (var item in CompareRecords)
+                            {
+                                <td class="@item.ID">
+                                    @if (item.Item.OperatingSystemSupported != null)
+                                    {
+                                        @item.Item.OperatingSystemSupported?.ToUpper()
+                                    }
+                                    else
+                                    {
+                                        <text>
+                                            None
+                                        </text>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

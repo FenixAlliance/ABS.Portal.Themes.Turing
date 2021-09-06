@@ -1,5 +1,9 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
 
+@{ 
+    var attribute = Model as List<FenixAlliance.ABM.Models.Logistics.Stock.ItemAttributes.ItemAttributeOption>;
+
+}
 
 <h2>Index</h2>
 
@@ -10,13 +14,13 @@
                 Name
             </th>
             <th>
-                Item Attribute
+                Attribute
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in attribute)
         {
             <tr>
                 <td>
@@ -26,9 +30,7 @@
                     @item.ItemAttribute?.Name
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    <a href="/Store/Attributes/Details/@item.ID">Details</a> 
                 </td>
             </tr>
         }

@@ -40,14 +40,7 @@
         margin: auto;
     }
 </style>
-<script>
-    //Select Language
-    function SelectLang(value) {
-        cookie = "c=" + value.trim() + "|uic=" + value.trim();
-        Cookies.set('.AspNetCore.Culture', cookie);
-        window.location.reload();
-    }
-</script>
+
 
 <!--====== Main Header ======-->
 <header class="header--style-1">
@@ -141,13 +134,6 @@
                                         <span class="js-menu-toggle"></span>
 
                                         <ul>
-
-                                            <li>
-                                                <a class="u-c-brand">
-                                                    @requestCulture.RequestCulture.Culture.TwoLetterISOLanguageName
-                                                </a>
-                                            </li>
-
                                             @foreach (var culture in cultureItems)
                                             {
                                                 <li>
@@ -168,12 +154,20 @@
                                         <!--====== Dropdown ======-->
 
                                         <span class="js-menu-toggle"></span>
+
+
+
                                         <ul style="width:225px">
 
                                             <li>
-                                                <a class="u-c-brand">
-                                                    <script>document.write(CartCurrencyCode);</script>
-                                                </a>
+                                                <select class="form-control" id="currencySelector">
+                                                    @foreach (var item in await DataContext.Currency.AsAsyncEnumerable().ToListAsync())
+                                                    {
+                                                        <option value="@item.ID">
+                                                            @item.ID
+                                                        </option>
+                                                    }
+                                                </select>
                                             </li>
 
                                         </ul>
@@ -312,6 +306,10 @@
                             <li>
                                 <a href="/Store/Products">PRODUCTS</a>
                             </li>
+                            
+                            <li>
+                                <a href="/Store/Brands">BRANDS</a>
+                            </li>
 
 
                             <li>
@@ -324,7 +322,7 @@
 
                                 <li class="has-dropdown">
 
-                                    <a>
+                                    <a href="/Store/Categories">
                                         CATEGORIES
                                         <i class="fas fa-angle-down u-s-m-l-6"></i>
                                     </a>
@@ -369,3 +367,35 @@
     <!--====== End - Nav 2 ======-->
 </header>
 <!--====== End - Main Header ======-->
+<script>
+    //Select Language
+    function SelectLang(value) {
+        cookie = "c=" + value.trim() + "|uic=" + value.trim();
+        Cookies.set('.AspNetCore.Culture', cookie);
+        window.location.reload();
+    }
+
+    $('#currencySelector').change(function () {
+        //Use $option (with the "$") to see that the variable is a jQuery object
+        var $option = $(this).find('option:selected');
+        //Added with the EDIT
+        var value = $option.val();//to get content of "value" attrib
+        var text = $option.text();//to get <option>Text</option> content
+
+        $.ajax({
+            url: '/api/v2/currencies/setCurrency',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            headers: {
+                RequestVerificationToken: requestVerificationToken
+            },
+            data: JSON.stringify({
+                "CartID": CartID,
+                "CurrencyID": value
+            })
+        }).done(function () {
+            location.reload();
+        });
+    });
+
+</script>

@@ -1,0 +1,44 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    var attribute = Model as List<FenixAlliance.ABM.Models.Logistics.Stock.ItemAttributes.ItemAttributeOption>;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            Attribute
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in attribute)
+                    {
+                        <tr>
+                            <td>
+                                @item.Name
+                            </td>
+                            <td>
+                                @item.ItemAttribute?.Name
+                            </td>
+                            <td>
+                                <a href="/Store/Attributes/Details/@item.ID">Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

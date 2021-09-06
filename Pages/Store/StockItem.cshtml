@@ -332,10 +332,10 @@
                                                 <img src="@Model.Brand?.LogoURL" alt="@Model.Brand.Name's Logo">
                                             </a>
                                         </div>
-                                        <h3 class="title text-center"><a asp-controller="Brands" asp-action="Details" asp-route-id="@Model.Brand.ID">@Model.Brand.Name</a></h3>
+                                        <h3 class="title text-center"><a href="/Store/Brands/Details/@Model.Brand.ID">@Model.Brand.Name</a></h3>
                                         <div class="description">
                                             <ul class="list-type-1">
-                                                <li><a target="_blank" href="@Model.Brand.WebsiteURL"><i class="fa fa-angle-right"></i>@_("Brand Website")</a></li>
+                                                <li><a target="_blank" href="@Model.Brand.WebsiteURL">@_("Brand Website")</a></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -362,7 +362,7 @@
                                                         @_("By"): @Model.Business.BusinessLegalName
                                                     </a>
                                                     <br />
-                                                    <a asp-area="Social" asp-controller="Businesses" asp-action="Details" asp-route-businessID="@Model.Business.ID">
+                                                    <a href="Social/Businesses/Details/@Model.BusinessID">
                                                         @_("Tax ID"): @Model.Business.TaxID
                                                     </a>
                                                 </b>
@@ -376,7 +376,7 @@
                                                     <b>@_("Primary Category"):</b>
                                                     <br />
                                                     <b>
-                                                        <a asp-area="Store" asp-controller="Categories" asp-action="Details" asp-route-id="@Model.ItemCategoryID">@Model?.ItemCategory?.Title</a>
+                                                        <a href="Store/Categories/Details/@Model.ItemCategoryID">@Model?.ItemCategory?.Title</a>
                                                     </b>
                                                 </h3>
                                             </div>
@@ -385,7 +385,7 @@
                                         @if (Model.ItemType != null)
                                         {
                                             <div class="share-box" style="display: grid;">
-                                                <h3 class="title"><b>@_("Item Type"): <br /><a asp-area="Store" asp-controller="Types" asp-action="Details" asp-route-id="@Model.ItemTypeID">@Model.ItemType.SingularTitle</a></b></h3>
+                                                <h3 class="title"><b>@_("Item Type"): <br /><a href="Store/Types/Details/@Model.ItemTypeID">@Model.ItemType.SingularTitle</a></b></h3>
                                             </div>
                                         }
 
@@ -418,7 +418,7 @@
                                             @foreach (var Tag in Model.ItemTagRecords)
                                             {
                                                 <div class="share-box" style="display: grid;">
-                                                    <a asp-area="Store/Tags/Details?id=@Tag.ItemTag.ID">@Tag.ItemTag.Title</a>
+                                                    <a href="Store/Tags/Details?id=@Tag.ItemTag.ID">@Tag.ItemTag.Title</a>
                                                 </div>
                                             }
                                         }
@@ -626,7 +626,7 @@
                                                             <td><b>@Attrib.AttributeOption.ItemAttribute.Name</b></td>
                                                             <td>
                                                                 <div class="tags-box">
-                                                                    <a asp-area="Store" asp-controller="AttributeOptions" asp-action="Details" asp-route-id="@Attrib.AttributeOptionID">@Attrib.AttributeOption.Name</a>
+                                                                    <a href="Store/AttributeOptions/Details/@Attrib.AttributeOptionID">@Attrib.AttributeOption.Name</a>
                                                                 </div>
                                                             </td>
                                                         </tr>

@@ -1,0 +1,25 @@
+@using FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands
+@using FenixAlliance.ABM.Models.Logistics.Stock.Item
+@using FenixAlliance.ABM.SDK.Helpers
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    var attributeOption = Model as FenixAlliance.ABM.Models.Logistics.Stock.ItemAttributes.ItemAttributeOption;
+    List<Item> ItemsList = (List<Item>)ViewData["ItemsList"];
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 my-auto">
+            <hr />
+            @attributeOption.Name
+            <hr />
+            <a href="/Store/Brands/">Back to List</a>
+            <hr />
+        </div>
+
+    </div>
+</div>
+
+@await Component.InvokeAsync("ItemsGrid", ListPaggingHelpers<Item>.Paginate(ItemsList, ViewBag.pageIndex ?? 1, ViewBag.pageSize ?? 24))
