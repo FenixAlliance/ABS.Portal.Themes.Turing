@@ -9,7 +9,6 @@
     var CartCurrencyID = ViewBag.CartCurrencyID;
     var Items = ViewBag.Items as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.Item.Item>;
     var Brands = ViewBag.Brands as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands.ItemBrand>;
-    var Categories = ViewBag.Categories as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory>;
     var ExchangeRates = FenixAlliance.ABM.SDK.Helpers.Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(ViewBag.ExchangeRates);
 
     var GoogleCategories = DataContext.ItemGoogleCategory.ToList();
@@ -20,6 +19,7 @@
     .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
     .ToList();
 
+    var Categories = ViewBag.Categories as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory>;
     var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 
 }
@@ -161,10 +161,10 @@
 
                                             <li>
                                                 <select class="form-control" id="currencySelector">
-                                                    @foreach (var item in await DataContext.Currency.AsAsyncEnumerable().ToListAsync())
+                                                    @foreach (var item in await DataContext.Currency?.Include(c=>c.Country).ToListAsync())
                                                     {
                                                         <option value="@item.ID">
-                                                            @item.ID
+                                                            @item.CountryName
                                                         </option>
                                                     }
                                                 </select>
@@ -221,7 +221,9 @@
                         <ul class="ah-list">
                             <li class="has-dropdown">
 
-                                <span class="mega-text">C</span>
+                                <span class="mega-text">
+                                C
+                                </span>
 
                                 <!--====== Mega Menu ======-->
 
@@ -331,7 +333,7 @@
                                     <span class="js-menu-toggle"></span>
 
                                     <ul style="width:200px">
-                                        @foreach (var item in Categories)
+                                        @foreach (var item in Categories?.Where(c=>c.ParentItemCategoryID == null))
                                         {
                                             <li>
 
