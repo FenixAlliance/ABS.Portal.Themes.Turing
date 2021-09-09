@@ -32,6 +32,8 @@
     <None Remove="comps\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FenixAlliance.ABS.Core" Version="1.2.0" />
+    <!--<PackageReference Include="FenixAlliance.ABS.Core" Version="1.2.0" />-->
+
+    <ProjectReference Include="..\..\..\..\FenixAlliance.ABS\FenixAlliance.ABS.Core\FenixAlliance.ABS.Core.csproj" />
   </ItemGroup>
 </Project>

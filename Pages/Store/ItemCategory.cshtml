@@ -7,8 +7,6 @@
 
 @{
     var category = Model as FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory;
-    List<Item> ItemsList = (List<Item>)ViewData["ItemsList"];
-
 }
 
 <div class="container">
@@ -16,8 +14,8 @@
         <div class="col-md-4">
             <div class="product-slide-entry">
                 <div class="product-image">
-                    <a href="Store/Brands/Details/@Model.ID">
-                        <img src="@Model.LogoURL" alt="">
+                    <a href="Store/Categories/Details/@category.ID">
+                        <img src="@(category.ImageURL ?? "/Store/img/empty-image.png")" onerror="this.src='/Store/img/empty-image.png'"  alt="@category.Title">
                     </a>
                 </div>
 
@@ -25,26 +23,23 @@
             <div class="clear"></div>
         </div>
         <div class="col-md-6 my-auto">
-
-            @Model.Name
-            @if (!string.IsNullOrEmpty(Model.Code))
+            @if (!string.IsNullOrEmpty(category.Title))
             {
                 <hr />
-                @Model.Code
+                @category.Title
             }
-
-            @if (!string.IsNullOrEmpty(Model.Description))
+            
+            @if (!string.IsNullOrEmpty(category.Description))
             {
                 <hr />
-                @Model.Description
+                @category.Description
             }
 
             <hr />
-            <a href="/Store/Brands/">Back to List</a>
+            <a href="/Store/Categories">Back to List</a>
             <hr />
         </div>
-
     </div>
 </div>
 
-@await Component.InvokeAsync("ItemsGrid", ListPaggingHelpers<Item>.Paginate(ItemsList, ViewBag.pageIndex ?? 1, ViewBag.pageSize ?? 24))
+@await Component.InvokeAsync("ItemsGrid", ListPaggingHelpers<Item>.Paginate(category.DiscoveredItems, ViewBag.pageIndex ?? 1, ViewBag.pageSize ?? 24))

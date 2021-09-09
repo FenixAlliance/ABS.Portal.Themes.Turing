@@ -27,9 +27,9 @@
                     <div class="product-m">
                         <div class="product-m__thumb">
 
-                            <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Brands/Details/@category.ID">
+                            <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Categories/Details/@category.ID">
 
-                                <img class="aspect__img" src="@category.ImageURL" alt="@category.Title">
+                                <img class="aspect__img" src="@(category.ImageURL ?? "/Store/img/empty-image.png")" alt="@category.Title"  onerror="this.src='/Store/img/empty-image.png'" >
                             </a>
 
                             <div class="product-m__add-cart">
@@ -49,8 +49,6 @@
                                 <a href="/Store/Categories/Details/@category.ID">@category.Title</a>
 
                             </div>
-
-
 
                             <div class="product-m__hover">
                                 <div class="product-m__preview-description">
