@@ -28,7 +28,7 @@
         }
 
         <span class="product-o__name">
-            <a href="/Store/Products/Details/product.ID">@product.Title</a>
+            <a href="/Store/Products/Details/@product.ID">@product.Title</a>
         </span>
 
         @Html.Raw(await ViewService.RenderAsync("StoreItemRating", Model))
