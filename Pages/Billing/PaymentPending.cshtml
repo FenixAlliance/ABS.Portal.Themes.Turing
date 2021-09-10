@@ -1,0 +1,62 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, AuthoringTagHelpers
+@{
+    var payments = (IEnumerable<FenixAlliance.ABM.Models.Accounting.Billing.Payments.Payment>)Model;
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Timestamp
+            </th>
+            <th>
+                Reference Code
+            </th>
+            <th>
+                Order
+            </th>
+            <th>
+                TotalCost
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in payments)
+        {
+            <tr>
+                <td>
+                    @item.Timestamp
+                </td>
+                <td>
+                    @item.ReferenceCode
+                </td>
+
+                <td>
+                    @item.Order.ID
+                </td>
+                <td>
+
+                    <script>
+                        document.write(CurrencyFormatter.format(fx.convert(@item.TotalCost), { from: 'USD', to: CartCurrencyCode })));
+                    </script>
+
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

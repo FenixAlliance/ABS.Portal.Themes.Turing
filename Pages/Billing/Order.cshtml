@@ -1,49 +1,704 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@{Title = "Home";}
-@{Slug = "/Home";}
 
-<div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
-        <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    Store
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+@using System
+@using System.Linq
+@using FenixAlliance
+@using FenixAlliance.ABM.Models
+@using FenixAlliance.ABM.Models.Holders
+@using FenixAlliance.ABM.Models.Accounting.Billing.Payments
+@using FenixAlliance.ACL.i18n.Resources
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Configuration
+@using FenixAlliance.ACL.Configuration.Interfaces
+@using FenixAlliance.ABM.Models.Content.Menus
+@using FenixAlliance.ABS.Core.Navigation
+@using Microsoft.Extensions.DependencyInjection
+@using Newtonsoft.Json
+@using FenixAlliance.ABS.Core.Templating.Interfaces
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.EntityFrameworkCore
+@using FenixAlliance.ABM.Data
+@using FenixAlliance.ABM.Data.Interfaces.Services
+
+@using FenixAlliance.ABM.Models.Logistics.Stock.Item
+@using FenixAlliance.ABM.SDK.Helpers
+
+
+@{
+    ViewData["Title"] = "Order details";
+    var Order = (FenixAlliance.ABM.Models.Accounting.Billing.Orders.Order)Model;
+    var TaxBase = Order.OrderTotalAmountInUSD - Order.OrderTotalTaxesInUSD;
+    var Holder = (AccountHolder)ViewData["Holder"];
+    var ForexRates = Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(Order.OrderForexRatesSnapshot);
+
+    ViewBag.DisableContainer = true;
+    ViewBag.ForceHolderHeader = true;
+}
+
+<style>
+    #invoice {
+        padding: 20px;
+    }
+
+    .invoice {
+        position: relative;
+        background-color: #FFF;
+        min-height: 680px;
+        padding: 15px
+    }
+
+        .invoice header {
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #3989c6
+        }
+
+        .invoice .company-details {
+            text-align: right
+        }
+
+
+            .invoice .company-details .name {
+                margin-top: 0;
+                margin-bottom: 0
+            }
+
+        .invoice .contacts {
+            margin-bottom: 20px
+        }
+
+        .invoice .invoice-to {
+            text-align: left
+        }
+
+            .invoice .invoice-to .to {
+                margin-top: 0;
+                margin-bottom: 0
+            }
+
+        .invoice .invoice-details {
+            text-align: right
+        }
+
+            .invoice .invoice-details .invoice-id {
+                margin-top: 0;
+                color: #3989c6
+            }
+
+        .invoice main {
+            padding-bottom: 50px
+        }
+
+            .invoice main .thanks {
+                margin-top: -100px;
+                font-size: 2em;
+                margin-bottom: 50px;
+                display: inline-flex;
+            }
+
+            .invoice main .notices {
+                padding-left: 6px;
+                border-left: 6px solid #3989c6
+            }
+
+                .invoice main .notices .notice {
+                    font-size: 1.2em
+                }
+
+        .invoice table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin-bottom: 20px;
+            vertical-align: central;
+        }
+
+            .invoice table td,
+            .invoice table th {
+                padding: 15px;
+                background: #eee;
+                border-bottom: 1px solid #fff
+            }
+
+            .invoice table th {
+                white-space: nowrap;
+                font-weight: 400;
+                font-size: 16px
+            }
+
+            .invoice table td h3 {
+                margin: 0;
+                font-weight: 400;
+                color: #3989c6;
+                font-size: 1.2em
+            }
+
+            .invoice table .qty,
+            .invoice table .total,
+            .invoice table .unit {
+                text-align: right;
+                font-size: 1.2em
+            }
+
+            .invoice table .no {
+                color: #fff;
+                font-size: 1.6em;
+                background: #3989c6
+            }
+
+            .invoice table .unit {
+                background: #ddd;
+            }
+
+            .invoice table .total {
+                background: #3989c6;
+                color: #fff
+            }
+
+            .invoice table tbody tr:last-child td {
+                border: none;
+                vertical-align: inherit
+            }
+
+            .invoice table tfoot td {
+                background: 0 0;
+                border-bottom: none;
+                white-space: nowrap;
+                text-align: right;
+                padding: 10px 20px;
+                font-size: 1.2em;
+                border-top: 1px solid #aaa;
+            }
+
+            .invoice table tfoot tr:first-child td {
+                border-top: none
+            }
+
+            .invoice table tfoot tr:last-child td {
+                color: #3989c6;
+                font-size: 1.4em;
+                border-top: 1px solid #3989c6
+            }
+
+            .invoice table tfoot tr td:first-child {
+                border: none
+            }
+
+        .invoice footer {
+            width: 100%;
+            text-align: center;
+            color: #777;
+            border-top: 1px solid #aaa;
+            padding: 8px 0
+        }
+
+    @@media (max-width: 768px) {
+        .invoice {
+            padding: 0px !important
+        }
+
+            .invoice main .thanks {
+                margin-top: -100px;
+                font-size: 2em;
+                margin-bottom: 50px;
+                margin-top: 50px;
+                display: inline-flex;
+            }
+
+            .invoice .company-details .name {
+                margin-top: 0;
+                margin-bottom: 0;
+                display: none;
+            }
+
+            .invoice .company-details {
+                text-align: center
+            }
+    }
+
+    @@media print {
+        .invoice {
+            font-size: 11px !important;
+            overflow: hidden !important;
+        }
+
+            .invoice header {
+                padding: 10px 0;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #3989c6;
+            }
+
+            .invoice footer {
+                position: absolute;
+                bottom: 10px;
+                page-break-after: always
+            }
+
+            .invoice > div:last-child {
+                page-break-before: always
+            }
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="ui-block responsive-flex">
+                <div class="ui-block-title">
+                    <div class="h3 title">@ViewData["Title"]</div>
+
+                    <div class="align-right">
+
+                        <a asp-area="Billing" asp-controller="Wallet" asp-action="Index"
+                           class="btn btn-md-2 btn-border-think custom-color c-grey">Go to your wallet</a>
+
+                        <a asp-area="Billing" asp-controller="Orders" asp-action="Index"
+                           class="btn btn-primary btn-md-2">Back to your orders</a>
+
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="ui-block">
+                <div id="invoice">
+                    <div class="invoice overflow-auto">
+                        <div>
+                            <header>
+                                <div class="row">
+                                    <div class="col company-logo my-auto">
+                                        <img src="~/images/FenixAlliance/Branding/shaphire-text-dark-80x440.png"
+                                             data-holder-rendered="true" />
+                                    </div>
+                                    <div class="col company-details">
+                                        <h2 class="name">
+                                            <a asp-area="" asp-controller="Home" asp-action="Index">
+                                                Fenix Alliance S.A.S
+                                            </a>
+                                        </h2>
+                                        <div><b>NIT:</b> 900.301.001 - 4</div>
+                                        <div><b>DUNS:</b> 881.808.077</div>
+                                        <div>
+                                            <b>Contact Phone:</b><br /> <a href="tel:+12065886716">
+                                                +1 (206) 588 6716
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <b>Support Email:</b> <br /><a href="mailto:support@@fenix-alliance.com">Open in mail</a>
+                                        </div>
+                                        <div>
+                                            <b>Headquarter Address:</b> <br /> Diagonal 67a # 1a - 10. 150003.
+                                        </div>
+                                        <div>Tunja, Boy. Colombia.</div>
+                                    </div>
+                                </div>
+                            </header>
+                            <main>
+                                <div class="row contacts">
+                                    <div class="col invoice-to">
+                                        <div class="text-gray-light">ORDER OWNER:</div>
+                                        <h2 class="to"> @Order.AccountHolder?.PublicName</h2>
+                                        <div class="email"><a href="mailto:@Holder.Email">@Holder.Email</a></div>
+                                        <div class="address">Ships to: <b>@Holder.Country?.Name</b></div>
+                                    </div>
+                                    <div class="col invoice-details">
+                                        @if (Order.Payments.Count == 0)
+                                        {
+
+                                            <h1 class="invoice-id " style="color:red">UNPAID</h1>
+
+
+                                            <script type="text/javascript"
+                                                    src="https://checkout.epayco.co/checkout.js"></script>
+
+                                            <script>
+                                                var handler = ePayco.checkout.configure({
+                                                    key: '1288b349f683d7cb429609819104c0bc',
+                                                    test: false
+                                                });
+
+                                                var ShippingAddressID = "";
+                                                var InvoiceGUID = "@Guid.NewGuid()";
+
+                                                @if (Holder.SelectedBusiness == null) {
+                                                    if (Holder.Locations.Count >= 1) {
+                                                        <text>
+                                                            ShippingAddressID = "@Holder.Locations.FirstOrDefault()?.ID";
+                                                        </text>
+                                                    }
+                                                }
+                                                else {
+                                                    @if (Holder.SelectedBusiness.BusinessLocations.Count >= 1) {
+                                                        <text>
+                                                            ShippingAddressID = "@Holder.SelectedBusiness.BusinessLocations.FirstOrDefault().ID";
+                                                        </text>
+                                                    }
+                                                }
+                                            </script>
+
+                                            <script>
+                                                var data = {
+                                                    //Parametros compra (obligatorio)
+                                                    name: "Cart Order Payment | Fenix Alliance Group",
+                                                    description: "Composite cart order. Several products and services.",
+                                                    invoice: InvoiceGUID,
+                                                    currency: "usd",
+                                                    country: "co",
+                                                    lang: "es",
+                                                    amount: "@Math.Round(Order.OrderTotalAmountInUSD).ToString().Replace(',','.')",
+                                                    tax_base: "@Math.Round(TaxBase).ToString().Replace(',', '.')",
+                                                    tax: "@Math.Round(Order.OrderTotalTaxesInUSD).ToString().Replace(',', '.')",
+
+                                                    //Onpage="false" - Standard="true"
+                                                    external: "false",
+
+                                                    //Atributos opcionales
+                                                    // Cart ID
+                                                    extra1: CartID,
+                                                    // Product ID
+                                                    extra2: "@Order.ID",
+                                                    // Holder ID
+                                                    extra3: "@Holder.Id",
+                                                    // Invoice ID
+                                                    extra4: "@Guid.NewGuid().ToString()",
+                                                    // Shipping Address ID
+                                                    extra5: ShippingAddressID,
+                                                        @if (Holder.SelectedBusiness != null) {
+                                                    <text>
+                                                            // Business ID
+                                                        extra6: "@Holder.SelectedBusiness.ID",
+                                                    </text>
+                                                }
+                                                confirmation: "https://fenixalliance.com.co/store/checkout/CartOrderConfirmation",
+                                                    response: "https://fenixalliance.com.co/store/checkout/CartOrderConfirmation",
+
+                                                       @if (Holder.SelectedBusiness == null) {
+
+                                                    <text>
+                                                                //Atributos cliente
+                                                        name_billing: "@Holder.PublicName",
+                                                        email_billing: "@Holder.Email",
+                                                        address_billing: "@Holder.AccountHolderWallet.Location?.QualifiedAddress",
+                                                        type_doc_billing: "cc",
+                                                        mobilephone_billing: "@Holder.AccountHolderWallet.Phone",
+                                                        number_doc_billing: "@Holder.AccountHolderWallet.OfficialID"
+                                                    </text>
+
+                                                }
+                                                else {
+                                                    <text>
+                                                                //Atributos cliente
+                                                        name_billing: "@Holder.SelectedBusiness.BusinessLegalName",
+                                                        number_doc_billing: "@Holder.SelectedBusiness.TaxID",
+                                                        type_doc_billing: "nit",
+                                                        email_billing: "@Holder.SelectedBusiness.BusinessEmail",
+                                                        address_billing: "@Holder.SelectedBusiness.ID",
+                                                        mobilephone_billing: "@Holder.SelectedBusiness.SupportPhoneNumber",
+                                                    </text>
+                                                }
+                                                    };
+                                            </script>
+
+                                            <a onclick="InitPayment()">
+                                                <img src="~/images/PaymentMethods/epayco_pago_seguro.png" />
+                                            </a>
+
+                                            <div class="detail-info-entry">
+                                                <div class="form-group">
+                                                    <label>Select your shipping address</label>
+                                                    <select id="ADDR" asp-items="ViewBag.Addresses"></select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <btn class="button style-16 " onclick="CreateAddressWindow();"
+                                                         style="display: block; margin-top: 10px;">
+                                                        Create new address
+                                                    </btn>
+                                                </div>
+                                                @if (Holder.SelectedBusiness != null)
+                                                {
+                                                    <script>
+                                                        function CreateAddressWindow() {
+                                                            window.open("/Business/MyBusinessLocations/Create", "Address", "width=900,height=800");
+                                                        }
+                                                    </script>
+                                                }
+                                                else
+                                                {
+                                                    <script>
+                                                        function CreateAddressWindow() {
+                                                            window.open("/ID/MyAddresses/Create", "Address", "width=900,height=800");
+                                                        }
+                                                    </script>
+                                                }
+                                            </div>
+
+                                            <script>
+                                                $(document).ready(function () {
+                                                    $("#ADDR").chosen({ width: "100%" }).change(function (e) {
+                                                        ShippingAddressID = e.target.value;
+                                                    });
+                                                    $("#ADDR").trigger("chosen:updated");
+                                                });
+
+                                                function InitPayment() {
+                                                    handler.open(data);
+                                                }
+                                            </script>
+                                        }
+                                        else
+                                        {
+                                            <h1 class="invoice-id " style="color:darkblue">
+                                                @Order.Payments.FirstOrDefault().ReportedState
+                                            </h1>
+                                            if (Order.Payments.FirstOrDefault().PaymentStatus == PaymentStatus.Accepted)
+                                            {
+                                                <text>
+                                                    <script src="https://apis.google.com/js/platform.js?onload=renderOptIn"
+                                                            async defer></script>
+
+                                                    <script>
+                                                    window.renderOptIn = function () {
+                                                        window.gapi.load('surveyoptin', function () {
+                                                            window.gapi.surveyoptin.render(
+                                                                {
+                                                                    // REQUIRED FIELDS
+                                                                    "merchant_id": 118495305,
+                                                                    "order_id": "@Order.ID",
+                                                                    "email": "@Order.AccountHolder.Email",
+                                                                    "delivery_country": "@Holder.Country.ISOAlpha2",
+                                                                    "estimated_delivery_date": "@Order.Timestamp.AddDays(@Order.ItemOrderRecords.Average(c => c.ItemShipmentPolicy.Days)).ToString("yyyy- MM - dd")",
+
+                                                                        //// OPTIONAL FIELDS
+                                                                        //"products": [{ "gtin": "GTIN1" }, { "gtin": "GTIN2" }]
+                                                                        });
+                                                    });
+                                                        }
+                                                    </script>
+                                                </text>
+                                            }
+                                        }
+                                        <br />
+                                        <div class="date">
+                                            <b>Created Date</b>: @Order.Timestamp
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table" border="0" cellspacing="0" cellpadding="0">
+                                        <thead>
+                                            <tr>
+                                                <th>SKU</th>
+                                                <th class="text-left">PRODUCT DESCRIPTION</th>
+                                                <th class="text-right">PRICE BEFORE TAXES</th>
+                                                <th class="text-right">QUANTITY</th>
+                                                <th class="text-right">TOTAL</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var ProductOrderRegistration in Order.ItemOrderRecords)
+                                            {
+                                                var ShippingDays = 4;
+
+                                                if (Order.Timestamp.DayOfWeek == DayOfWeek.Saturday)
+                                                {
+                                                    ShippingDays = ShippingDays + 2;
+                                                }
+
+                                                if (Order.Timestamp.DayOfWeek == DayOfWeek.Sunday)
+                                                {
+                                                    ShippingDays = ShippingDays + 1;
+                                                }
+
+                                                <tr>
+                                                    <td class="no">@ProductOrderRegistration.Item.SKU</td>
+                                                    <td class="text-left">
+                                                        <a asp-area="Store" asp-controller="Products"
+                                                           asp-action="Details"
+                                                           asp-route-id="@ProductOrderRegistration.Item.ID">
+                                                            <h3>
+                                                                @ProductOrderRegistration.Item.Title
+                                                            </h3>
+                                                        </a>
+                                                        <p>
+                                                            @Html.Raw(ProductOrderRegistration.Item.ShortDescription)
+                                                        </p>
+                                                        <h5>Applied Taxes:</h5>
+                                                        @foreach (var AppliedTax in ProductOrderRegistration.OrderAppliedTaxPolicyRecords)
+                                                        {
+                                                            <p><b>@AppliedTax.TaxPolicy.Title</b></p>
+                                                        }
+
+                                                        <h5>Shipping Status:</h5>
+                                                        @if (ProductOrderRegistration.Shipments == null)
+                                                        {
+                                                            if (Order.Payments.Any(c => c.ReportedResponseCode == 1.ToString()))
+                                                            {
+                                                                <p>
+                                                                    <b>Processing</b>
+                                                                </p>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            // TODO: Add Address for this shipment
+                                                            <p>
+                                                                <b>Shipments</b>
+                                                            </p>
+                                                            foreach (var ItemOrderShipment in ProductOrderRegistration.Shipments)
+                                                            {
+                                                                <p>
+                                                                    Expected Delivery Date: @ItemOrderShipment.ExpectedDeliveryDate
+                                                                </p>
+                                                            }
+                                                        }
+
+                                                        @if (Order.Timestamp.AddDays(ShippingDays).DayOfWeek == DayOfWeek.Saturday)
+                                                        {
+                                                            ShippingDays = ShippingDays + 2;
+                                                        }
+                                                        @if (Order.Timestamp.AddDays(ShippingDays).DayOfWeek == DayOfWeek.Sunday)
+                                                        {
+                                                            ShippingDays = ShippingDays + 1;
+                                                        }
+                                                        <p>
+                                                            <b>
+                                                                Expected Arrival:
+                                                                @Order.Timestamp.AddDays(ShippingDays).ToShortDateString()
+                                                            </b>
+                                                        </p>
+
+                                                        <p>
+                                                            <b>
+                                                                Shipping Policy:@{var ShipmentPolicy = ProductOrderRegistration.ItemShipmentPolicy?.Title ?? "None";}
+                                                                @ShipmentPolicy
+                                                            </b>
+                                                        </p>
+                                                        <p>
+                                                            <b>
+                                                                Warranty Policy: @{var WarrantyPolicy = ProductOrderRegistration.WarrantyPolicy?.Title ?? "None";} @WarrantyPolicy
+                                                            </b>
+                                                        </p>
+                                                        <p>
+                                                            <b>
+                                                                Refund Policy: @{var RefundPolicy = ProductOrderRegistration.RefundPolicy?.Title ?? "None";}        @RefundPolicy
+                                                            </b>
+                                                        </p>
+                                                        <p>
+                                                            <b>
+                                                                Return Policy: @{var ReturnPolicy = ProductOrderRegistration.ReturnPolicy?.Title ?? "None";}        @ReturnPolicy
+                                                            </b>
+                                                        </p>
+
+                                                    </td>
+                                                    <td class="unit">
+                                                        @await Component.InvokeAsync("Price", new
+                                                        {
+                                                            Amount = ((ProductOrderRegistration.TotalInUSD - ProductOrderRegistration.TotalTaxesInUSD) / ProductOrderRegistration.Quantity),
+                                                            Currency = "USD",
+                                                            PrintUnformatted = false
+                                                        })
+                                                    </td>
+                                                    <td class="qty">@ProductOrderRegistration.Quantity</td>
+                                                    <td class="total">
+                                                        @await Component.InvokeAsync("Price", new
+                                                        {
+                                                           Amount = ProductOrderRegistration.TotalInUSD,
+                                                           Currency = "USD",
+                                                           PrintUnformatted = false
+                                                       })
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="2"></td>
+                                                <td colspan="2">SUBTOTAL</td>
+                                                <td>
+                                                    @await Component.InvokeAsync("Price", new { Amount = TaxBase, Currency = "USD", PrintUnformatted = false })
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2"></td>
+                                                <td colspan="2">TAX</td>
+                                                <td>
+                                                    @await Component.InvokeAsync("Price", new { Amount = Order.OrderTotalTaxesInUSD, Currency = "USD", PrintUnformatted = false })
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2"></td>
+                                                <td colspan="2">GRAND TOTAL</td>
+                                                <td>
+                                                    @await Component.InvokeAsync("Price", new { Amount = Order.OrderTotalAmountInUSD, Currency = "USD", PrintUnformatted = false })
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
+
+                                <div class="table-responsive">
+                                    <table class="table" border="0" cellspacing="0" cellpadding="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Timestamp</th>
+                                                <th>Official ID</th>
+                                                <th class="text-center">PAYMENT METHOD</th>
+                                                <th class="text-center">Authorization Code</th>
+                                                <th class="text-center">PAYMENT STATUS</th>
+                                                <th class="text-center">BILLING ADDRESS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var Payment in Order.Payments)
+                                            {
+                                                <tr>
+                                                    <td class="no">
+                                                        @Payment.Timestamp
+                                                    </td>
+                                                    <td class="unit text-left">
+                                                        @Payment.OfficialIDType: @Payment.OfficialID
+                                                    </td>
+                                                    <td class="text-center unit">
+                                                        @Payment.ReportedAuthorization
+                                                    </td>
+                                                    <td class="qty text-center">
+                                                        @Payment.ReportedState
+                                                    </td>
+                                                    <td class="total">
+                                                        @Payment.BillingAddress
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="thanks">Thank you for your order! 😃</div>
+                                <div class="notices">
+                                    <div>NOTICE:</div>
+                                    <div class="notice">
+                                        Your order will be processed in US dollars. Prices before
+                                        VAT, except Cloud products by subscription, which are excluded from VAT. For
+                                        all modalities of licensing and recurring payments, it will be billed to the
+                                        TRM of the US Dollar on the billing day.
+                                    </div>
+                                </div>
+                            </main>
+                            <footer>
+                                This order id valid was digitally expedited and is valid without the signature and
+                                seal.
+                            </footer>
+                        </div>
+                        <!--DO NOT DELETE THIS div. IT is responsible for showing footer always at the bottom-->
+                        <div></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1,49 +1,138 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@{Title = "Home";}
-@{Slug = "/Home";}
+@using Humanizer
 
-<div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
-        <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    Store
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+@{
+    var orders = (IEnumerable<FenixAlliance.ABM.Models.Accounting.Billing.Orders.Order>)Model;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col col-xl-9 order-xl-2 col-lg-9 order-lg-2 col-md-12 order-md-1 col-sm-12 col-12">
+            <div class="ui-block">
+                <div class="ui-block-title">
+                    <h6 class="title">Your Orders</h6>
+                </div>
+
+                <ul class="notification-list friend-requests">
+                    @foreach (var order in orders.OrderByDescending(c => c.Timestamp))
+                    {
+                        <li>
+                            <div class="author-thumb">
+                                <img src="~/images/InfinityComex/Avatar.png" style="max-height:40px" alt="author">
+                            </div>
+                            <div class="notification-event">
+                                <a asp-area="Billing" asp-controller="Orders" asp-action="Details" asp-route-id="@order.ID" class="h6 notification-friend">
+                                    <b>Price including taxes:</b>
+                                    <script>
+                                         document.write(CurrencyFormatter.format(fx.convert(@order.OrderTotalAmountInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));
+                                    </script>
+                                </a>
+                                <span class="chat-message-order">
+                                    @order.Title
+                                </span>
+                                <span class="chat-message-order">
+                                    <b>Products:</b> @order.ItemOrderRecords.Count
+                                    <br />
+                                </span>
+                                <span class="chat-message-order">
+                                    <b>Created: </b> @order.Timestamp.Humanize()
+                                    <br />
+                                </span>
+                                @if (order.Payments.Count > 0)
+                                {
+                                    <span class="chat-message-order">
+                                        <b>Payment status: </b><b style="color:royalblue"> @order.Payments.FirstOrDefault().ReportedState</b>
+                                    </span>
+                                }
+                            </div>
+                            <span class="notification-icon">
+                                @if (order.Payments.Count == 0)
+                                {
+                                    if (DateTime.Compare(order.Timestamp.AddDays(1), DateTime.Now) > 0)
+                                    {
+
+                                        <a asp-area="Billing" asp-controller="Orders" asp-action="Details" asp-route-id="@order.ID" style="margin-bottom:10px;" class="btn btn-success">
+                                            <i class="fas fa-check"></i>
+                                            &nbsp; Pay this order
+                                        </a>
+
+                                        <a asp-area="Billing" asp-controller="Orders" asp-action="Delete" asp-route-id="@order.ID" style="margin-bottom:10px;" class="btn btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                            &nbsp; Delete
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <form method="POST" asp-action="Delete" asp-route-id="@order.ID">
+                                            <input type="submit" value="No longer valid. Click to remove" class="btn btn-block btn-danger" /> |
+                                        </form>
+                                    }
+                                }
+                                else
+                                {
+                                    <a asp-area="Billing" asp-controller="Orders" asp-action="Details" asp-route-id="@order.ID" style="margin-bottom:10px;" class="btn btn-blue">
+                                        <i class="fas fa-money-bill"></i>
+                                        &nbsp; View Payment and invoice
+                                    </a>
+                                }
+
+                            </span>
+                        </li>
+
+                    }
+
+                </ul>
+
+                <!-- ... end  -->
             </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+
+        </div>
+
+        <div class="col col-xl-3 order-xl-1 col-lg-3 order-lg-1 col-md-12 order-md-2 col-sm-12  responsive-display-none">
+            <div class="ui-block">
+
+                <!-- Your Profile  -->
+
+                <div class="your-profile">
+                    <div class="ui-block-title ui-block-title-small">
+                        <h6 class="title">Your Billing Profile</h6>
+                    </div>
+
+                    <div id="accordion" role="tablist" aria-multiselectable="true">
+                        <div class="card">
+                            <div class="card-header" role="tab" id="headingOne">
+                                <h6 class="mb-0">
+                                    Your Wallet
+                                </h6>
+                            </div>
+
+                            <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
+                                <ul class="your-profile-menu">
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Wallet" asp-action="Index">Wallet Account</a>
+                                    </li>
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Methods" asp-action="Index">Payment Methods</a>
+                                    </li>
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Orders" asp-action="Index">Orders</a>
+                                    </li>
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Invoices" asp-action="Index">Invoices</a>
+                                    </li>
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Payments" asp-action="Index">Payments</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui-block-title">
+                        <a asp-area="Store" asp-controller="Checkout" asp-action="PlaceOrderFromCart" class="h3 title">Place Order From Cart</a>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
