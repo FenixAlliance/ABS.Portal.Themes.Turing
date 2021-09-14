@@ -1,4 +1,6 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, AuthoringTagHelpers
 
 @using System
 @using System.Linq
@@ -28,9 +30,9 @@
     ViewData["Title"] = "Order details";
     var Order = (FenixAlliance.ABM.Models.Accounting.Billing.Orders.Order)Model;
     var TaxBase = Order.OrderTotalAmountInUSD - Order.OrderTotalTaxesInUSD;
-    var Holder = (AccountHolder)ViewData["Holder"];
+    var Holder = Order.AccountHolder;
     var ForexRates = Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(Order.OrderForexRatesSnapshot);
-
+    var tenant = await DataContext.Business.AsAsyncEnumerable().Where(c => c.ID == WebPortal.BusinessID).FirstOrDefaultAsync();
     ViewBag.DisableContainer = true;
     ViewBag.ForceHolderHeader = true;
 }
@@ -249,10 +251,10 @@
 
                     <div class="align-right">
 
-                        <a asp-area="Billing" asp-controller="Wallet" asp-action="Index"
+                        <a href="Billing/Wallet/Index"
                            class="btn btn-md-2 btn-border-think custom-color c-grey">Go to your wallet</a>
 
-                        <a asp-area="Billing" asp-controller="Orders" asp-action="Index"
+                        <a href="Billing/Orders/Index"
                            class="btn btn-primary btn-md-2">Back to your orders</a>
 
                     </div>
@@ -261,6 +263,7 @@
         </div>
     </div>
 </div>
+
 
 <div class="container">
     <div class="row">
@@ -272,29 +275,44 @@
                             <header>
                                 <div class="row">
                                     <div class="col company-logo my-auto">
-                                        <img src="~/images/FenixAlliance/Branding/shaphire-text-dark-80x440.png"
-                                             data-holder-rendered="true" />
+                                        <img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/GenericLogo.svg")" onerror="this.src='/ui/images/GenericLogo.svg'" style="max-height:45px" data-holder-rendered="true" />
                                     </div>
                                     <div class="col company-details">
+
                                         <h2 class="name">
-                                            <a asp-area="" asp-controller="Home" asp-action="Index">
-                                                Fenix Alliance S.A.S
-                                            </a>
+                                            @tenant?.BusinessLegalName
                                         </h2>
-                                        <div><b>NIT:</b> 900.301.001 - 4</div>
-                                        <div><b>DUNS:</b> 881.808.077</div>
-                                        <div>
-                                            <b>Contact Phone:</b><br /> <a href="tel:+12065886716">
-                                                +1 (206) 588 6716
-                                            </a>
-                                        </div>
-                                        <div>
-                                            <b>Support Email:</b> <br /><a href="mailto:support@@fenix-alliance.com">Open in mail</a>
-                                        </div>
-                                        <div>
-                                            <b>Headquarter Address:</b> <br /> Diagonal 67a # 1a - 10. 150003.
-                                        </div>
-                                        <div>Tunja, Boy. Colombia.</div>
+
+                                        <div><b>Tax ID</b>: @tenant?.TaxID</div>
+                                        @if (!string.IsNullOrEmpty(@tenant?.DUNS))
+                                        {
+
+                                            <div><b>DUNS:</b> @tenant?.DUNS</div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(@tenant?.SupportPhoneNumber))
+                                        {
+
+                                            <div>
+                                                <b>Contact Phone:</b><br /> <a href="tel:+12065886716">
+                                                    @tenant.SupportPhoneNumber
+                                                </a>
+                                            </div>
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(@tenant?.BusinessEmail))
+                                        {
+
+                                            <div>
+                                                <b>Support Email:</b> <br /><a href="mailto:@tenant.BusinessEmail">Open in mail</a>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(@tenant?.SupportPhoneNumber))
+                                        {
+                                            <div>
+                                                <b>Headquarter Address:</b> <br /> Diagonal 67a # 1a - 10. 150003.
+                                            </div>
+                                            <div>Tunja, Boy. Colombia.</div>
+                                        }
                                     </div>
                                 </div>
                             </header>
@@ -303,8 +321,8 @@
                                     <div class="col invoice-to">
                                         <div class="text-gray-light">ORDER OWNER:</div>
                                         <h2 class="to"> @Order.AccountHolder?.PublicName</h2>
-                                        <div class="email"><a href="mailto:@Holder.Email">@Holder.Email</a></div>
-                                        <div class="address">Ships to: <b>@Holder.Country?.Name</b></div>
+                                        <div class="email"><a href="mailto:@Order.AccountHolder.Email">@Order.AccountHolder?.Email</a></div>
+                                        <div class="address">Ships to: <b>@Order.AccountHolder.Country?.Name</b></div>
                                     </div>
                                     <div class="col invoice-details">
                                         @if (Order.Payments.Count == 0)
@@ -312,9 +330,34 @@
 
                                             <h1 class="invoice-id " style="color:red">UNPAID</h1>
 
+                                            <script type="text/javascript" src="https://checkout.epayco.co/checkout.js"></script>
 
-                                            <script type="text/javascript"
-                                                    src="https://checkout.epayco.co/checkout.js"></script>
+
+
+                                            <button class="btn btn-success" onclick="InitPayment()">
+                                                Pay
+                                            </button>
+
+                                            <div class="detail-info-entry">
+
+                                                <div class="form-group">
+                                                    <label>Select your shipping address</label>
+                                                    <select id="ADDR" asp-items="ViewBag.Addresses"></select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <btn class="button style-16 " onclick="CreateAddressWindow();"
+                                                         style="display: block; margin-top: 10px;">
+                                                        Create new address
+                                                    </btn>
+                                                </div>
+                                                <script>
+                                                    function CreateAddressWindow() {
+                                                        window.open("/Account/Locations/Create", "Address", "width=900,height=800");
+                                                    }
+                                                </script>
+
+                                            </div>
 
                                             <script>
                                                 var handler = ePayco.checkout.configure({
@@ -325,22 +368,21 @@
                                                 var ShippingAddressID = "";
                                                 var InvoiceGUID = "@Guid.NewGuid()";
 
-                                                @if (Holder.SelectedBusiness == null) {
-                                                    if (Holder.Locations.Count >= 1) {
+                                                @if (Order.AccountHolder.SelectedBusiness == null) {
+                                                    if (Order.AccountHolder.Locations.Count >= 1) {
                                                         <text>
-                                                            ShippingAddressID = "@Holder.Locations.FirstOrDefault()?.ID";
+                                                            ShippingAddressID = "@Order.AccountHolder.Locations.FirstOrDefault()?.ID";
                                                         </text>
                                                     }
                                                 }
                                                 else {
-                                                    @if (Holder.SelectedBusiness.BusinessLocations.Count >= 1) {
+                                                    @if (Order.AccountHolder.SelectedBusiness.BusinessLocations.Count >= 1) {
                                                         <text>
-                                                            ShippingAddressID = "@Holder.SelectedBusiness.BusinessLocations.FirstOrDefault().ID";
+                                                            ShippingAddressID = "@Order.AccountHolder.SelectedBusiness.BusinessLocations.FirstOrDefault().ID";
                                                         </text>
                                                     }
                                                 }
                                             </script>
-
                                             <script>
                                                 var data = {
                                                     //Parametros compra (obligatorio)
@@ -363,80 +405,47 @@
                                                     // Product ID
                                                     extra2: "@Order.ID",
                                                     // Holder ID
-                                                    extra3: "@Holder.Id",
+                                                    extra3: "@Order.AccountHolder.Id",
                                                     // Invoice ID
                                                     extra4: "@Guid.NewGuid().ToString()",
                                                     // Shipping Address ID
                                                     extra5: ShippingAddressID,
-                                                        @if (Holder.SelectedBusiness != null) {
-                                                    <text>
-                                                            // Business ID
-                                                        extra6: "@Holder.SelectedBusiness.ID",
-                                                    </text>
-                                                }
+                                                    @if (Order.AccountHolder.SelectedBusiness != null) {
+                                                        <text>
+                                                                // Business ID
+                                                            extra6: "@Order.AccountHolder.SelectedBusiness.ID",
+                                                        </text>
+                                                    }
                                                 confirmation: "https://fenixalliance.com.co/store/checkout/CartOrderConfirmation",
                                                     response: "https://fenixalliance.com.co/store/checkout/CartOrderConfirmation",
 
-                                                       @if (Holder.SelectedBusiness == null) {
+                                                    @if (Order.AccountHolder.SelectedBusiness == null) {
 
-                                                    <text>
-                                                                //Atributos cliente
-                                                        name_billing: "@Holder.PublicName",
-                                                        email_billing: "@Holder.Email",
-                                                        address_billing: "@Holder.AccountHolderWallet.Location?.QualifiedAddress",
-                                                        type_doc_billing: "cc",
-                                                        mobilephone_billing: "@Holder.AccountHolderWallet.Phone",
-                                                        number_doc_billing: "@Holder.AccountHolderWallet.OfficialID"
-                                                    </text>
+                                                        <text>
+                                                                    //Atributos cliente
+                                                            name_billing: "@Order.AccountHolder.PublicName",
+                                                            email_billing: "@Order.AccountHolder.Email",
+                                                            address_billing: "@Order.AccountHolder.AccountHolderWallet?.Location?.QualifiedAddress",
+                                                            type_doc_billing: "cc",
+                                                            mobilephone_billing: "@Holder.AccountHolderWallet?.Phone",
+                                                            number_doc_billing: "@Holder.AccountHolderWallet?.OfficialID"
+                                                        </text>
 
-                                                }
-                                                else {
-                                                    <text>
-                                                                //Atributos cliente
-                                                        name_billing: "@Holder.SelectedBusiness.BusinessLegalName",
-                                                        number_doc_billing: "@Holder.SelectedBusiness.TaxID",
-                                                        type_doc_billing: "nit",
-                                                        email_billing: "@Holder.SelectedBusiness.BusinessEmail",
-                                                        address_billing: "@Holder.SelectedBusiness.ID",
-                                                        mobilephone_billing: "@Holder.SelectedBusiness.SupportPhoneNumber",
-                                                    </text>
-                                                }
-                                                    };
+                                                    }
+                                                    else
+                                                    {
+                                                        <text>
+                                                                    //Atributos cliente
+                                                            name_billing: "@Holder.SelectedBusiness.BusinessLegalName",
+                                                            number_doc_billing: "@Holder.SelectedBusiness.TaxID",
+                                                            type_doc_billing: "nit",
+                                                            email_billing: "@Holder.SelectedBusiness.BusinessEmail",
+                                                            address_billing: "@Holder.SelectedBusiness.ID",
+                                                            mobilephone_billing: "@Holder.SelectedBusiness.SupportPhoneNumber",
+                                                        </text>
+                                                    }
+                                                };
                                             </script>
-
-                                            <a onclick="InitPayment()">
-                                                <img src="~/images/PaymentMethods/epayco_pago_seguro.png" />
-                                            </a>
-
-                                            <div class="detail-info-entry">
-                                                <div class="form-group">
-                                                    <label>Select your shipping address</label>
-                                                    <select id="ADDR" asp-items="ViewBag.Addresses"></select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <btn class="button style-16 " onclick="CreateAddressWindow();"
-                                                         style="display: block; margin-top: 10px;">
-                                                        Create new address
-                                                    </btn>
-                                                </div>
-                                                @if (Holder.SelectedBusiness != null)
-                                                {
-                                                    <script>
-                                                        function CreateAddressWindow() {
-                                                            window.open("/Business/MyBusinessLocations/Create", "Address", "width=900,height=800");
-                                                        }
-                                                    </script>
-                                                }
-                                                else
-                                                {
-                                                    <script>
-                                                        function CreateAddressWindow() {
-                                                            window.open("/ID/MyAddresses/Create", "Address", "width=900,height=800");
-                                                        }
-                                                    </script>
-                                                }
-                                            </div>
-
                                             <script>
                                                 $(document).ready(function () {
                                                     $("#ADDR").chosen({ width: "100%" }).change(function (e) {
@@ -452,33 +461,35 @@
                                         }
                                         else
                                         {
+
+                                            <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+
+                                            <script>
+                                            window.renderOptIn = function () {
+                                                window.gapi.load('surveyoptin', function () {
+                                                    window.gapi.surveyoptin.render(
+                                                    {
+                                                        // REQUIRED FIELDS
+                                                        "merchant_id": 118495305,
+                                                        "order_id": "@Order.ID",
+                                                        "email": "@Order.AccountHolder.Email",
+                                                        "delivery_country": "@((await DataContext.Country.AsAsyncEnumerable().FirstOrDefaultAsync(c=>c.ID == Holder.CountryID))?.ISO2 ?? "US")",
+                                                        "estimated_delivery_date": "@Order.Timestamp.AddDays(10).ToString("yyy-MM-dd")",
+
+                                                            //// OPTIONAL FIELDS
+                                                            //"products": [{ "gtin": "GTIN1" }, { "gtin": "GTIN2" }]
+                                                    });
+                                                });
+                                            }
+                                            </script>
+
                                             <h1 class="invoice-id " style="color:darkblue">
                                                 @Order.Payments.FirstOrDefault().ReportedState
                                             </h1>
                                             if (Order.Payments.FirstOrDefault().PaymentStatus == PaymentStatus.Accepted)
                                             {
                                                 <text>
-                                                    <script src="https://apis.google.com/js/platform.js?onload=renderOptIn"
-                                                            async defer></script>
 
-                                                    <script>
-                                                    window.renderOptIn = function () {
-                                                        window.gapi.load('surveyoptin', function () {
-                                                            window.gapi.surveyoptin.render(
-                                                                {
-                                                                    // REQUIRED FIELDS
-                                                                    "merchant_id": 118495305,
-                                                                    "order_id": "@Order.ID",
-                                                                    "email": "@Order.AccountHolder.Email",
-                                                                    "delivery_country": "@Holder.Country.ISOAlpha2",
-                                                                    "estimated_delivery_date": "@Order.Timestamp.AddDays(@Order.ItemOrderRecords.Average(c => c.ItemShipmentPolicy.Days)).ToString("yyyy- MM - dd")",
-
-                                                                        //// OPTIONAL FIELDS
-                                                                        //"products": [{ "gtin": "GTIN1" }, { "gtin": "GTIN2" }]
-                                                                        });
-                                                    });
-                                                        }
-                                                    </script>
                                                 </text>
                                             }
                                         }
@@ -488,6 +499,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="table-responsive">
                                     <table class="table" border="0" cellspacing="0" cellpadding="0">
                                         <thead>
@@ -517,7 +529,7 @@
                                                 <tr>
                                                     <td class="no">@ProductOrderRegistration.Item.SKU</td>
                                                     <td class="text-left">
-                                                        <a asp-area="Store" asp-controller="Products"
+                                                        <a href="Store/Products"
                                                            asp-action="Details"
                                                            asp-route-id="@ProductOrderRegistration.Item.ID">
                                                             <h3>
@@ -642,42 +654,6 @@
                                 </div>
 
 
-                                <div class="table-responsive">
-                                    <table class="table" border="0" cellspacing="0" cellpadding="0">
-                                        <thead>
-                                            <tr>
-                                                <th>Timestamp</th>
-                                                <th>Official ID</th>
-                                                <th class="text-center">PAYMENT METHOD</th>
-                                                <th class="text-center">Authorization Code</th>
-                                                <th class="text-center">PAYMENT STATUS</th>
-                                                <th class="text-center">BILLING ADDRESS</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var Payment in Order.Payments)
-                                            {
-                                                <tr>
-                                                    <td class="no">
-                                                        @Payment.Timestamp
-                                                    </td>
-                                                    <td class="unit text-left">
-                                                        @Payment.OfficialIDType: @Payment.OfficialID
-                                                    </td>
-                                                    <td class="text-center unit">
-                                                        @Payment.ReportedAuthorization
-                                                    </td>
-                                                    <td class="qty text-center">
-                                                        @Payment.ReportedState
-                                                    </td>
-                                                    <td class="total">
-                                                        @Payment.BillingAddress
-                                                    </td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
 
                                 <div class="thanks">Thank you for your order! 😃</div>
                                 <div class="notices">
@@ -697,6 +673,57 @@
                         </div>
                         <!--DO NOT DELETE THIS div. IT is responsible for showing footer always at the bottom-->
                         <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container" style="margin-bottom:25px">
+    <div class="row">
+        <div class="col col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Payments</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" border="0" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Official ID</th>
+                                    <th class="text-center">PAYMENT METHOD</th>
+                                    <th class="text-center">Authorization Code</th>
+                                    <th class="text-center">PAYMENT STATUS</th>
+                                    <th class="text-center">BILLING ADDRESS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var Payment in Order.Payments)
+                                {
+                                    <tr>
+                                        <td class="no">
+                                            @Payment.Timestamp
+                                        </td>
+                                        <td class="unit text-left">
+                                            @Payment.OfficialIDType: @Payment.OfficialID
+                                        </td>
+                                        <td class="text-center unit">
+                                            @Payment.ReportedAuthorization
+                                        </td>
+                                        <td class="qty text-center">
+                                            @Payment.ReportedState
+                                        </td>
+                                        <td class="total">
+                                            @Payment.BillingAddress
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

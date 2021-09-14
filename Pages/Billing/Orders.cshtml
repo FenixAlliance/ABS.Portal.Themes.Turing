@@ -1,6 +1,10 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
 @using Humanizer
-
+@using System
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using System.Linq
+@using System.Collections.Generic
+@using System.Collections.Generic
 @{
     var orders = (IEnumerable<FenixAlliance.ABM.Models.Accounting.Billing.Orders.Order>)Model;
 }
@@ -17,27 +21,29 @@
                     @foreach (var order in orders.OrderByDescending(c => c.Timestamp))
                     {
                         <li>
-                            <div class="author-thumb">
-                                <img src="~/images/InfinityComex/Avatar.png" style="max-height:40px" alt="author">
-                            </div>
+
                             <div class="notification-event">
-                                <a asp-area="Billing" asp-controller="Orders" asp-action="Details" asp-route-id="@order.ID" class="h6 notification-friend">
-                                    <b>Price including taxes:</b>
-                                    <script>
-                                         document.write(CurrencyFormatter.format(fx.convert(@order.OrderTotalAmountInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));
-                                    </script>
-                                </a>
-                                <span class="chat-message-order">
-                                    @order.Title
-                                </span>
-                                <span class="chat-message-order">
-                                    <b>Products:</b> @order.ItemOrderRecords.Count
-                                    <br />
-                                </span>
                                 <span class="chat-message-order">
                                     <b>Created: </b> @order.Timestamp.Humanize()
                                     <br />
                                 </span>
+                                <span class="chat-message-order">
+                                    <b>ID:</b> @order.ID
+                                    <br />
+                                </span>
+                                <span class="chat-message-order">
+                                    <b>Price including taxes:</b>
+                                    <script>
+                                         document.write(CurrencyFormatter.format(fx.convert(@order.OrderTotalAmountInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));
+                                    </script>
+                                    <br />
+                                </span>
+
+                                <span class="chat-message-order">
+                                    <b>Products:</b> @order.ItemOrderRecords.Count
+                                    <br />
+                                </span>
+
                                 @if (order.Payments.Count > 0)
                                 {
                                     <span class="chat-message-order">
@@ -45,38 +51,38 @@
                                     </span>
                                 }
                             </div>
-                            <span class="notification-icon">
+                            <div class="notification-icon" style="max-width:300px">
                                 @if (order.Payments.Count == 0)
                                 {
                                     if (DateTime.Compare(order.Timestamp.AddDays(1), DateTime.Now) > 0)
                                     {
 
-                                        <a asp-area="Billing" asp-controller="Orders" asp-action="Details" asp-route-id="@order.ID" style="margin-bottom:10px;" class="btn btn-success">
+                                        <a href="Billing/Orders/Details/@order.ID" style="margin-bottom:10px;" class="btn btn-success">
                                             <i class="fas fa-check"></i>
                                             &nbsp; Pay this order
                                         </a>
 
-                                        <a asp-area="Billing" asp-controller="Orders" asp-action="Delete" asp-route-id="@order.ID" style="margin-bottom:10px;" class="btn btn-danger">
+                                        <a href="Billing/Orders/Delete/@order.ID" style="margin-bottom:10px;" class="btn btn-danger">
                                             <i class="fas fa-trash"></i>
                                             &nbsp; Delete
                                         </a>
                                     }
                                     else
                                     {
-                                        <form method="POST" asp-action="Delete" asp-route-id="@order.ID">
-                                            <input type="submit" value="No longer valid. Click to remove" class="btn btn-block btn-danger" /> |
-                                        </form>
+                                        <a href="Billing/Orders/Delete/@order.ID" style="margin-bottom:10px;" class="btn btn-danger">
+                                                No longer valid. Click to remove
+                                        </a>
                                     }
                                 }
                                 else
                                 {
-                                    <a asp-area="Billing" asp-controller="Orders" asp-action="Details" asp-route-id="@order.ID" style="margin-bottom:10px;" class="btn btn-blue">
+                                    <a href="Billing/Orders/Details/@order.ID" style="margin-bottom:10px;" class="btn btn-blue">
                                         <i class="fas fa-money-bill"></i>
                                         &nbsp; View Payment and invoice
                                     </a>
                                 }
 
-                            </span>
+                            </div>
                         </li>
 
                     }
@@ -109,19 +115,19 @@
                             <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
                                 <ul class="your-profile-menu">
                                     <li>
-                                        <a asp-area="Billing" asp-controller="Wallet" asp-action="Index">Wallet Account</a>
+                                        <a href="Billing/Wallet/Index">Wallet Account</a>
                                     </li>
                                     <li>
-                                        <a asp-area="Billing" asp-controller="Methods" asp-action="Index">Payment Methods</a>
+                                        <a href="Billing/Methods/Index">Payment Methods</a>
                                     </li>
                                     <li>
-                                        <a asp-area="Billing" asp-controller="Orders" asp-action="Index">Orders</a>
+                                        <a href="Billing/Orders/Index">Orders</a>
                                     </li>
                                     <li>
-                                        <a asp-area="Billing" asp-controller="Invoices" asp-action="Index">Invoices</a>
+                                        <a href="Billing/Invoices/Index">Invoices</a>
                                     </li>
                                     <li>
-                                        <a asp-area="Billing" asp-controller="Payments" asp-action="Index">Payments</a>
+                                        <a href="Billing/Payments/Index">Payments</a>
                                     </li>
                                 </ul>
                             </div>
@@ -129,7 +135,7 @@
                     </div>
 
                     <div class="ui-block-title">
-                        <a asp-area="Store" asp-controller="Checkout" asp-action="PlaceOrderFromCart" class="h3 title">Place Order From Cart</a>
+                        <a href="Store/Checkout/PlaceOrderFromCart" class="h3 title">Place Order From Cart</a>
                     </div>
 
                 </div>
