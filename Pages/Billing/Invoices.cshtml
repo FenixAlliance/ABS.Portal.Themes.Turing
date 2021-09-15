@@ -173,7 +173,9 @@
             }
     }
 </style>
+
 <div id="invoice">
+
     <div class="toolbar hidden-print">
         <div class="text-right">
             <button id="printInvoice" class="btn btn-info"><i class="fa fa-print"></i> Print</button>
@@ -181,6 +183,7 @@
         </div>
         <hr>
     </div>
+
     <div class="invoice overflow-auto">
         <div style="min-width: 600px">
             <header>
@@ -213,14 +216,23 @@
 
 
                         <h2 class="to"> @invoice.ReceptorWalletAccount.LegalName</h2>
+
                         <div class="address">@invoice.ReceptorWalletAccount.LegalName</div>
-                        <div class="email"><a href="mailto:@invoice.ReceptorWalletAccount.LegalName)">@invoice.ReceptorWalletAccount.LegalName</a></div>
+
+                        <div class="email">
+                            <a href="mailto:@invoice.ReceptorWalletAccount.LegalName)">
+                                @invoice.ReceptorWalletAccount.LegalName
+                            </a>
+                        </div>
+
                     </div>
+
                     <div class="col invoice-details">
                         <h1 class="invoice-id">INVOICE</h1>
                         @*<div class="date">Date: @Html.DisplayFor(model => model.Payment.Timestamp)</div>*@
                         @*<div class="date">Order Reference: @Html.DisplayFor(model => model.Payment.OrderID)</div>*@
                     </div>
+
                 </div>
                 <table border="0" cellspacing="0" cellpadding="0">
                     <thead>
@@ -249,9 +261,6 @@
                                     </a>
                                     @Payment.CurrencyID
                                 </td>
-                                @*<td class="unit">@Html.DisplayFor(model => model.ReportedTaxBase)</td>
-                                    <td class="qty">@Html.DisplayFor(model => model.ReportedTax)</td>
-                                    <td class="total">@Html.DisplayFor(model => model.ReportedTax)</td>*@
                             </tr>
                         }
 

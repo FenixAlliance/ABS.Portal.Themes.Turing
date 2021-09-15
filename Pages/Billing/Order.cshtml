@@ -29,9 +29,9 @@
 @{
     ViewData["Title"] = "Order details";
     var Order = (FenixAlliance.ABM.Models.Accounting.Billing.Orders.Order)Model;
-    var TaxBase = Order.OrderTotalAmountInUSD - Order.OrderTotalTaxesInUSD;
+    var TaxBase = Order.TotalAmountInUSD - Order.TotalTaxesInUSD;
     var Holder = Order.AccountHolder;
-    var ForexRates = Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(Order.OrderForexRatesSnapshot);
+    var ForexRates = Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(Order.ForexRatesSnapshot);
     var tenant = await DataContext.Business.AsAsyncEnumerable().Where(c => c.ID == WebPortal.BusinessID).FirstOrDefaultAsync();
     ViewBag.DisableContainer = true;
     ViewBag.ForceHolderHeader = true;
@@ -392,9 +392,9 @@
                                                     currency: "usd",
                                                     country: "co",
                                                     lang: "es",
-                                                    amount: "@Math.Round(Order.OrderTotalAmountInUSD).ToString().Replace(',','.')",
+                                                    amount: "@Math.Round(Order.TotalAmountInUSD).ToString().Replace(',','.')",
                                                     tax_base: "@Math.Round(TaxBase).ToString().Replace(',', '.')",
-                                                    tax: "@Math.Round(Order.OrderTotalTaxesInUSD).ToString().Replace(',', '.')",
+                                                    tax: "@Math.Round(Order.TotalTaxesInUSD).ToString().Replace(',', '.')",
 
                                                     //Onpage="false" - Standard="true"
                                                     external: "false",
@@ -512,7 +512,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var ProductOrderRegistration in Order.ItemOrderRecords)
+                                            @foreach (var ProductOrderRegistration in Order.OrderItemRecords)
                                             {
                                                 var ShippingDays = 4;
 
@@ -540,7 +540,7 @@
                                                             @Html.Raw(ProductOrderRegistration.Item.ShortDescription)
                                                         </p>
                                                         <h5>Applied Taxes:</h5>
-                                                        @foreach (var AppliedTax in ProductOrderRegistration.OrderAppliedTaxPolicyRecords)
+                                                        @foreach (var AppliedTax in ProductOrderRegistration.AppliedTaxPolicyRecords)
                                                         {
                                                             <p><b>@AppliedTax.TaxPolicy.Title</b></p>
                                                         }
@@ -610,7 +610,7 @@
                                                     <td class="unit">
                                                         @await Component.InvokeAsync("Price", new
                                                         {
-                                                            Amount = ((ProductOrderRegistration.TotalInUSD - ProductOrderRegistration.TotalTaxesInUSD) / ProductOrderRegistration.Quantity),
+                                                            Amount = ((ProductOrderRegistration.TotalAmountInUSD - ProductOrderRegistration.TotalTaxesInUSD) / ProductOrderRegistration.Quantity),
                                                             Currency = "USD",
                                                             PrintUnformatted = false
                                                         })
@@ -619,7 +619,7 @@
                                                     <td class="total">
                                                         @await Component.InvokeAsync("Price", new
                                                         {
-                                                           Amount = ProductOrderRegistration.TotalInUSD,
+                                                           Amount = ProductOrderRegistration.TotalAmountInUSD,
                                                            Currency = "USD",
                                                            PrintUnformatted = false
                                                        })
@@ -639,14 +639,14 @@
                                                 <td colspan="2"></td>
                                                 <td colspan="2">TAX</td>
                                                 <td>
-                                                    @await Component.InvokeAsync("Price", new { Amount = Order.OrderTotalTaxesInUSD, Currency = "USD", PrintUnformatted = false })
+                                                    @await Component.InvokeAsync("Price", new { Amount = Order.TotalTaxesInUSD, Currency = "USD", PrintUnformatted = false })
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td colspan="2"></td>
                                                 <td colspan="2">GRAND TOTAL</td>
                                                 <td>
-                                                    @await Component.InvokeAsync("Price", new { Amount = Order.OrderTotalAmountInUSD, Currency = "USD", PrintUnformatted = false })
+                                                    @await Component.InvokeAsync("Price", new { Amount = Order.TotalAmountInUSD, Currency = "USD", PrintUnformatted = false })
                                                 </td>
                                             </tr>
                                         </tfoot>
@@ -688,6 +688,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Payments</h3>
                 </div>
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table" border="0" cellspacing="0" cellpadding="0">
@@ -725,6 +726,10 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <div class="card-header">
+                    <a class="btn btn-blue btn-lg w-100" href="/Billing/Invoices/CreateFromOrder?OrderID=@Model.ID">Generate Invoice</a>
                 </div>
             </div>
         </div>

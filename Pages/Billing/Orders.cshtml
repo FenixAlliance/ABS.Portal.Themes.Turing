@@ -34,13 +34,13 @@
                                 <span class="chat-message-order">
                                     <b>Price including taxes:</b>
                                     <script>
-                                         document.write(CurrencyFormatter.format(fx.convert(@order.OrderTotalAmountInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));
+                                         document.write(CurrencyFormatter.format(fx.convert(@order.TotalAmountInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));
                                     </script>
                                     <br />
                                 </span>
 
                                 <span class="chat-message-order">
-                                    <b>Products:</b> @order.ItemOrderRecords.Count
+                                    <b>Products:</b> @order.OrderItemRecords.Count
                                     <br />
                                 </span>
 
