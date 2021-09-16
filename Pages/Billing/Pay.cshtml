@@ -1,16 +1,15 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@addTagHelper *, AuthoringTagHelpers
-
 @using Newtonsoft.Json
 @using FenixAlliance.ABM.Models.Holders
 @using FenixAlliance.ABM.Models.Accounting.Billing.Orders
+@using FenixAlliance.ABM.Models.Accounting.Billing.Invoices
 @using FenixAlliance.ABM.Models.Accounting.Billing.Payments
 
 @{
     ViewData["Title"] = "New Order Payment";
+    var payment = new Payment();
+    var Invoice = (Invoice)Model;
     var Order = (Order)ViewBag.Order;
-    var payment = new FenixAlliance.ABM.Models.Accounting.Billing.Payments.Payment();
 
     var Holder = (AccountHolder)ViewBag.Holder;
 
@@ -215,8 +214,6 @@
         }
 </style>
 
-
-
 <div class="container">
     <div class="row">
         <div class="col-12">
@@ -230,7 +227,7 @@
                                         <header>
                                             <div class="row">
                                                 <div class="col">
-                                                    <a asp-area="" asp-controller="Home" asp-action="Index">
+                                                    <a href="javascript:void(0)">
                                                         <img src="@accountingSettings.BillingSettings.BusinessLogo" style="max-height:40px;" data-holder-rendered="true" />
                                                     </a>
                                                 </div>
@@ -251,9 +248,6 @@
                                                     <div>
                                                         @accountingSettings?.BillingSettings?.BusinessAddress
                                                     </div>
-                                                    <div>
-                                                        @accountingSettings?.BillingSettings?.BusinessAddress
-                                                    </div>
                                                 </div>
                                             </div>
                                         </header>
@@ -261,9 +255,8 @@
                                             <div class="row contacts">
                                                 <div class="col invoice-to">
                                                     <div class="text-gray-light">ORDER OWNER:</div>
-                                                    <h2 class="to"> @Holder.Name @Holder.LastName</h2>
 
-                                                    <div class="address"><a>Add an address</a></div>
+                                                    <h2 class="to"> @Holder.Name @Holder.LastName</h2>
 
                                                     <div class="email">
                                                         <a href="mailto:@Holder.Email">@Holder.Email</a>
@@ -277,7 +270,7 @@
                                                     <div class="date">
                                                         <b>Order Reference</b>: @Order.ID
                                                         <br/>
-                                                        <b>Invoice Reference</b>: @Model.ID
+                                                        <b>Invoice Reference</b>: @Invoice.ID
                                                     </div>
                                                 </div>
                                             </div>
