@@ -1,50 +1,120 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@{Title = "Home";}
-@{Slug = "/Home";}
+@using Humanizer
+@using System.Linq
+@using FenixAlliance.ABM.Models.Accounting.Billing.Orders
+@using FenixAlliance.ABM.Models.Accounting.Billing.Invoices
+@using FenixAlliance.ABM.Models.Accounting.Billing.Payments
 
-<div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
-        <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    Store
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+@{
+    ViewData["Title"] = "Invoices";
+    var Invoice = (FenixAlliance.ABM.Models.Accounting.Billing.Invoices.Invoice)Model;
+    var accountingSettings = await OptionsService.GetOptionAsync<dynamic>("AccountingSettings", WebPortal.ID);
+    var Order = (FenixAlliance.ABM.Models.Accounting.Billing.Orders.Order)ViewBag.Order;
+
+    var Holder = (FenixAlliance.ABM.Models.Holders.AccountHolder)ViewBag.Holder;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="ui-block responsive-flex">
+                <div class="ui-block-title">
+                    <div class="h3 title">@ViewData["Title"]</div>
+
+                    <div class="align-right">
+
+                        <a href="Billing/Wallet/Index" class="btn btn-md-2 btn-border-think custom-color c-grey">Go to your wallet</a>
+
+                        @if (!Invoice.Payments.Any())
+                        {
+                            <a class="btn btn-primary btn-md-2" href="/Billing/Payments/Pay?InvoiceID=@Invoice.ID">
+                                    Pay (@await Component.InvokeAsync("Price", new
+                                    {
+                                        Amount = Order.TotalAmountInUSD,
+                                        Currency = "USD",
+                                        PrintUnformatted = false
+                                    }))
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-md-2 btn-border-think custom-color c-grey" href="/Billing/Payments/Details/@Invoice.Payments.FirstOrDefault()?.ID">View Invoice</a>
+                        }
+
+                        <a href="Billing/Orders/Index" class="btn btn-primary btn-md-2">Back to your orders</a>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@await ViewService.RenderAsync("InvoiceComponent", Order)
+
+<div class="header-spacer"></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Payments</h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" border="0" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Official ID</th>
+                                    <th class="text-center">PAYMENT METHOD</th>
+                                    <th class="text-center">Authorization Code</th>
+                                    <th class="text-center">PAYMENT STATUS</th>
+                                    <th class="text-center">BILLING ADDRESS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Invoice.Payments.Count == 0)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span>
+                                                    <b>
+                                                        No payments found
+                                                    </b>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+
+                                @foreach (var Payment in Invoice.Payments ?? new())
+                                {
+                                    <tr>
+                                        <td class="no">
+                                            @Payment.Timestamp
+                                        </td>
+                                        <td class="unit text-left">
+                                            @Payment.OfficialIDType: @Payment.OfficialID
+                                        </td>
+                                        <td class="text-center unit">
+                                            @Payment.ReportedCard
+                                        </td>
+                                        <td class="qty text-center">
+                                            @Payment.ReportedState
+                                        </td>
+                                        <td class="total">
+                                            @Payment.BillingAddress
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="header-spacer"></div>
