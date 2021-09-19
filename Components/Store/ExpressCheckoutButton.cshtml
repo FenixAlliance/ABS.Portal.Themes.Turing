@@ -11,8 +11,6 @@
     var BillingLocationID = BillingLocation?.ID;
 }
 
-
-
 @if (Model.InStock || Model.ByRequest)
 {
 
@@ -21,7 +19,7 @@
     <script type="text/javascript" src="https://checkout.epayco.co/checkout.js"></script>
     <script>
         var handler = ePayco.checkout.configure({
-            key: '1288b349f683d7cb429609819104c0bc',
+            key: '',
             test: false
         });
         var ShippingAddressID = "";
@@ -121,10 +119,10 @@
 </div>
 
 <div class="form-group">
-    <btn class="button style-16 " onclick="CreateAddressWindow();" style="display: block; margin-top: 35px;">@_("Create new address")</btn>
+    <btn class="btn btn-success w-100 " onclick="CreateAddressWindow();" style="display: block; margin-top: 35px;">@_("Create new address")</btn>
 </div>
 
-<a class="button style-4" style="display:block; border-radius: 5px;" onclick="InitPayment()"><i class="fas fa-wallet"></i> @_("Secure Express Checkout")</a>
+<a class="btn btn-primary w-100" style="display:block; border-radius: 5px;" onclick="InitPayment()"><i class="fas fa-wallet"></i> @_("Secure Express Checkout")</a>
 
 @if (User.Identity.IsAuthenticated)
 {
@@ -156,7 +154,7 @@
         {
             <text>
                     function CreateAddressWindow() {
-                        window.open("/Account/Addresses/Create", "Address", "width=900,height=800");
+                        window.open("/Account/Locations/Create", "Address", "width=900,height=800");
                     }
             </text>
         }

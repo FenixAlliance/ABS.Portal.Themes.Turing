@@ -47,7 +47,7 @@
                                 @if (order.Payments.Count > 0)
                                 {
                                     <span class="chat-message-order">
-                                        <b>Payment status: </b><b style="color:royalblue"> @order.Payments.FirstOrDefault().ReportedState</b>
+                                        <b>Payment status: </b><b style="color:royalblue"> @order.Payments.FirstOrDefault().PaymentStatus</b>
                                     </span>
                                 }
                             </div>

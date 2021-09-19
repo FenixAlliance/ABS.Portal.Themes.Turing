@@ -337,7 +337,7 @@
                                                                 <h5>Shipping Status:</h5>
                                                                 @if (ProductOrderRegistration.Shipments == null)
                                                                 {
-                                                                    if (Order.Payments.Any(c => c.ReportedResponseCode == 1.ToString()))
+                                                                    if (Order.Payments.Any(c => c.PaymentStatus == PaymentStatus.Accepted))
                                                                     {
                                                                         <p>
                                                                             <b>Processing</b>

@@ -93,16 +93,7 @@
                                 {
                                     <tr>
                                         <td class="no">
-                                            @Payment.Timestamp
-                                        </td>
-                                        <td class="unit text-left">
-                                            @Payment.OfficialIDType: @Payment.OfficialID
-                                        </td>
-                                        <td class="text-center unit">
-                                            @Payment.ReportedCard
-                                        </td>
-                                        <td class="qty text-center">
-                                            @Payment.ReportedState
+                                            @Payment.Timestamp.Humanize()
                                         </td>
                                         <td class="total">
                                             @Payment.BillingAddress
