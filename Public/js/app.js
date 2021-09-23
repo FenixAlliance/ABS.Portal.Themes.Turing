@@ -9,7 +9,7 @@
     var
         $filterGridWrapper = $('.filter__grid-wrapper'),
         $collectionOfFilterBtn = $('.filter__btn'),
-        $primarySlider = $('#hero-slider'),
+        $primarySlider = $('.hero-slider'),
         $testimonialSlider = $('#testimonial-slider'),
         $collectionaClickScroll = $('[data-click-scroll]'),
         $collectionProductSlider = $('.product-slider'),
@@ -142,7 +142,7 @@
     };
 
     // Bind all sliders into the page
-    RESHOP.primarySlider = function() {
+    RESHOP.primarySlider = function () {
         if ($primarySlider.length) {
             $primarySlider.owlCarousel({
                 items: 1,
@@ -161,6 +161,7 @@
             });
         }
     };
+
 
     // Bind all sliders into the page
     RESHOP.productSlider = function() {

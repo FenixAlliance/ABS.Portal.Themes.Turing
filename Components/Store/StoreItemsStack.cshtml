@@ -1,0 +1,47 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@{
+    var stockItems = (List<FenixAlliance.ABM.Models.Logistics.Stock.Item.Item>)Model;
+    @using Humanizer
+    @using System.Linq
+    @using System.Collections.Generic
+    @using Microsoft.EntityFrameworkCore
+}
+
+<ul class="column-product__list">
+    @foreach (var item in stockItems)
+    {
+        <li class="column-product__item">
+            <div class="product-l">
+                <div class="product-l__img-wrap">
+
+                    <a class="aspect aspect--bg-grey aspect--square u-d-block product-l__link" href="/Store/Products/Details/@item.ID">
+                        <img class="aspect__img" src="@(item.PrimaryImageURL ?? "/Store/img/empty-image.png")" alt="@item.Title" onerror="this.src='/Store/img/empty-image.png'">
+                    </a>
+                </div>
+                <div class="product-l__info-wrap">
+                    <div class="product-l__rating gl-rating-style">
+                        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", item))
+                    </div>
+
+                    <span class="product-l__category">
+
+                        <a href="/Store/Categories/Details/@item.ItemCategory?.ID">@item.ItemCategory?.Title</a>
+                    </span>
+
+                    <span class="product-l__name">
+
+                        <a href="/Store/Products/Details/@item.ID">@item.Title</a>
+                    </span>
+
+                    <span class="product-l__price">
+                        @await Component.InvokeAsync("ItemPrice", new { Item = item, DisplayDiscountPrice = true, PrintUnformatted = false })
+
+                        <span class="product-l__discount">
+                            @await Component.InvokeAsync("ItemPrice", new { Item = item, DisplayDiscountPrice = false, PrintUnformatted = false })
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </li>
+    }
+</ul>
