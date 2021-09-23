@@ -6327,6 +6327,23 @@ input::-ms-clear {
     .brand-slide a:hover {
       box-shadow: 2px 3px 8px 0 rgba(0, 0, 0, 0.2); }
 
+#category-slider .owl-stage {
+  margin: 1.25rem 0;
+
+}
+
+.category-slide {
+    width: 155px;
+    height: 60px;
+    margin: 0 auto;
+}
+    .category-slide a {
+        display: block;
+        background-color: #ffffff;
+        transition: all .3s;
+    }
+
+
 .b-prev, .b-next {
   text-align: center;
   z-index: 1;

@@ -7,6 +7,7 @@
 @{
     Title = "Home";
     Slug = "/Home";
+    var stockItems = (List<FenixAlliance.ABM.Models.Logistics.Stock.Item.Item>)Model;
     List<FenixAlliance.ABM.Models.Content.Posts.BlogPost> posts = DataContext.BlogPost
         .Include(c=>c.BlogPostComments)
         .Include(c=>c.TaxonomyRecords).ThenInclude(c=>c.Taxonomy)
@@ -18,14 +19,22 @@
         .Take(3)
         .ToList();
 }
-
-<!--====== App Content ======-->
+<style>
+    .owl-carousel .owl-item .round-img {
+        display: block;
+        width: 100%;
+        border-radius: 50% !important;
+        min-height: 160px;
+    }
+</style>
 <div class="app-content">
 
+    <!--====== SLIDER ======-->
     @await ViewService.RenderAsync("StoreHomeOverride", Model)
 
+    <!--====== ITEMS ======-->
+    <div class="u-s-p-y-60" style=" padding-top: 50px; ">
 
-    <div class="u-s-p-b-60">
         <!--====== Section Intro ======-->
         <div class="section__intro u-s-m-b-46">
             <div class="container">
@@ -41,12 +50,108 @@
             </div>
         </div>
         <!--====== End - Section Intro ======-->
-        @await ViewService.RenderAsync("StoreItemsSlider", Model)
+        @await ViewService.RenderAsync("StoreItemsSlider", stockItems.OrderByDescending(c => c.Timestamp))
     </div>
-    <!--====== End - Section 4 ======-->
-    <!--====== Section 10 ======-->
-    <div class="u-s-p-b-60">
 
+    <!--====== BRANDS ======-->
+    <div class="u-s-p-b-60">
+        <!--====== Section 12 ======-->
+        <div class="u-s-p-b-60">
+
+            <!--====== Section Intro ======-->
+            <div class="section__intro u-s-m-b-46">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="section__text-wrap">
+                                <h1 class="section__heading u-c-secondary u-s-m-b-12">BRANDS</h1>
+
+                                <span class="section__span u-c-silver">START YOU DAY WITH FRESH AND LATEST NEWS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--====== End - Section Intro ======-->
+            <!--====== Section Content ======-->
+            <div class="section__content">
+                <div class="container">
+
+                    <!--====== Brand Slider ======-->
+                    <div class="slider-fouc">
+                        <div class="owl-carousel" id="brand-slider" data-item="5">
+                            @foreach (var item in await DataContext.ItemBrand.AsAsyncEnumerable().Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
+                            {
+                                <div class="brand-slide" style="height:200px">
+
+                                    <a href="/Store/Brands/Details/@item.ID">
+
+                                        <img src="@item.LogoURL" alt="@item.Name's logo'">
+                                    </a>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                    <!--====== End - Brand Slider ======-->
+                </div>
+            </div>
+            <!--====== End - Section Content ======-->
+        </div>
+        <!--====== End - Section 12 ======-->
+    </div>
+    
+    @await ViewService.RenderAsync("StoreHomeOverride", Model)
+
+    <!--====== CATEGORIES ======-->
+    <div class="u-s-p-b-60">
+        <!--====== Section 12 ======-->
+        <div class="u-s-p-b-60">
+
+            <!--====== Section Intro ======-->
+            <div class="section__intro u-s-m-b-46">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="section__text-wrap">
+                                <h1 class="section__heading u-c-secondary u-s-m-b-12">CATEGORIES</h1>
+
+                                <span class="section__span u-c-silver">YOU DAY WITH FRESH AND LATEST NEWS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--====== End - Section Intro ======-->
+            <!--====== Section Content ======-->
+            <div class="section__content">
+                <div class="container">
+                    <div class="slider-fouc">
+
+                        <!--====== Brand Slider ======-->
+                        <div class="owl-carousel" id="category-slider" data-item="5">
+                            @foreach (var item in await DataContext.ItemCategory.AsAsyncEnumerable().Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
+                            {
+                                <div class="category-slide" style="height:200px">
+                                    <a href="/Store/Categories/Details/@item.ID">
+                                        <img src="@item.ImageURL" class="round-img" alt="@item.Title's logo'">
+                                        <h3 class="text-center">@item.Title</h3>
+                                    </a>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                    <!--====== End - Brand Slider ======-->
+                </div>
+            </div>
+            <!--====== End - Section Content ======-->
+        </div>
+        <!--====== End - Section 12 ======-->
+    </div>
+
+    <!--====== BLOG ======-->
+    <div class="u-s-p-b-60">
         <!--====== Section Intro ======-->
         <div class="section__intro u-s-m-b-46">
             <div class="container">
@@ -72,7 +177,7 @@
                             <div class="bp-mini bp-mini--img u-h-100">
                                 <div class="bp-mini__thumbnail" style="height: 200px;">
                                     <!--====== Image Code ======-->
-                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block"  href="/Blog/Posts/Details/@post.ID" style="height: 200px;">
+                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block" href="/Blog/Posts/Details/@post.ID" style="height: 200px;">
                                         <img class="aspect__img" src="@((!string.IsNullOrEmpty(post.HighlightImage)) ? post.HighlightImage : " /ui/images/generic-blogpost-image.png")" alt="@post.Title" style="height: 200px;">
                                     </a>
                                     <!--====== End - Image Code ======-->
@@ -127,6 +232,5 @@
         </div>
         <!--====== End - Section Content ======-->
     </div>
-    <!--====== End - Section 10 ======-->
+
 </div>
-<!--====== End - App Content ======-->

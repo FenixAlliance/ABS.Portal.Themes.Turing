@@ -273,6 +273,42 @@
             });
         }
     };
+    
+    // Bind Brand slider
+    RESHOP.categoriesSlider = function() {
+        var $categorySlider = $('#category-slider');
+        // Check if brand slider on the page
+        if ($categorySlider.length) {
+            var itemPerLine = $categorySlider.data('item');
+            $categorySlider.on('initialize.owl.carousel', function () {
+                $(this).closest('.slider-fouc').removeAttr('class');
+            }).owlCarousel({
+                autoplay: false,
+                loop: false,
+                dots: false,
+                rewind: true,
+                nav: true,
+                navElement: 'div',
+                navClass: ['b-prev', 'b-next'],
+                navText: ['<i class="fas fa-angle-left"></i>', '<i class="fas fa-angle-right"></i>'],
+                responsive: {
+                    0: {
+                        items: 1
+                    },
+                    768: {
+                        items: 3,
+                    },
+                    991: {
+                        items: itemPerLine
+                    },
+                    1200: {
+                        items: itemPerLine
+                    }
+                }
+
+            });
+        }
+    };
 
     // Testimonial Slider
     RESHOP.testimonialSlider = function() {
@@ -683,4 +719,5 @@
         RESHOP.shopCategoryToggle();
         RESHOP.shopPerspectiveChange();
         RESHOP.shopSideFilter();
+        RESHOP.categoriesSlider();
 })(jQuery);

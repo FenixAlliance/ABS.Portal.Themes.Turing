@@ -36,6 +36,7 @@
             </li>
             <li>
                 <b id="CartTotalPriceContainer">
+                    <!--====== Dropdown ======-->
 
                 </b>
             </li>
@@ -46,7 +47,9 @@
 
                     <i class="fas fa-shopping-bag"></i>
 
-                    <span class="total-item-round">@Cart.ItemCartRecords.Count()</span>
+                    <span class="total-item-round">
+                        @Cart.ItemCartRecords.Count()
+                    </span>
 
                 </a>
 
@@ -140,12 +143,10 @@
                     <!--====== End - Mini Product Container ======-->
                     <!--====== Mini Product Statistics ======-->
                     <div class="mini-product-stat">
-                        <div class="mini-action">
 
                             <a class="mini-link btn--e-brand-b-2" href="/Store/Checkout/PlaceOrderFromCart">PROCEED TO CHECKOUT</a>
 
                             <a class="mini-link btn--e-transparent-secondary-b-2" href="/Store/Cart">VIEW CART</a>
-                        </div>
                     </div>
                     <!--====== End - Mini Product Statistics ======-->
                 </div>
@@ -161,6 +162,7 @@
 
 <script>
     $(document).ready(function () {
-        $("#CartTotalPriceContainer").text(CurrencyFormatter.format(TotalPrice))
+        $("#CartTotalPriceContainer")
+            .text(CurrencyFormatter.format(TotalPrice))
     });
 </script>

@@ -54,12 +54,12 @@
                             <div class="notification-icon" style="max-width:300px">
                                 @if (order.Payments.Count == 0)
                                 {
-                                    if (DateTime.Compare(order.Timestamp.AddDays(1), DateTime.Now) > 0)
+                                    if (order.Closed)
                                     {
 
                                         <a href="Billing/Orders/Details/@order.ID" style="margin-bottom:10px;" class="btn btn-success">
                                             <i class="fas fa-check"></i>
-                                            &nbsp; Pay this order
+                                            &nbsp; View Order
                                         </a>
 
                                         <a href="Billing/Orders/Delete/@order.ID" style="margin-bottom:10px;" class="btn btn-danger">
@@ -69,8 +69,9 @@
                                     }
                                     else
                                     {
-                                        <a href="Billing/Orders/Delete/@order.ID" style="margin-bottom:10px;" class="btn btn-danger">
-                                                No longer valid. Click to remove
+                                        <a href="Billing/Orders/Details/@order.ID" style="margin-bottom:10px;" class="btn btn-success">
+                                            <i class="fas fa-check"></i>
+                                            &nbsp; View Order
                                         </a>
                                     }
                                 }
