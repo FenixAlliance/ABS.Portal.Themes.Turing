@@ -5,8 +5,7 @@
 @using Microsoft.EntityFrameworkCore
 
 @{
-    Title = "Home";
-    Slug = "/Home";
+
     var stockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.Published).Take(24).OrderByDescending(c => c.Timestamp).ToListAsync();
     var trendingStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.Hot && c.Published).Take(24).ToListAsync();
     var featuredStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.Featured && c.Published).Take(3).ToListAsync();
@@ -84,7 +83,53 @@
                                         @foreach (var stockitem in item)
                                         {
                                             <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 u-s-m-b-30 filter__item @item.Key">
-                                                @await ViewService.RenderAsync("StoreItemCard", stockitem)
+
+                                                <div class="product-o product-o--hover-on product-o--radius">
+                                                    <div class="product-o__wrap">
+
+                                                        <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Products/Details/@stockitem.ID">
+
+                                                            <img class="aspect__img" src="@(stockitem.PrimaryImageURL ?? "/Store/img/empty-image.png")" alt="@stockitem.Title" onerror="this.src='/Store/img/empty-image.png'">
+                                                        </a>
+                                                        <div class="product-o__action-wrap">
+                                                            <ul class="product-o__action-list">
+                                                                <li>
+                                                                    <a onclick="AddStockItemToCart('@stockitem.ID', 1)" title="Add to Cart">
+                                                                        <i class="fas fa-plus-circle"></i>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                    <span class="product-o__category">
+                                                        <a href="/Store/Categories/Details/@stockitem.ItemCategory?.ID">@stockitem.ItemCategory?.Title</a>
+                                                    </span>
+
+                                                    <span class="product-o__name">
+                                                        <a href="/Store/Products/Details/@stockitem.ID">@stockitem.Title</a>
+                                                    </span>
+
+                                                    <div class="product-o__rating gl-rating-style">
+                                                        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", stockitem))
+                                                    </div>
+
+                                                    <span class="product-o__price">
+                                                        @if (stockitem.OnDiscount)
+                                                        {
+                                                            @await Component.InvokeAsync("ItemPrice", new { Item = stockitem, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+                                                            <span class="product-o__discount">
+                                                                @await Component.InvokeAsync("ItemPrice", new { Item = stockitem, DisplayDiscountPrice = true, PrintUnformatted = false })
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            @await Component.InvokeAsync("ItemPrice", new { Item = stockitem, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+                                                        }
+                                                    </span>
+
+                                                </div>
+
                                             </div>
                                         }
                                     }
@@ -122,7 +167,7 @@
             </div>
         </div>
         <!--====== End - Section Intro ======-->
-        @await ViewService.RenderAsync("StoreItemsSlider", stockItems.OrderByDescending(c => c.Timestamp))
+        @await ViewService.RenderAsync("StoreItemsSlider", stockItems)
     </div>
 
     <div class="u-s-p-b-60">

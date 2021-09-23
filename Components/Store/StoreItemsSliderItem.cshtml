@@ -31,18 +31,18 @@
             <a href="/Store/Products/Details/@product.ID">@product.Title</a>
         </span>
 
-        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", Model))
+        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", product))
 
-        @if (Model.OnDiscount)
+        @if (product.OnDiscount)
         {
             <div class="prev product-o__price">
-                @await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+                @await Component.InvokeAsync("ItemPrice", new { Item = product, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
             </div>
-            <div class="curren product-o__discountt" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = true, PrintUnformatted = false })</div>
+            <div class="curren product-o__discountt" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = product, DisplayDiscountPrice = true, PrintUnformatted = false })</div>
         }
         else
         {
-            <div class="current product-o__price" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })</div>
+            <div class="current product-o__price" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = product, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })</div>
         }
     </div>
 </div>
