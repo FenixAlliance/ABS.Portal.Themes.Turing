@@ -198,69 +198,26 @@
                 <div class="container">
                     <div class="slider-fouc">
                         <div class="owl-carousel" id="category-slider" data-item="5">
+
                             @foreach (var item in await DataContext.ItemCategory.AsAsyncEnumerable().Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
                             {
                                 <div class="bp-mini bp-mini--img u-h-100">
                                     <div class="bp-mini__thumbnail" style="height: 200px;">
-                                        <!--====== Image Code ======-->
-                                        <a class="aspect aspect--bg-greyect--1366-768 u-d-block" href="/Store/Products/Details/@item.ID" style="height: 200px;">
+                                        <a class="aspect aspect--bg-greyect--1366-768 u-d-block" href="/Store/Categories/Details/@item.ID" style="height: 200px;">
                                             <img class="aspect__img" src="@((!string.IsNullOrEmpty(item.ImageURL)) ? item.ImageURL : " /ui/images/generic-blogpost-image.png")" alt="@item.Title" style="height: 200px;">
                                         </a>
-                                        <!--====== End - Image Code ======-->
                                     </div>
                                     <div class="bp-mini__content">
                                         <div class="bp-mini__stat">
 
-                                            <span class="bp-mini__stat-wrap">
-                                                <span class="bp-mini__publish-date">
-                                                    <a>
-                                                        <span>
-
-                                                        </span>
-                                                    </a>
-                                                </span>
+                                            <span class="bp-mini__h1">
+                                                <a href="/Store/Categories/Details/@item.ID">@item.Title</a>
                                             </span>
 
-                                            <span class="bp-mini__stat">
-                                                <span class="bp-mini__comment">
-                                                    <a href="blog-detail.html">
-                                                        <i class="far fa-comments u-s-m-r-4"></i>
-                                                        <span>
+                                            <p class="bp-mini__p">@item.Description</p>
 
-                                                        </span>
-                                                    </a>
-                                                </span>
-                                            </span>
-                                        </div>
-
-                                        <div class="bp-mini__category">
-                                            @*@foreach (var categoryRecord in item.ItemCategoryRecords)
-                                            {
-                                                <a>@categoryRecord?.ItemCategory?.Title</a>
-                                            }*@
-                                        </div>
-
-                                        <span class="bp-mini__h1">
-                                            <a href="/Store/Products/Details/@item.ID">@item.Title</a>
-                                        </span>
-
-                                        <p class="bp-mini__p">@item.Description</p>
-
-                                        <div class="blog-t-w">
-                                            @*@foreach (var item in item?.TaxonomyRecords ?? new())
-                                            {
-                                                <a class="gl-tag btn--e-transparent-hover-brand-b-2">@item.Taxonomy?.Title</a>
-                                            }*@
                                         </div>
                                     </div>
-                                </div>
-
-
-                                <div class="category-slide" style="height:200px">
-                                    <img src="@item.ImageURL" class="round-img" alt="@item.Title's logo'">
-                                    <a href="/Store/Categories/Details/@item.ID">
-                                        <h3 class="text-center">@item.Title</h3>
-                                    </a>
                                 </div>
                             }
 
