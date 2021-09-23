@@ -35,6 +35,7 @@
         min-height: 160px;
     }
 </style>
+
 <div class="app-content">
 
     <!--====== SLIDER ======-->
@@ -104,7 +105,6 @@
         </div>
     }
 
-
     <!--====== ITEMS ======-->
     <div class="u-s-p-y-60" style=" padding-top: 50px; ">
         <!--====== Section Intro ======-->
@@ -125,9 +125,12 @@
         @await ViewService.RenderAsync("StoreItemsSlider", stockItems.OrderByDescending(c => c.Timestamp))
     </div>
 
+    <div class="u-s-p-b-60">
+        @await ViewService.RenderAsync("StoreHomeContent2", stockItems)
+    </div>
+
     <!--====== BRANDS ======-->
     <div class="u-s-p-b-60">
-
 
         <!--====== Section Intro ======-->
         <div class="section__intro u-s-m-b-46">
@@ -171,7 +174,7 @@
     </div>
 
     <div class="u-s-p-b-60">
-        @await ViewService.RenderAsync("StoreHomeContent2", stockItems)
+        @await ViewService.RenderAsync("StoreHomeContent3", stockItems)
     </div>
 
 
@@ -226,6 +229,10 @@
         </div>
     </div>
 
+    <div class="u-s-p-b-60">
+        @await ViewService.RenderAsync("StoreHomeContent4", stockItems)
+    </div>
+
     @if (bestSellerStockItems.Count > 0 || weekSelectionStockItems.Count > 0 || monthSelectionStockItems.Count > 0)
     {
         <!--====== STACKS ======-->
@@ -269,6 +276,10 @@
             </div>
         </div>
     }
+
+    <div class="u-s-p-b-60">
+        @await ViewService.RenderAsync("StoreHomeContent5", stockItems)
+    </div>
 
     @if (posts.Count > 0)
     {
