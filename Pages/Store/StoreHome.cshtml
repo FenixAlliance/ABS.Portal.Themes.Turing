@@ -197,11 +197,11 @@
             <div class="section__content">
                 <div class="container">
                     <div class="slider-fouc">
-                        <div class="owl-carousel" id="category-slider" data-item="5">
+                        <div class="owl-carousel" id="category-slider" data-item="4">
 
                             @foreach (var item in await DataContext.ItemCategory.AsAsyncEnumerable().Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
                             {
-                                <div class="bp-mini bp-mini--img u-h-100">
+                                <div class="bp-mini bp-mini--img u-h-100" style="margin-left: 5px; margin-right: 5px ">
                                     <div class="bp-mini__thumbnail" style="height: 200px;">
                                         <a class="aspect aspect--bg-greyect--1366-768 u-d-block" href="/Store/Categories/Details/@item.ID" style="height: 200px;">
                                             <img class="aspect__img" src="@((!string.IsNullOrEmpty(item.ImageURL)) ? item.ImageURL : " /ui/images/generic-blogpost-image.png")" alt="@item.Title" style="height: 200px;">
@@ -210,12 +210,9 @@
                                     <div class="bp-mini__content">
                                         <div class="bp-mini__stat">
 
-                                            <span class="bp-mini__h1">
+                                            <span class="bp-mini__h1 text-center">
                                                 <a href="/Store/Categories/Details/@item.ID">@item.Title</a>
                                             </span>
-
-                                            <p class="bp-mini__p">@item.Description</p>
-
                                         </div>
                                     </div>
                                 </div>
