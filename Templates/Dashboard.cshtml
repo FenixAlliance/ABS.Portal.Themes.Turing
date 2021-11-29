@@ -1,15 +1,5 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
 
-@{
-    Name = "Turing Dashboard Template";
-
-    var CartID = Context.Request.Cookies["CartID"];
-    if (string.IsNullOrEmpty(CartID))
-    {
-        CartID = Guid.NewGuid().ToString();
-        Context.Response.Cookies.Append("CartID", CartID);
-    }
-}
 
 <!DOCTYPE html>
 <html view-source="no" viewsource="no" xmlns="//www.w3.org/1999/xhtml" xmlns:b="//www.google.com/2005/gml/b" xmlns:data="//www.google.com/2005/gml/data" xmlns:expr="//www.google.com/2005/gml/expr" prefix="og:http://ogp.me/ns">
@@ -45,7 +35,7 @@
 </head>
 
 <body>
-    @await Component.InvokeAsync("ForexRates", new { CurrentUser = User, CurrentUserIP = CartID })
+    @await Component.InvokeAsync("ForexRates", new { CurrentUser = User})
 
     @if (Portal.Options.Integrations.Google.GoogleTagManager.Enable)
     {
