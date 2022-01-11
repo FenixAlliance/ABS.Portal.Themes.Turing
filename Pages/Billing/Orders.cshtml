@@ -1,49 +1,145 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@{Title = "Home";}
-@{Slug = "/Home";}
+@using Humanizer
+@using System
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using System.Linq
+@using System.Collections.Generic
+@using System.Collections.Generic
+@{
+    var orders = (IEnumerable<FenixAlliance.ABM.Models.Accounting.Billing.Orders.Order>)Model;
+}
 
-<div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
-        <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    Store
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+<div class="container">
+    <div class="row">
+        <div class="col col-xl-9 order-xl-2 col-lg-9 order-lg-2 col-md-12 order-md-1 col-sm-12 col-12">
+            <div class="ui-block">
+                <div class="ui-block-title">
+                    <h6 class="title">Your Orders</h6>
+                </div>
+
+                <ul class="notification-list friend-requests">
+                    @foreach (var order in orders.OrderByDescending(c => c.Timestamp))
+                    {
+                        <li>
+
+                            <div class="notification-event">
+                                <span class="chat-message-order">
+                                    <b>Created: </b> @order.Timestamp.Humanize()
+                                    <br />
+                                </span>
+                                <span class="chat-message-order">
+                                    <b>ID:</b> @order.ID
+                                    <br />
+                                </span>
+                                <span class="chat-message-order">
+                                    <b>Price including taxes:</b>
+                                    <script>
+                                         document.write(CurrencyFormatter.format(fx.convert(@order.TotalAmountInUSD.ToString().Replace(',', '.'), { from: 'USD', to: CartCurrencyCode })));
+                                    </script>
+                                    <br />
+                                </span>
+
+                                <span class="chat-message-order">
+                                    <b>Products:</b> @order.OrderItemRecords.Count
+                                    <br />
+                                </span>
+
+                                @if (order.Payments.Count > 0)
+                                {
+                                    <span class="chat-message-order">
+                                        <b>Payment status: </b><b style="color:royalblue"> @order.Payments.FirstOrDefault().PaymentStatus</b>
+                                    </span>
+                                }
+                            </div>
+                            <div class="notification-icon" style="max-width:300px">
+                                @if (order.Payments.Count == 0)
+                                {
+                                    if (order.Closed)
+                                    {
+
+                                        <a href="Billing/Orders/Details/@order.ID" style="margin-bottom:10px;" class="btn btn-success">
+                                            <i class="fas fa-check"></i>
+                                            &nbsp; View Order
+                                        </a>
+
+                                        <a href="Billing/Orders/Delete/@order.ID" style="margin-bottom:10px;" class="btn btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                            &nbsp; Delete
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="Billing/Orders/Details/@order.ID" style="margin-bottom:10px;" class="btn btn-success">
+                                            <i class="fas fa-check"></i>
+                                            &nbsp; View Order
+                                        </a>
+                                    }
+                                }
+                                else
+                                {
+                                    <a href="Billing/Orders/Details/@order.ID" style="margin-bottom:10px;" class="btn btn-blue">
+                                        <i class="fas fa-money-bill"></i>
+                                        &nbsp; View Payment and invoice
+                                    </a>
+                                }
+
+                            </div>
+                        </li>
+
+                    }
+
+                </ul>
+
+                <!-- ... end  -->
             </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+
+        </div>
+
+        <div class="col col-xl-3 order-xl-1 col-lg-3 order-lg-1 col-md-12 order-md-2 col-sm-12  responsive-display-none">
+            <div class="ui-block">
+
+                <!-- Your Profile  -->
+
+                <div class="your-profile">
+                    <div class="ui-block-title ui-block-title-small">
+                        <h6 class="title">Your Billing Profile</h6>
+                    </div>
+
+                    <div id="accordion" role="tablist" aria-multiselectable="true">
+                        <div class="card">
+                            <div class="card-header" role="tab" id="headingOne">
+                                <h6 class="mb-0">
+                                    Your Wallet
+                                </h6>
+                            </div>
+
+                            <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
+                                <ul class="your-profile-menu">
+                                    <li>
+                                        <a href="Billing/Wallet/Index">Wallet Account</a>
+                                    </li>
+                                    <li>
+                                        <a href="Billing/Methods/Index">Payment Methods</a>
+                                    </li>
+                                    <li>
+                                        <a href="Billing/Orders/Index">Orders</a>
+                                    </li>
+                                    <li>
+                                        <a href="Billing/Invoices/Index">Invoices</a>
+                                    </li>
+                                    <li>
+                                        <a href="Billing/Payments/Index">Payments</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui-block-title">
+                        <a href="Store/Checkout/PlaceOrderFromCart" class="h3 title">Place Order From Cart</a>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>

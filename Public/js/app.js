@@ -9,7 +9,7 @@
     var
         $filterGridWrapper = $('.filter__grid-wrapper'),
         $collectionOfFilterBtn = $('.filter__btn'),
-        $primarySlider = $('#hero-slider'),
+        $primarySlider = $('.hero-slider'),
         $testimonialSlider = $('#testimonial-slider'),
         $collectionaClickScroll = $('[data-click-scroll]'),
         $collectionProductSlider = $('.product-slider'),
@@ -142,7 +142,7 @@
     };
 
     // Bind all sliders into the page
-    RESHOP.primarySlider = function() {
+    RESHOP.primarySlider = function () {
         if ($primarySlider.length) {
             $primarySlider.owlCarousel({
                 items: 1,
@@ -161,6 +161,7 @@
             });
         }
     };
+
 
     // Bind all sliders into the page
     RESHOP.productSlider = function() {
@@ -245,6 +246,42 @@
         if ($brandSlider.length) {
             var itemPerLine = $brandSlider.data('item');
             $brandSlider.on('initialize.owl.carousel', function () {
+                $(this).closest('.slider-fouc').removeAttr('class');
+            }).owlCarousel({
+                autoplay: false,
+                loop: false,
+                dots: false,
+                rewind: true,
+                nav: true,
+                navElement: 'div',
+                navClass: ['b-prev', 'b-next'],
+                navText: ['<i class="fas fa-angle-left"></i>', '<i class="fas fa-angle-right"></i>'],
+                responsive: {
+                    0: {
+                        items: 1
+                    },
+                    768: {
+                        items: 3,
+                    },
+                    991: {
+                        items: itemPerLine
+                    },
+                    1200: {
+                        items: itemPerLine
+                    }
+                }
+
+            });
+        }
+    };
+    
+    // Bind Brand slider
+    RESHOP.categoriesSlider = function() {
+        var $categorySlider = $('#category-slider');
+        // Check if brand slider on the page
+        if ($categorySlider.length) {
+            var itemPerLine = $categorySlider.data('item');
+            $categorySlider.on('initialize.owl.carousel', function () {
                 $(this).closest('.slider-fouc').removeAttr('class');
             }).owlCarousel({
                 autoplay: false,
@@ -683,4 +720,5 @@
         RESHOP.shopCategoryToggle();
         RESHOP.shopPerspectiveChange();
         RESHOP.shopSideFilter();
+        RESHOP.categoriesSlider();
 })(jQuery);

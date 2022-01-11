@@ -1,13 +1,6 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
 
-@{
-    var CartID = Context.Request.Cookies["CartID"];
-    if (string.IsNullOrEmpty(CartID))
-    {
-        CartID = Guid.NewGuid().ToString();
-        Context.Response.Cookies.Append("CartID", CartID);
-    }
-}
+
 <!DOCTYPE html>
 
 <html class="no-js" lang="en">
@@ -39,7 +32,7 @@
     </style>
 </head>
 <body>
-    @await Component.InvokeAsync("ForexRates", new { CurrentUser = User, CurrentUserIP = CartID })
+    @await Component.InvokeAsync("ForexRates", new { CurrentUser = User })
 
     <!--====== Main App ======-->
     <div id="app">

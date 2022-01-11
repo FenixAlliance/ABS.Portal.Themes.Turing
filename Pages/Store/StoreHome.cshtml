@@ -5,26 +5,153 @@
 @using Microsoft.EntityFrameworkCore
 
 @{
-    Title = "Home";
-    Slug = "/Home";
+
+    var stockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.Published).Take(24).OrderByDescending(c => c.Timestamp).ToListAsync();
+    var trendingStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.Hot && c.Published).Take(24).ToListAsync();
+    var featuredStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.Featured && c.Published).Take(3).ToListAsync();
+    var bestSellerStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.IsBestSeller && c.Published).Take(3).ToListAsync();
+    var monthSelectionStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.IsProductOfTheMonth && c.Published).Take(3).ToListAsync();
+    var weekSelectionStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.IsProductOfTheWeek && c.Published).Take(3).ToListAsync();
+
     List<FenixAlliance.ABM.Models.Content.Posts.BlogPost> posts = DataContext.BlogPost
-        .Include(c=>c.BlogPostComments)
-        .Include(c=>c.TaxonomyRecords).ThenInclude(c=>c.Taxonomy)
-        .Include(c=>c.BlogPostCategoryRecords).ThenInclude(c=>c.Taxonomy)
-        .Include(c=>c.BusinessProfileRecord).ThenInclude(c=>c.AccountHolder)
-        .Where(c=>c.Published)
-        .OrderBy(c=>c.Timestamp)
-        .Take(4)
+        .Include(c => c.BlogPostComments)
+        .Include(c => c.TaxonomyRecords).ThenInclude(c => c.Taxonomy)
+        .Include(c => c.BlogPostCategoryRecords).ThenInclude(c => c.Taxonomy)
+        .Include(c => c.BusinessProfileRecord).ThenInclude(c => c.AccountHolder)
+        .Where(c => c.Published)
+        .OrderBy(c => c.Timestamp)
+        .Where(c => c.BusinessID == WebPortal.BusinessID)
+        .Take(3)
         .ToList();
+
 }
 
-<!--====== App Content ======-->
+<style>
+    .owl-carousel .owl-item .round-img {
+        display: block;
+        width: 100%;
+        border-radius: 50% !important;
+        min-height: 160px;
+    }
+</style>
+
 <div class="app-content">
 
-    @await ViewService.RenderAsync("StoreHomeOverride", Model)
+    <!--====== SLIDER ======-->
+    @await ViewService.RenderAsync("StoreHomeContent1", stockItems)
 
+    @if (trendingStockItems.Count != 0)
+    {
+        <div class="u-s-p-t-60 mtb-50">
 
-    <div class="u-s-p-b-60">
+            <!--====== Section Intro ======-->
+            <div class="section__intro u-s-m-b-16">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="section__text-wrap">
+                                <h1 class="section__heading u-c-secondary u-s-m-b-12">TOP TRENDING</h1>
+
+                                <span class="section__span u-c-silver">CHOOSE CATEGORY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--====== End - Section Intro ======-->
+            <!--====== Section Content ======-->
+            <div class="section__content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="filter-category-container">
+                                <div class="filter__category-wrapper">
+                                    <button class="btn filter__btn filter__btn--style-1" type="button" data-filter="*">ALL</button>
+                                </div>
+                                @foreach (var item in trendingStockItems.GroupBy(c => c.ItemCategory))
+                                {
+                                    <div class="filter__category-wrapper">
+                                        <button class="btn filter__btn filter__btn--style-1" type="button" data-filter=".@item.Key?.ID">@item.Key?.Title</button>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="filter__grid-wrapper u-s-m-t-30" style="position: relative; height: 378.5px;">
+                                <div class="row">
+                                    @foreach (var item in trendingStockItems.GroupBy(c => c.ItemCategoryID))
+                                    {
+                                        @foreach (var stockitem in item)
+                                        {
+                                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 u-s-m-b-30 filter__item @item.Key">
+
+                                                <div class="product-o product-o--hover-on product-o--radius">
+                                                    <div class="product-o__wrap">
+
+                                                        <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Products/Details/@stockitem.ID">
+
+                                                            <img class="aspect__img" src="@(stockitem.PrimaryImageURL ?? "/Store/img/empty-image.png")" alt="@stockitem.Title" onerror="this.src='/Store/img/empty-image.png'">
+                                                        </a>
+                                                        <div class="product-o__action-wrap">
+                                                            <ul class="product-o__action-list">
+                                                                <li>
+                                                                    <a onclick="AddStockItemToCart('@stockitem.ID', 1)" title="Add to Cart">
+                                                                        <i class="fas fa-plus-circle"></i>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                    <span class="product-o__category">
+                                                        <a href="/Store/Categories/Details/@stockitem.ItemCategory?.ID">@stockitem.ItemCategory?.Title</a>
+                                                    </span>
+
+                                                    <span class="product-o__name">
+                                                        <a href="/Store/Products/Details/@stockitem.ID">@stockitem.Title</a>
+                                                    </span>
+
+                                                    <div class="product-o__rating gl-rating-style">
+                                                        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", stockitem))
+                                                    </div>
+
+                                                    <span class="product-o__price">
+                                                        @if (stockitem.OnDiscount)
+                                                        {
+                                                            @await Component.InvokeAsync("ItemPrice", new { Item = stockitem, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+                                                            <span class="product-o__discount">
+                                                                @await Component.InvokeAsync("ItemPrice", new { Item = stockitem, DisplayDiscountPrice = true, PrintUnformatted = false })
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            @await Component.InvokeAsync("ItemPrice", new { Item = stockitem, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+                                                        }
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div class="load-more">
+                                <button class="btn btn--e-brand" type="button">View More</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!--====== End - Section Content ======-->
+        </div>
+    }
+
+    <!--====== ITEMS ======-->
+    <div class="u-s-p-y-60" style=" padding-top: 50px; ">
         <!--====== Section Intro ======-->
         <div class="section__intro u-s-m-b-46">
             <div class="container">
@@ -40,10 +167,14 @@
             </div>
         </div>
         <!--====== End - Section Intro ======-->
-        @await ViewService.RenderAsync("StoreItemsSlider", Model)
+        @await ViewService.RenderAsync("StoreItemsSlider", stockItems)
     </div>
-    <!--====== End - Section 4 ======-->
-    <!--====== Section 10 ======-->
+
+    <div class="u-s-p-b-60">
+        @await ViewService.RenderAsync("StoreHomeContent2", stockItems)
+    </div>
+
+    <!--====== BRANDS ======-->
     <div class="u-s-p-b-60">
 
         <!--====== Section Intro ======-->
@@ -52,7 +183,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="section__text-wrap">
-                            <h1 class="section__heading u-c-secondary u-s-m-b-12">LATEST FROM BLOG</h1>
+                            <h1 class="section__heading u-c-secondary u-s-m-b-12">BRANDS</h1>
 
                             <span class="section__span u-c-silver">START YOU DAY WITH FRESH AND LATEST NEWS</span>
                         </div>
@@ -64,68 +195,221 @@
         <!--====== Section Content ======-->
         <div class="section__content">
             <div class="container">
-                <div class="row">
-                    @foreach (var post in posts)
-                    {
-                        <div class="col-lg-4 col-md-6 u-s-m-b-30">
-                            <div class="bp-mini bp-mini--img u-h-100">
-                                <div class="bp-mini__thumbnail" style="height: 200px;">
-                                    <!--====== Image Code ======-->
-                                    <a class="aspect aspect--bg-greyect--1366-768 u-d-block"  href="/Blog/Posts/Details/@post.ID" style="height: 200px;">
-                                        <img class="aspect__img" src="@((!string.IsNullOrEmpty(post.HighlightImage)) ? post.HighlightImage : " /ui/images/generic-blogpost-image.png")" alt="@post.Title" style="height: 200px;">
-                                    </a>
-                                    <!--====== End - Image Code ======-->
-                                </div>
-                                <div class="bp-mini__content">
-                                    <div class="bp-mini__stat">
-                                        <span class="bp-mini__stat-wrap">
-                                            <span class="bp-mini__publish-date">
-                                                <a>
-                                                    <span>@post.Timestamp.Humanize()</span>
-                                                </a>
-                                            </span>
-                                        </span>
-                                        <span class="bp-mini__stat-wrap">
-                                            <span class="bp-mini__preposition">By</span>
-                                            <span class="bp-mini__author">
-                                                <a href="/Social/Holders/@post?.BusinessProfileRecord?.AccountHolder?.Id">@post?.BusinessProfileRecord?.AccountHolder?.PublicName</a>
-                                            </span>
-                                        </span>
-                                        <span class="bp-mini__stat">
-                                            <span class="bp-mini__comment">
-                                                <a href="blog-detail.html">
-                                                    <i class="far fa-comments u-s-m-r-4"></i>
-                                                    <span>@(post.BlogPostComments?.Count ?? 0)</span>
-                                                </a>
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <div class="bp-mini__category">
-                                        @foreach (var item in post.BlogPostCategoryRecords)
-                                        {
-                                            <a>@item?.Taxonomy?.Title</a>
-                                        }
-                                    </div>
-                                    <span class="bp-mini__h1">
-                                        <a href="/Blog/Posts/Details/@post.ID">@post.Title</a>
-                                    </span>
-                                    <p class="bp-mini__p">@post.Excerpt</p>
 
-                                    <div class="blog-t-w">
-                                        @foreach (var item in post?.TaxonomyRecords ?? new())
-                                        {
-                                            <a class="gl-tag btn--e-transparent-hover-brand-b-2">@item.Taxonomy?.Title</a>
-                                        }
-                                    </div>
-                                </div>
+                <!--====== Brand Slider ======-->
+                <div class="slider-fouc">
+                    <div class="owl-carousel" id="brand-slider" data-item="5">
+                        @foreach (var item in await DataContext.ItemBrand.AsAsyncEnumerable().Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
+                        {
+                            <div class="brand-slide" style="height:200px">
+
+                                <a href="/Store/Brands/Details/@item.ID">
+
+                                    <img src="@item.LogoURL" alt="@item.Name's logo'">
+                                </a>
                             </div>
-                        </div>
-                    }
+                        }
+
+                    </div>
                 </div>
+                <!--====== End - Brand Slider ======-->
             </div>
         </div>
         <!--====== End - Section Content ======-->
     </div>
-    <!--====== End - Section 10 ======-->
+
+    <div class="u-s-p-b-60">
+        @await ViewService.RenderAsync("StoreHomeContent3", stockItems)
+    </div>
+
+
+    @await ViewService.RenderAsync("StoreDeadlineDeals", stockItems)
+
+    <!--====== CATEGORIES ======-->
+    <div class="u-s-p-b-60">
+        <div class="u-s-p-b-60">
+            <div class="section__intro u-s-m-b-46">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="section__text-wrap">
+                                <h1 class="section__heading u-c-secondary u-s-m-b-12">CATEGORIES</h1>
+
+                                <span class="section__span u-c-silver">FIND PRODUCTS BY CATEGORY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section__content">
+                <div class="container">
+                    <div class="slider-fouc">
+                        <div class="owl-carousel" id="category-slider" data-item="4">
+
+                            @foreach (var item in await DataContext.ItemCategory.AsAsyncEnumerable().Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
+                            {
+                                <div class="bp-mini bp-mini--img u-h-100" style="margin-left: 5px; margin-right: 5px ">
+                                    <div class="bp-mini__thumbnail" style="height: 200px;">
+                                        <a class="aspect aspect--bg-greyect--1366-768 u-d-block" href="/Store/Categories/Details/@item.ID" style="height: 200px;">
+                                            <img class="aspect__img" src="@((!string.IsNullOrEmpty(item.ImageURL)) ? item.ImageURL : " /ui/images/generic-blogpost-image.png")" alt="@item.Title" style="height: 200px;">
+                                        </a>
+                                    </div>
+                                    <div class="bp-mini__content">
+                                        <div class="bp-mini__stat">
+
+                                            <span class="bp-mini__h1 text-center">
+                                                <a href="/Store/Categories/Details/@item.ID">@item.Title</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="u-s-p-b-60">
+        @await ViewService.RenderAsync("StoreHomeContent4", stockItems)
+    </div>
+
+    @if (bestSellerStockItems.Count > 0 || weekSelectionStockItems.Count > 0 || monthSelectionStockItems.Count > 0)
+    {
+        <!--====== STACKS ======-->
+        <div class="u-s-p-b-60">
+            <div class="section__content">
+                <div class="container">
+                    <div class="row">
+                        @if (bestSellerStockItems.Count > 0)
+                        {
+
+                            <div class="col-lg-4 col-md-6 col-sm-6 u-s-m-b-30">
+                                <div class="column-product">
+                                    <span class="column-product__title u-c-secondary u-s-m-b-25">BEST SELLERS</span>
+                                    @await ViewService.RenderAsync("StoreItemsStack", bestSellerStockItems)
+                                </div>
+                            </div>
+                        }
+
+                        @if (weekSelectionStockItems.Count > 0)
+                        {
+                            <div class="col-lg-4 col-md-6 col-sm-6 u-s-m-b-30">
+                                <div class="column-product">
+                                    <span class="column-product__title u-c-secondary u-s-m-b-25">WEEK SELECTION</span>
+                                    @await ViewService.RenderAsync("StoreItemsStack", weekSelectionStockItems)
+                                </div>
+                            </div>
+                        }
+
+                        @if (monthSelectionStockItems.Count > 0)
+                        {
+                            <div class="col-lg-4 col-md-6 col-sm-6 u-s-m-b-30">
+                                <div class="column-product">
+                                    <span class="column-product__title u-c-secondary u-s-m-b-25">MONTH SELECTION</span>
+                                    @await ViewService.RenderAsync("StoreItemsStack", monthSelectionStockItems)
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="u-s-p-b-60">
+        @await ViewService.RenderAsync("StoreHomeContent5", stockItems)
+    </div>
+
+    @if (posts.Count > 0)
+    {
+        <!--====== BLOG ======-->
+        <div class="u-s-p-b-60">
+            <!--====== Section Intro ======-->
+            <div class="section__intro u-s-m-b-46">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="section__text-wrap">
+                                <h1 class="section__heading u-c-secondary u-s-m-b-12">LATEST FROM BLOG</h1>
+
+                                <span class="section__span u-c-silver">START YOU DAY WITH FRESH AND LATEST NEWS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--====== End - Section Intro ======-->
+            <!--====== Section Content ======-->
+            <div class="section__content">
+                <div class="container">
+                    <div class="row">
+                        @foreach (var post in posts)
+                        {
+                            <div class="col-lg-4 col-md-6 u-s-m-b-30">
+                                <div class="bp-mini bp-mini--img u-h-100">
+                                    <div class="bp-mini__thumbnail" style="height: 200px;">
+                                        <!--====== Image Code ======-->
+                                        <a class="aspect aspect--bg-greyect--1366-768 u-d-block" href="/Blog/Posts/Details/@post.ID" style="height: 200px;">
+                                            <img class="aspect__img" src="@((!string.IsNullOrEmpty(post.FeaturedImageURL)) ? post.FeaturedImageURL : " /ui/images/generic-blogpost-image.png")" alt="@post.Title" style="height: 200px;">
+                                        </a>
+                                        <!--====== End - Image Code ======-->
+                                    </div>
+                                    <div class="bp-mini__content">
+                                        <div class="bp-mini__stat">
+                                            <span class="bp-mini__stat-wrap">
+                                                <span class="bp-mini__publish-date">
+                                                    <a>
+                                                        <span>@post.Timestamp.Humanize()</span>
+                                                    </a>
+                                                </span>
+                                            </span>
+                                            <span class="bp-mini__stat-wrap">
+                                                <span class="bp-mini__preposition">By</span>
+                                                <span class="bp-mini__author">
+                                                    <a href="/Social/Holders/@post?.BusinessProfileRecord?.AccountHolder?.Id">@post?.BusinessProfileRecord?.AccountHolder?.PublicName</a>
+                                                </span>
+                                            </span>
+                                            <span class="bp-mini__stat">
+                                                <span class="bp-mini__comment">
+                                                    <a href="blog-detail.html">
+                                                        <i class="far fa-comments u-s-m-r-4"></i>
+                                                        <span>@(post.BlogPostComments?.Count ?? 0)</span>
+                                                    </a>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="bp-mini__category">
+                                            @foreach (var item in post.BlogPostCategoryRecords)
+                                            {
+                                                <a>@item?.Taxonomy?.Title</a>
+                                            }
+                                        </div>
+                                        <span class="bp-mini__h1">
+                                            <a href="/Blog/Posts/Details/@post.ID">@post.Title</a>
+                                        </span>
+                                        <p class="bp-mini__p">@post.Excerpt</p>
+
+                                        <div class="blog-t-w">
+                                            @foreach (var item in post?.TaxonomyRecords ?? new())
+                                            {
+                                                <a class="gl-tag btn--e-transparent-hover-brand-b-2">@item.Taxonomy?.Title</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <!--====== End - Section Content ======-->
+        </div>
+    }
+
 </div>
-<!--====== End - App Content ======-->

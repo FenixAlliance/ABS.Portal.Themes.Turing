@@ -1,0 +1,71 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, AuthoringTagHelpers
+
+@using System
+@using System.Linq
+@using FenixAlliance
+@using FenixAlliance.ABM.Models
+@using FenixAlliance.ABM.Models.Holders
+@using FenixAlliance.ABM.Models.Accounting.Billing.Payments
+@using FenixAlliance.ACL.i18n.Resources
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Configuration
+@using FenixAlliance.ACL.Configuration.Interfaces
+@using FenixAlliance.ABM.Models.Content.Menus
+@using FenixAlliance.ABS.Core.Navigation
+@using Microsoft.Extensions.DependencyInjection
+@using Newtonsoft.Json
+@using FenixAlliance.ABS.Core.Templating.Interfaces
+@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.EntityFrameworkCore
+@using FenixAlliance.ABM.Data
+@using FenixAlliance.ABM.Data.Interfaces.Services
+
+@using FenixAlliance.ABM.Models.Logistics.Stock.Item
+@using FenixAlliance.ABM.SDK.Helpers
+
+
+@{
+    ViewData["Title"] = "Order details";
+    var Order = (FenixAlliance.ABM.Models.Accounting.Billing.Orders.Order)Model;
+    var TaxBase = Order.TotalAmountInUSD - Order.TotalTaxesInUSD;
+    var Holder = Order.AccountHolder;
+    var ForexRates = Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(Order.ForexRatesSnapshot);
+    var tenant = await DataContext.Business.AsAsyncEnumerable().Where(c => c.ID == WebPortal.BusinessID).FirstOrDefaultAsync();
+    var accountingSettings = await OptionsService.GetOptionAsync<dynamic>("AccountingSettings", WebPortal.ID);
+
+}
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="ui-block responsive-flex">
+                <div class="ui-block-title">
+                    <div class="h3 title">@ViewData["Title"]</div>
+
+                    <div class="align-right">
+
+                        <a href="Billing/Wallet/Index" class="btn btn-md-2 btn-border-think custom-color c-grey">Go to your wallet</a>
+
+                        @if (!Order.Invoices.Any())
+                        {
+                            <a class="btn btn-primary btn-md-2" href="/Billing/Invoices/CreateFromOrder?OrderID=@Model.ID">Generate Invoice</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-md-2 btn-border-think custom-color c-grey" href="/Billing/Invoices/Details/@Order.Invoices.FirstOrDefault()?.ID">View Invoice</a>
+                        }
+
+                        <a href="Billing/Orders/Index" class="btn btn-primary btn-md-2">Back to your orders</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await ViewService.RenderAsync("InvoiceComponent", Order)

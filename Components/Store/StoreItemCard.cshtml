@@ -1,0 +1,56 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+
+<div class="product-o product-o--hover-on product-o--radius">
+    <div class="product-o__wrap">
+
+        <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Products/Details/@Model.ID">
+
+            <img class="aspect__img" src="@(Model.PrimaryImageURL ?? "/Store/img/empty-image.png")" alt="@Model.Title" onerror="this.src='/Store/img/empty-image.png'">
+        </a>
+        <div class="product-o__action-wrap">
+            <ul class="product-o__action-list">
+                <li>
+                    <a data-modal="modal" data-modal-id="#quick-look" data-tooltip="tooltip" data-placement="top" title="" data-original-title="Quick View"><i class="fas fa-search-plus"></i></a>
+                </li>
+                <li>
+                    <a data-modal="modal" data-modal-id="#add-to-cart" data-tooltip="tooltip" data-placement="top" title="" data-original-title="Add to Cart"><i class="fas fa-plus-circle"></i></a>
+                </li>
+                <li>
+                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="" data-original-title="Add to Wishlist"><i class="fas fa-heart"></i></a>
+                </li>
+                <li>
+                    <a href="signin.html" data-tooltip="tooltip" data-placement="top" title="" data-original-title="Email me When the price drops"><i class="fas fa-envelope"></i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <span class="product-o__category">
+        <a href="/Store/Categories/Details/@Model.ItemCategory?.ID">@Model.ItemCategory?.Title</a>
+    </span>
+
+    <span class="product-o__name">
+        <a href="/Store/Products/Details/@Model.ID">@Model.Title</a>
+    </span>
+
+    <div class="product-o__rating gl-rating-style">
+        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", Model))
+    </div>
+
+    <span class="product-o__price">
+        @if (Model.OnDiscount)
+        {
+           @await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+            <span class="product-o__discount">
+                @await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = true, PrintUnformatted = false })
+            </span>
+        }
+        else
+        {
+            @await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+        }
+
+    </span>
+
+
+</div>

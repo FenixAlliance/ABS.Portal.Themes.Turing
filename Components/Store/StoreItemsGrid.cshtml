@@ -22,7 +22,7 @@
                             <div class="shop-p__meta-wrap u-s-m-b-60">
 
                                 <span class="shop-p__meta-text-1">FOUND @Model.Count RESULTS</span>
-                                <span class="shop-p__meta-text-1">Page @(Model.PageIndex +1) of @Model.TotalPages </span>
+                                <span class="shop-p__meta-text-1">Page @(Model.PageIndex ) of @(Model.TotalPages + 1) </span>
 
                             </div>
                             <div class="shop-p__tool-style">
@@ -404,17 +404,17 @@
 
                             <!--====== Pagination ======-->
                             <ul class="shop-p__pagination">
-                                @if(Model.PageIndex != 0){
+                                @if(Model.PageIndex > 1){
                                     <li>
-                                        <a class="fas fa-angle-left" href="/Store/Products/@Action?sortOrder=@ViewBag.CurrentSort&Query=@ViewBag.Query&pageIndex=@(Model.PageIndex - 1)&pageSize=@(ViewBag.pageSize)" class="square-button @prevDisabled"></a>
+                                        <a class="fas fa-angle-left square-button @prevDisabled" href="/Store/Products/@Action?sortOrder=@ViewBag.CurrentSort&Query=@ViewBag.Query&pageIndex=@(Model.PageIndex - 1)&pageSize=@(ViewBag.pageSize)" ></a>
                                     </li>
                                 }
                                 <li class="is-active">
-                                    @(Model.PageIndex +1)
+                                    @(Model.PageIndex)
                                 </li>
                                 @if(Model.PageIndex + 1 < Model.TotalPages){
                                     <li>
-                                        <a class="fas fa-angle-right" href="/Store/Products/@Action?sortOrder=@ViewBag.CurrentSort&Query=@ViewBag.Query&pageIndex=@(Model.PageIndex + 1)&pageSize=@(ViewBag.pageSize)" class="square-button @nextDisabled"></a>
+                                        <a class="fas fa-angle-right square-button @nextDisabled" href="/Store/Products/@Action?sortOrder=@ViewBag.CurrentSort&Query=@ViewBag.Query&pageIndex=@(Model.PageIndex + 1)&pageSize=@(ViewBag.pageSize)" ></a>
                                     </li>
                                 }
                             </ul>

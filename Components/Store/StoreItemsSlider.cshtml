@@ -1,15 +1,67 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using System.Collections.Generic
+
+@{
+    var products = (List<FenixAlliance.ABM.Models.Logistics.Stock.Item.Item>)Model;
+}
 
 <!--====== Section Content ======-->
 <div class="section__content">
     <div class="container">
-    <div class="slider-fouc">
-        <div class="owl-carousel product-slider" data-item="4">
-            @foreach(var item in Model){
-                @await ViewService.RenderAsync("StoreItemsSliderItem", item)
-            }
+        <div class="slider-fouc">
+            <div class="owl-carousel product-slider" data-item="4">
+                @foreach (var product in products)
+                {
+                    <div class="u-s-m-b-30">
+                        <div class="product-o product-o--hover-on">
+                            <div class="product-o__wrap">
+
+                                <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Products/Details/@product.ID">
+                                    <img class="aspect__img" src="@(product.PrimaryImageURL ?? "/Store/img/empty-image.png")" alt="@product.Title" onerror="this.src='/Store/img/empty-image.png'">
+                                </a>
+
+                                <div class="product-o__action-wrap">
+                                    <ul class="product-o__action-list">
+
+                                        <li>
+                                            <a onclick="AddStockItemToCart('@product.ID', 1)" title="Add to Cart">
+                                                <i class="fas fa-plus-circle"></i>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </div>
+
+                            @if (product.ItemCategory is not null)
+                            {
+                                <span class="product-o__category">
+                                    <a href="/store/Categories/Details/@product.ItemCategory?.ID">@product.ItemCategory?.Title</a>
+                                </span>
+                            }
+
+                            <span class="product-o__name">
+                                <a href="/Store/Products/Details/@product.ID">@product.Title</a>
+                            </span>
+
+                            @Html.Raw(await ViewService.RenderAsync("StoreItemRating", product))
+
+                            @if (product.OnDiscount)
+                            {
+                                <div class="prev product-o__price">
+                                    @await Component.InvokeAsync("ItemPrice", new { Item = product, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+                                </div>
+                                <div class="curren product-o__discountt" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = product, DisplayDiscountPrice = true, PrintUnformatted = false })</div>
+                            }
+                            else
+                            {
+                                <div class="current product-o__price" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = product, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })</div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
     </div>
 </div>
 <!--====== End - Section Content ======-->

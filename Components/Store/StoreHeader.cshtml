@@ -9,7 +9,6 @@
     var CartCurrencyID = ViewBag.CartCurrencyID;
     var Items = ViewBag.Items as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.Item.Item>;
     var Brands = ViewBag.Brands as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands.ItemBrand>;
-    var Categories = ViewBag.Categories as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory>;
     var ExchangeRates = FenixAlliance.ABM.SDK.Helpers.Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(ViewBag.ExchangeRates);
 
     var GoogleCategories = DataContext.ItemGoogleCategory.ToList();
@@ -20,6 +19,7 @@
     .Select(c => new SelectListItem { Value = c.Name, Text = c.DisplayName })
     .ToList();
 
+    var Categories = ViewBag.Categories as System.Collections.Generic.List<FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory>;
     var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 
 }
@@ -40,14 +40,7 @@
         margin: auto;
     }
 </style>
-<script>
-    //Select Language
-    function SelectLang(value) {
-        cookie = "c=" + value.trim() + "|uic=" + value.trim();
-        Cookies.set('.AspNetCore.Culture', cookie);
-        window.location.reload();
-    }
-</script>
+
 
 <!--====== Main Header ======-->
 <header class="header--style-1">
@@ -141,13 +134,6 @@
                                         <span class="js-menu-toggle"></span>
 
                                         <ul>
-
-                                            <li>
-                                                <a class="u-c-brand">
-                                                    @requestCulture.RequestCulture.Culture.TwoLetterISOLanguageName
-                                                </a>
-                                            </li>
-
                                             @foreach (var culture in cultureItems)
                                             {
                                                 <li>
@@ -168,12 +154,20 @@
                                         <!--====== Dropdown ======-->
 
                                         <span class="js-menu-toggle"></span>
+
+
+
                                         <ul style="width:225px">
 
                                             <li>
-                                                <a class="u-c-brand">
-                                                    <script>document.write(CartCurrencyCode);</script>
-                                                </a>
+                                                <select class="form-control" id="currencySelector">
+                                                    @foreach (var item in await DataContext.Currency?.Include(c=>c.Country).ToListAsync())
+                                                    {
+                                                        <option value="@item.ID">
+                                                            @item.CountryName
+                                                        </option>
+                                                    }
+                                                </select>
                                             </li>
 
                                         </ul>
@@ -227,7 +221,9 @@
                         <ul class="ah-list">
                             <li class="has-dropdown">
 
-                                <span class="mega-text">C</span>
+                                <span class="mega-text">
+                                C
+                                </span>
 
                                 <!--====== Mega Menu ======-->
 
@@ -312,6 +308,10 @@
                             <li>
                                 <a href="/Store/Products">PRODUCTS</a>
                             </li>
+                            
+                            <li>
+                                <a href="/Store/Brands">BRANDS</a>
+                            </li>
 
 
                             <li>
@@ -324,7 +324,7 @@
 
                                 <li class="has-dropdown">
 
-                                    <a>
+                                    <a href="/Store/Categories">
                                         CATEGORIES
                                         <i class="fas fa-angle-down u-s-m-l-6"></i>
                                     </a>
@@ -333,11 +333,11 @@
                                     <span class="js-menu-toggle"></span>
 
                                     <ul style="width:200px">
-                                        @foreach (var item in Categories)
+                                        @foreach (var item in Categories?.Where(c=>c.ParentItemCategoryID == null))
                                         {
                                             <li>
 
-                                                <a href="/Store/Categories/@item.ID">@item.Title</a>
+                                                <a href="/Store/Categories/Details/@item.ID">@item.Title</a>
                                             </li>
                                         }
                                     </ul>
@@ -369,3 +369,35 @@
     <!--====== End - Nav 2 ======-->
 </header>
 <!--====== End - Main Header ======-->
+<script>
+    //Select Language
+    function SelectLang(value) {
+        cookie = "c=" + value.trim() + "|uic=" + value.trim();
+        Cookies.set('.AspNetCore.Culture', cookie);
+        window.location.reload();
+    }
+
+    $('#currencySelector').change(function () {
+        //Use $option (with the "$") to see that the variable is a jQuery object
+        var $option = $(this).find('option:selected');
+        //Added with the EDIT
+        var value = $option.val();//to get content of "value" attrib
+        var text = $option.text();//to get <option>Text</option> content
+
+        $.ajax({
+            url: '/api/v2/currencies/setCurrency',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            headers: {
+                RequestVerificationToken: requestVerificationToken
+            },
+            data: JSON.stringify({
+                "CartID": CartID,
+                "CurrencyID": value
+            })
+        }).done(function () {
+            location.reload();
+        });
+    });
+
+</script>

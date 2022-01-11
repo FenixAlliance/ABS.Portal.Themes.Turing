@@ -1,0 +1,10 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using System.Linq
+@using System.Collections.Generic
+@using Humanizer
+@{
+    ViewData["Title"] = "Invoices";
+    var invoice = (List<FenixAlliance.ABM.Models.Accounting.Billing.Invoices.Invoice>)Model;
+}
+
+

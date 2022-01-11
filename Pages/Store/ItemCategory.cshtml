@@ -1,0 +1,99 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using FenixAlliance.ABM.Models.Logistics.Stock.ItemBrands
+@using FenixAlliance.ABM.Models.Logistics.Stock.Item
+@using FenixAlliance.ABM.SDK.Helpers
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    var category = Model as FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="product-slide-entry">
+                <div class="product-image">
+                    <a href="Store/Categories/Details/@category.ID">
+                        <img src="@(category.ImageURL ?? "/Store/img/empty-image.png")"  onerror="this.src='/Store/img/empty-image.png'" alt="@category.Title">
+                    </a>
+                </div>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="col-md-6 my-auto">
+            @if (!string.IsNullOrEmpty(category.Title))
+            {
+                <hr />
+                @category.Title
+            }
+
+            @if (!string.IsNullOrEmpty(category.Description))
+            {
+                <hr />
+                @category.Description
+            }
+
+            <hr />
+            <a href="/Store/Categories">Back to List</a>
+            <hr />
+        </div>
+    </div>
+</div>
+
+@if (category.ChildItemCategories is not null && category.ChildItemCategories.Count > 0)
+{
+    <div class="u-s-p-t-90">
+        <div class="container">
+            <div class="row">
+                <div class="information-blocks">
+                    <div class="block-header text-center">
+                        <h3 class="title">@_("Child Categories")</h3>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row  is-grid-active">
+                @foreach (var childCategory in category.ChildItemCategories)
+                {
+
+                    <div class="col-lg-2 col-md-3 col-sm-4">
+                        <div class="product-m">
+                            <div class="product-m__thumb">
+                                <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Categories/Details/@childCategory.ID">
+                                    <img class="aspect__img" src="@(childCategory.ImageURL ?? "/Store/img/empty-image.png")" alt="@childCategory.Title" onerror="this.src='/Store/img/empty-image.png'">
+                                </a>
+                            </div>
+                            <div class="product-m__content">
+                                <div class="product-m__category">
+                                    @if (childCategory.IsFeatured)
+                                    {
+                                        <a href="/Store/Featured/Details/@childCategory.ID">Featured</a>
+                                    }
+                                </div>
+                                <div class="product-m__name text-center">
+
+                                    <a href="/Store/Categories/Details/@childCategory.ID">@childCategory.Title</a>
+
+                                </div>
+
+                                <div class="product-m__hover">
+                                    <div class="product-m__preview-description">
+                                        <span>
+                                            @childCategory.Description
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+}
+
+
+@await Component.InvokeAsync("ItemsGrid", ListPaggingHelpers<Item>.Paginate(category.DiscoveredItems, ViewBag.pageIndex ?? 1, ViewBag.pageSize ?? 24))

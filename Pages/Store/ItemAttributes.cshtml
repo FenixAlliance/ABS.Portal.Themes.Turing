@@ -1,50 +1,32 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@{Title = "Home";}
-@{Slug = "/Home";}
 
-<div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
-        <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    Store
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
+@{
+    var attributes = (IEnumerable<FenixAlliance.ABM.Models.Logistics.Stock.ItemAttributes.ItemAttribute>)Model;
+}
+
+<style>
+    .tags-box a {
+        display: inline-block;
+        color: white !important;
+        background: #00283A !important;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 information-entry">
+            @foreach (var item in attributes)
+            {
+                <div class="information-blocks">
+                    <h3 class="block-title inline-Item-column-title">@item.Name</h3>
+                    <div class="tags-box">
+                        @foreach (var Option in item.ItemAttributeOptions)
+                        {
+                            <a href="Store/AttributeOptions/Details/@Option.ID">@Option.Name</a>
+                        }
+                    </div>
+                </div>
+            }
+            <div style="height: 60px;"></div>
         </div>
     </div>
 </div>

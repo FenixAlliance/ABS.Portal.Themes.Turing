@@ -1,0 +1,367 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@using System.Linq
+@using FenixAlliance.ABM.Models.Holders
+@using FenixAlliance.ABM.Models.Accounting.Billing.Orders
+@using FenixAlliance.ABM.Models.Accounting.Billing.Invoices
+@using FenixAlliance.ABM.Models.Accounting.Billing.Payments
+
+@{
+    ViewData["Title"] = "New Order Payment";
+    
+    var payment = new Payment();
+    var Invoice = (Invoice)Model;
+    var Order = (Order)ViewBag.Order;
+
+    var Holder = (AccountHolder)ViewBag.Holder;
+
+    var TaxBase = Order.TotalAmountInUSD - Order.TotalTaxesInUSD;
+
+    var accountingSettings = await OptionsService.GetOptionAsync<dynamic>("AccountingSettings", WebPortal.ID);
+
+}
+
+<script type="text/javascript" src="/ui/lib/card/dist/jquery.card.js"></script>
+<!-- Validate Phone -->
+<script src="/ui/lib/intl-tel-input/build/js/intlTelInput.js"></script>
+<script src="/ui/lib/intl-tel-input/build/js/utils.js"></script>
+<link rel="stylesheet" href="/ui/lib/intl-tel-input/build/css/intlTelInput.css">
+
+<script src="/ui/lib/cleave.js/dist/cleave.js"></script>
+<script src="/ui/lib/cleave.js/dist/addons/cleave-phone.us.js"></script>
+
+<style>
+    .intl-tel-input {
+        width: 100%;
+    }
+
+    .jp-card {
+        min-width: 280px !important;
+    }
+
+        .jp-card .jp-card-front,
+        .jp-card .jp-card-back {
+            background: #002050;
+        }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="ui-block responsive-flex">
+                <div class="ui-block-title">
+                    <div class="h3 title">@ViewData["Title"]</div>
+
+                    <div class="align-right">
+
+                        <a href="Billing/Wallet/Index" class="btn btn-md-2 btn-border-think custom-color c-grey">Go to your wallet</a>
+
+                        @if (!Order.Invoices.Any())
+                        {
+                            <a class="btn btn-primary btn-md-2" href="/Billing/Invoices/CreateFromOrder?OrderID=@Model.ID">Generate Invoice</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-md-2 btn-border-think custom-color c-grey" href="/Billing/Invoices/Details/@Order.Invoices.FirstOrDefault()?.ID">View Invoice</a>
+                        }
+
+                        <a href="Billing/Orders/Index" class="btn btn-primary btn-md-2">Back to your orders</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <form id="Card" method="post" action="/Store/PaymentGateways/Epayco/ProcessPayment/@Order.ID">
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <input type="hidden" name="OrderID" value="@Order.ID" />
+                        <input type="hidden" name="InvoiceID" value="@Invoice.ID" />
+                        <input type="hidden" name="CreditCardExpirationMonth" id="CreditCardExpirationMonth" data-epayco="card[exp_month]" />
+                        <input type="hidden" name="CreditCardExpirationYear" id="CreditCardExpirationYear" data-epayco="card[exp_year]" />
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="control-label">Billing Email</label>
+                                            <input name="Email" type="email" value="@Holder.Email" readonly class="form-control" data-epayco="card[email]">
+                                            <span name="Email" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label class="control-label">Official ID Type</label>
+                                            <select name="OfficialIDType" class="form-control" asp-items="ViewBag.LocationID">
+                                                <option value="CC">CC</option>
+                                                <option value="NIT">NIT</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Official ID</label>
+
+                                            <label name="OfficialID" class="control-label"></label>
+                                            <input name="OfficialID" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Official ID Expedition Date</label>
+                                            <label name="OfficialIDExpeditionDate" class="control-label"></label>
+                                            <input name="OfficialIDExpeditionDate" type="date" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group ">
+                                            <label name="Country" class="control-label">Country</label>
+                                            <select name="Country" class=" form-control">
+                                                <option value="COL">Colombia</option>
+                                                <option value="USA">United States of America</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label name="BillingAddress" class="control-label">Billing Address</label>
+                                            <input name="BillingAddress" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label name="City" class="control-label">City</label>
+                                            <input name="City" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label name="Department" class="control-label">Department</label>
+                                            <input name="Department" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group ">
+                                            <label name="Country" class="control-label">Location</label>
+                                            <select name="Country" class=" form-control">
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label name="Cellphone" class="control-label"></label>
+                                            <input name="Cellphone" required id="cellphone" class="form-control" />
+                                            <span name="Cellphone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label name="Phone" class="control-label"></label>
+                                            <input name="Phone" id="phone" class="form-control" />
+                                            <span name="Phone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <!--  CARD DETAILS -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group ">
+                                                    <label name="CreditCardNumber" class="control-label">Credit Card Number</label>
+                                                    <input name="CreditCardNumber" id="CreditCardNumber" type="text" data-epayco="card[number]" class="form-control cardNumber" />
+                                                    <span name="CreditCardNumber" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group ">
+                                                    <label name="InCreditCardFirstName" class="control-label">Cardholder First Name</label>
+                                                    <input name="InCreditCardFirstName" id="OnCardFirstName" type="text" placeholder="First Name" class="form-control" required />
+                                                    <span name="InCreditCardFirstName" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group ">
+                                                    <label name="InCreditCardLastName" class="control-label">Cardholder Last Name</label>
+                                                    <input name="InCreditCardLastName" id="OnCardLastName" required placeholder="Last Name" type="text" class="form-control" />
+                                                    <span name="InCreditCardLastName" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="CCDateFormInput" class="form-group">
+                                                    <label name="CreditCardExpirationDate" class="control-label">Expiration Date</label>
+                                                    <input id="CreditCardExpirationDate" name="CreditCardExpirationDate" type="text" placeholder="MM/YY" class="form-control" />
+                                                    <span name="CreditCardExpirationDate" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label name="CreditCardVerificationCode" class="control-label">CVC</label>
+                                                    <input id="CreditCardVerificationCode" name="CreditCardVerificationCode" type="text" class="form-control " size="4" data-epayco="card[cvc]">
+                                                    <span name="CreditCardVerificationCode" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group ">
+                                                    <label name="Dues" class="control-label">Dues</label>
+                                                    <input name="Dues" type="number" class="form-control " />
+                                                    <span name="Dues" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div style="max-width:100%" class='card-wrapper'></div>
+                                    </div>
+                                </div>
+                                <!-- Billing Details -->
+
+                                <button type="submit" class="btn btn-blue btn-lg w-100">
+                                    Pay (@await Component.InvokeAsync("Price", new
+                                      {
+                                          Amount = Order.TotalAmountInUSD,
+                                          Currency = "USD",
+                                          PrintUnformatted = false
+                                      }))
+                                </button>
+
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="header-spacer"></div>
+
+<script>
+    $('#Card').submit(function (event) {
+        //captura el contenido del formulario
+        var $form = $('#Card');
+        //deshabilita el botón para no acumular peticiones
+        $form.find("button").prop("disabled", true);
+        // Prevent form submit
+        event.preventDefault();
+        // Set Credit Card Moth and Year
+        var CreditCardExpirationYear = document.querySelector("#CreditCardExpirationYear");
+        var CreditCardExpirationMonth = document.querySelector("#CreditCardExpirationMonth");
+        var CreditCardExpirationDate = document.querySelector("#CreditCardExpirationDate");
+
+        var CCDate = CreditCardExpirationDate.value.split("/");
+
+        CreditCardExpirationYear.value = "20" + CCDate[1];
+        CreditCardExpirationMonth.value = CCDate[0];
+        ////// Trim cc spaces
+        var ccnumber = $('#CreditCardNumber').val().replace(/\s+/g, '');
+        $('#CreditCardNumber').val(ccnumber);
+        $('#CreditCardExpirationYear').val("20" + CCDate[1]);
+        $('#CreditCardExpirationMonth').val(CCDate[0]);
+        // Validate at least one phone number
+        if (!iti.isValidNumber() && !icll.isValidNumber()) {
+            toastr.error(iti.getNumber() + ' Is not a valid international phone number. Please enter a number in an international format.', 'At least one phone number must pass validation.');
+            return false;
+        } else {
+            if (iti.isValidNumber()) {
+                phone.value = iti.getNumber();
+                cellphone.value = iti.getNumber();
+            }
+            else {
+                phone.value = icll.getNumber();
+                cellphone.value = icll.getNumber();
+            }
+        }
+        $('#Card').get(0).submit();
+    });
+
+    // Adds Card.js
+    var card = new Card({
+        // a selector or DOM element for the form where AccountHolders will
+        // be entering their information
+        form: 'form', // *required*
+        // a selector or DOM element for the container
+        // where you want the card to appear
+        container: '.card-wrapper', // *required*
+
+        formSelectors: {
+            numberInput: 'input#CreditCardNumber',
+            expiryInput: 'input#CreditCardExpirationDate',
+            cvcInput: 'input#CreditCardVerificationCode',
+            nameInput: 'input[name="InCreditCardFirstName"], input[name="InCreditCardLastName"]'
+        },
+        formatting: true, // optional - default true
+        // Strings for translation - optional
+        messages: {
+            validDate: 'valid\ndate', // optional - default 'valid\nthru'
+            monthYear: 'mm/yy', // optional - default 'month/year'
+        },
+        // Default placeholders for rendered fields - optional
+        placeholders: {
+            number: '•••• •••• •••• ••••',
+            name: 'FULL NAME',
+            expiry: '••/••',
+            cvc: '•••'
+        },
+        masks: {
+            cardNumber: '•'
+        },
+    });
+
+
+    //// Format & Validate Card Number
+    document.querySelectorAll('.cardNumber').forEach(function (el) {
+        new Cleave(el, { creditCard: true });
+    });
+
+    // Validate Expiration Date
+    var CreditCardExpirationDateCleave = new Cleave('#CreditCardExpirationDate', {
+        date: true,
+        datePattern: ['m', 'y']
+    });
+
+
+    // Phone validation vars
+    var cellphone = document.querySelector("#cellphone");
+    var phone = document.querySelector("#phone");
+    var iti = window.intlTelInput(phone, {
+        autoHideDialCode: false,
+        nationalMode: true,
+        utilsScript: "/ui/lib/intl-tel-input/build/js/utils.js",
+    });
+    var icll = window.intlTelInput(cellphone, {
+        autoHideDialCode: false,
+        nationalMode: true,
+        utilsScript: "/ui/lib/intl-tel-input/build/js/utils.js",
+    });
+</script>

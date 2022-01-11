@@ -1,0 +1,110 @@
+@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+
+@{
+    ViewData["Title"] = "Details";
+    var wallet = (FenixAlliance.ABM.Models.Global.Wallets.WalletAccount)Model;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col col-xl-9 order-xl-2 col-lg-9 order-lg-2 col-md-12 order-md-1 col-sm-12 col-12">
+            <div class="ui-block">
+
+                <div class="ui-block-title">
+                    <h6 class="title">Your Wallet</h6>
+                    <a href="#" class="more"><i class="fas fa-bars"></i></a>
+                </div>
+
+                <div>
+                    <h4>Wallet</h4>
+                    <hr />
+                    <dl class="row">
+                        <dt class="col-sm-2">
+                            ID
+                        </dt>
+                        <dd class="col-sm-10">
+                            @wallet.ID
+                        </dd>
+                        <dt class="col-sm-2">
+                            Created Timestamp
+                        </dt>
+                        <dd class="col-sm-10">
+                            @wallet.CreatedTimestamp
+                        </dd>
+                        <dt class="col-sm-2">
+                            Balance
+                        </dt>
+                        <dd class="col-sm-10">
+                            @wallet.WalletCurrentBalanceInUSD
+                        </dd>
+                    </dl>
+                </div>
+
+                <!-- ... end  -->
+            </div>
+        </div>
+
+        <div class="col col-xl-3 order-xl-1 col-lg-3 order-lg-1 col-md-12 order-md-2 col-sm-12  responsive-display-none">
+            <div class="ui-block">
+
+                <!-- Your Profile  -->
+
+                <div class="your-profile">
+                    <div class="ui-block-title ui-block-title-small">
+                        <h6 class="title">Your Billing Profile</h6>
+                    </div>
+
+                    <div id="accordion" role="tablist" aria-multiselectable="true">
+                        <div class="card">
+                            <div class="card-header" role="tab" id="headingOne">
+                                <h6 class="mb-0">
+                                    Your Wallet
+                                </h6>
+                            </div>
+
+                            <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
+                                <ul class="your-profile-menu">
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Wallet" asp-action="Index">
+                                            My Wallet
+                                            Account
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Orders" asp-action="Index">My Orders</a>
+                                    </li>
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Payments" asp-action="Index">
+                                            My
+                                            Payments
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a asp-area="Billing" asp-controller="Invoices" asp-action="Index">
+                                            My
+                                            Invoices
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-block-title">
+                        <a asp-area="Billing" asp-controller="Methods" asp-action="Index" class="h3 title">
+                            Enabled
+                            payment methods
+                        </a>
+                    </div>
+                    <div class="ui-block-title">
+                        <a asp-area="Billing" asp-controller="TaxPolicies" asp-action="Index" class="h3 title">
+                            Learn
+                            about tax policies
+                        </a>
+                    </div>
+
+                </div>
+                <!-- ... end Your Profile  -->
+            </div>
+        </div>
+    </div>
+</div>

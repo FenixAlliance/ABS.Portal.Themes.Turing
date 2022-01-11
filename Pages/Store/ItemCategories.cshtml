@@ -1,50 +1,65 @@
 @inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
-@{Title = "Home";}
-@{Slug = "/Home";}
+@using System.Collections.Generic
+@using System.Linq
 
-<div class="section">
-    <div class="container-fluid">
-        @await ViewService.InvokeAsync("HomeHero")
+@{
+    var categories = Model as List<FenixAlliance.ABM.Models.Logistics.Stock.ItemCategories.ItemCategory>;
+}
+
+<div class="u-s-p-t-90">
+    <div class="container">
         <div class="row">
-            <div class="col-md-4">
-                <h2>
-                    Store
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
+            <div class="information-blocks">
+                <div class="block-header text-center">
+                    <h1 class="title">@_("Categories")</h1>
+                </div>
             </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
-            <div class="col-md-4">
-                <h2>
-                    Heading
-                </h2>
-                <p>
-                    Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                    mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-                    mollis euismod. Donec sed odio dui.
-                </p>
-                <p>
-                    <a class="btn" href="#">View details »</a>
-                </p>
-            </div>
+        </div>
+        <br />
+        <div class="row  is-grid-active">
+            @foreach (var category in categories)
+            {
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="product-m">
+                        <div class="product-m__thumb">
+
+                            <a class="aspect aspect--bg-grey aspect--square u-d-block" href="/Store/Categories/Details/@category.ID">
+
+                                <img class="aspect__img" src="@(category.ImageURL ?? "/Store/img/empty-image.png")" alt="@category.Title"  onerror="this.src='/Store/img/empty-image.png'" >
+                            </a>
+
+                            <div class="product-m__add-cart">
+
+                                <a class="btn--e-brand" href="/Store/Categories/Details/@category.ID">View Products</a>
+                            </div>
+                        </div>
+                        <div class="product-m__content">
+                            <div class="product-m__category">
+                                @if (category.IsFeatured)
+                                {
+                                    <a href="/Store/Featured/Details/@category.ID">Featured</a>
+                                }
+                            </div>
+                            <div class="product-m__name text-center">
+
+                                <a href="/Store/Categories/Details/@category.ID">@category.Title</a>
+
+                            </div>
+
+                            <div class="product-m__hover">
+                                <div class="product-m__preview-description">
+                                    <span>
+                                        @category.Description
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            }
         </div>
     </div>
 </div>
