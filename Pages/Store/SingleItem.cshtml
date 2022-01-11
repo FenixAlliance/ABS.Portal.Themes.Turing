@@ -1131,14 +1131,10 @@
                                                                     @_("this attachment")
                                                                 </div>
                                                                 <div class="sale-description">
-                                                                    @{
-                                                                        var FileSize = item.FileLengthInBits / 1048576;
-                                                                    }
                                                                     @_("This file contains extended information about"):
                                                                     <b>@Model.Title</b>.
                                                                     @_("It may be provided by Fenix Alliance Group, the manufacturer or external sources. We make sure this file is totally free from Malware and that bad stuff. Guaranteed.")
                                                                     <br />
-                                                                    <b>@_("File Size"): @FileSize MB</b> |
                                                                     <b>@_("File Type"): @item.FileName.Split('.')[1] </b> |
                                                                     <b>@_("File Name"): @item.FileName</b>
                                                                 </div>
