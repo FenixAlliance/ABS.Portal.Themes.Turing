@@ -279,7 +279,7 @@
                                     <i class="fas fa-heart u-s-m-r-6"></i>
                                     <a onclick="AddProductToWishlist('@Product.ID')">Add to Wishlist</a>
                                     <span class="pd-detail__click-count">
-                                        (@DataContext.ItemWishListRecord.AsEnumerable().Where(c => c.ItemID == Product.ID).Count())
+                                        (@DataContext.ItemWishListRecord.AsNoTracking().Where(c => c.ItemID == Product.ID).Count())
                                     </span>
                                 </span>
                             </div>
@@ -291,7 +291,7 @@
                                     <i class="fas fa-less-than-equal u-s-m-r-6"></i>
                                     <a onclick="AddProductToCompare('@Product.ID')">@_("Add to compare table")</a>
                                     <span class="pd-detail__click-count">
-                                        (@DataContext.ItemToCompareRecord.AsEnumerable().Where(c => c.ItemID == Product.ID).Count())
+                                        (@DataContext.ItemToCompareRecord.AsNoTracking().Where(c => c.ItemID == Product.ID).Count())
                                     </span>
                                 </span>
                             </div>
@@ -352,13 +352,13 @@
                                                 <b>@_("Merchant Profile"):</b>
                                                 <br />
                                                 <b>
-                                                    @Product.Business.BusinessName
+                                                    @Product.Business?.BusinessName
                                                     <br />
-                                                    <a href="Social/Businesses/Details&businessID=@Product.Business.ID">
+                                                    <a href="/Studio/Social/Businesses/@Product.Business.ID">
                                                         @_("By"): @Product.Business.BusinessLegalName
                                                     </a>
                                                     <br />
-                                                    <a href="Social/Businesses/Details/@Product.BusinessID">
+                                                    <a href="/Studio/Social/Businesses/@Product.Business.ID">
                                                         @_("Tax ID"): @Product.Business.TaxID
                                                     </a>
                                                 </b>
@@ -719,7 +719,7 @@
                                         {
                                             @foreach (var item in Product.ItemTaxPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.TaxPolicy.Title)</h4>
+                                                <h4>@Html.Raw(item.TaxPolicy?.Title)</h4>
                                             }
                                         }
                                     </div>
@@ -737,9 +737,9 @@
                                         {
                                             @foreach (var item in Product.ItemShippingPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.ItemShippingPolicy.Title)</h4>
-                                                <h6>@Html.Raw(item.ItemShippingPolicy.Description)</h6>
-                                                <p>@Html.Raw(item.ItemShippingPolicy.Description)</p>
+                                                <h4>@Html.Raw(item.ItemShippingPolicy?.Title)</h4>
+                                                <h6>@Html.Raw(item.ItemShippingPolicy?.Description)</h6>
+                                                <p>@Html.Raw(item.ItemShippingPolicy?.Description)</p>
                                             }
                                         }
                                     </div>
@@ -759,9 +759,9 @@
                                         {
                                             @foreach (var item in Product.ItemWarrantyPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.WarrantyPolicy.Title)</h4>
-                                                <h6>@Html.Raw(item.WarrantyPolicy.Description)</h6>
-                                                <p>@Html.Raw(item.WarrantyPolicy.Description)</p>
+                                                <h4>@Html.Raw(item.WarrantyPolicy?.Title)</h4>
+                                                <h6>@Html.Raw(item.WarrantyPolicy?.Description)</h6>
+                                                <p>@Html.Raw(item.WarrantyPolicy?.Description)</p>
                                             }
                                         }
                                     </div>
@@ -780,9 +780,9 @@
                                         {
                                             @foreach (var item in Product.ItemRefundPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.RefundPolicy.Title)</h4>
-                                                <h6>@Html.Raw(item.RefundPolicy.Description)</h6>
-                                                <p>@Html.Raw(item.RefundPolicy.Description)</p>
+                                                <h4>@Html.Raw(item.RefundPolicy?.Title)</h4>
+                                                <h6>@Html.Raw(item.RefundPolicy?.Description)</h6>
+                                                <p>@Html.Raw(item.RefundPolicy?.Description)</p>
                                             }
                                         }
                                     </div>
@@ -802,9 +802,9 @@
                                         {
                                             @foreach (var item in Product.ItemReturnPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.ReturnPolicy.Title)</h4>
-                                                <h6>@Html.Raw(item.ReturnPolicy.Description)</h6>
-                                                <p>@Html.Raw(item.ReturnPolicy.Description)</p>
+                                                <h4>@Html.Raw(item.ReturnPolicy?.Title)</h4>
+                                                <h6>@Html.Raw(item.ReturnPolicy?.Description)</h6>
+                                                <p>@Html.Raw(item.ReturnPolicy?.Description)</p>
                                             }
                                         }
                                     </div>
@@ -825,7 +825,7 @@
                                         }
                                         else
                                         {
-                                            @foreach (var item in Product.ItemQuestions)
+                                            @foreach (var item in Product.ItemQuestions ?? new())
                                             {
                                                 if (item.SocialProfile is FenixAlliance.ABM.Models.Social.SocialProfiles.Scopes.AccountHolderSocialProfile)
                                                 {
@@ -1192,6 +1192,7 @@
     <!--====== End - Section 1 ======-->
 </div>
 <!--====== End - App Content ======-->
+
 <!-- application/ld+json -->
 <script type="application/ld+json">
    {

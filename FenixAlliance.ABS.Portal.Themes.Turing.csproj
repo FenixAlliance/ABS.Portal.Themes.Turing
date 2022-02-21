@@ -19,21 +19,23 @@
     <PackageProjectUrl>https://absuite.net</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Copyright>© 2009 - 2021 Fenix Alliance Inc. All rights reserved.</Copyright>
+    <StaticWebAssetBasePath Condition="$(StaticWebAssetBasePath) == ''">/ui</StaticWebAssetBasePath>
     <PackageTags>Alliance Business Suite; Fenix Alliance, ABS, ABM; ABP; ACL; APS; ACS;</PackageTags>
     <PackageIconUrl>https://fenixalliance.com.co/images/FenixAlliance/AppIcon/apple-icon-120x120.png</PackageIconUrl>
     <Description>Application Component for the Alliance Business Suite.</Description>
     <RepositoryUrl>https://github.com/FenixAlliance/ABS.Portal.UI</RepositoryUrl>
-    <StaticWebAssetBasePath Condition="$(StaticWebAssetBasePath) == ''">/ui</StaticWebAssetBasePath>
   </PropertyGroup>
+	
   <ItemGroup>
     <Content Remove="comps\**" />
     <Compile Remove="comps\**" />
     <EmbeddedResource Remove="comps\**" />
     <None Remove="comps\**" />
   </ItemGroup>
+	
   <ItemGroup>
     <!--<PackageReference Include="FenixAlliance.ABS.Core" Version="1.2.0" />-->
-
     <ProjectReference Include="..\..\..\..\FenixAlliance.ABS\FenixAlliance.ABS.Core\FenixAlliance.ABS.Core.csproj" />
   </ItemGroup>
+	
 </Project>
