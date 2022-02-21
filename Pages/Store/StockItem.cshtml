@@ -7,6 +7,7 @@
 @using System.Collections.Generic
 @using System.Security.Claims
 @using FenixAlliance.ABM.Models.Global.Carts.CartScopes
+
 @{
 
     var cart = ViewData["Cart"] as FenixAlliance.ABM.Models.Global.Carts.Cart;
@@ -34,9 +35,9 @@
 
     if (Product.ItemReviews != null && Product.ItemReviews.Count != 0)
     {
-        AverageRating = (Product.ItemReviews.Count == 0) ? 0.0 : Product.ItemReviews.Average(c => c.ReviewScore);
-        MinRate = (Product.ItemReviews.Count == 0) ? 0.0 : Product.ItemReviews.OrderBy(c => c.ReviewScore).First().ReviewScore;
-        MaxRate = (Product.ItemReviews.Count == 0) ? 0.0 : Product.ItemReviews.OrderByDescending(c => c.ReviewScore).First().ReviewScore;
+        AverageRating = (Product.ItemReviews?.Count == 0) ? 0.0 : Product.ItemReviews?.Average(c => c.ReviewScore) ?? 0.0;
+        MinRate = (Product.ItemReviews?.Count == 0) ? 0.0 : Product.ItemReviews?.OrderBy(c => c.ReviewScore).First().ReviewScore ?? 0.0;
+        MaxRate = (Product.ItemReviews?.Count == 0) ? 0.0 : Product.ItemReviews?.OrderByDescending(c => c.ReviewScore).First().ReviewScore  ?? 0.0;
     }
 
     await InvokeAsync(User, Product.ID, IP);
@@ -172,7 +173,10 @@
                                 <span class="pd-detail__price">
                                     @if (Product.OnDiscount)
                                     {
-                                        <span class="prev">@await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })</span>
+                                        <span class="prev">
+                                            @await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
+                                        </span>
+
                                         <span class="current" style="color:seagreen !important; font-weight:400;">@await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = true, PrintUnformatted = false })</span>
                                     }
                                     else
@@ -239,7 +243,6 @@
                         else
                         {
                             <hr />
-
 
                             <div class="u-s-m-b-15">
                                 <div class="pd-detail__form">
@@ -354,12 +357,12 @@
                                                 <b>
                                                     @Product.Business?.BusinessName
                                                     <br />
-                                                    <a href="/Studio/Social/Businesses/@Product.Business.ID">
-                                                        @_("By"): @Product.Business.BusinessLegalName
+                                                    <a href="/Studio/Social/Businesses/@Product.Business?.ID">
+                                                        @_("By"): @Product.Business?.BusinessLegalName
                                                     </a>
                                                     <br />
-                                                    <a href="/Studio/Social/Businesses/@Product.Business.ID">
-                                                        @_("Tax ID"): @Product.Business.TaxID
+                                                    <a href="/Studio/Social/Businesses/@Product.Business?.ID">
+                                                        @_("Tax ID"): @Product.Business?.TaxID
                                                     </a>
                                                 </b>
                                             </h3>
@@ -393,7 +396,7 @@
                                             @foreach (var item in Product.ItemTaxPolicyRecords)
                                             {
                                                 <div class="share-box" style="display: grid;">
-                                                    <h3 class="title"><b></b>@item.TaxPolicy.Title</h3>
+                                                    <h3 class="title"><b></b>@item.TaxPolicy?.Title</h3>
                                                 </div>
                                             }
                                         }
@@ -414,7 +417,7 @@
                                             @foreach (var Tag in Product.ItemTagRecords)
                                             {
                                                 <div class="share-box" style="display: grid;">
-                                                    <a href="Store/Tags/Details?id=@Tag.ItemTag.ID">@Tag.ItemTag.Title</a>
+                                                    <a href="Store/Tags/Details?id=@Tag.ItemTag.ID">@Tag.ItemTag?.Title</a>
                                                 </div>
                                             }
                                         }
@@ -719,7 +722,7 @@
                                         {
                                             @foreach (var item in Product.ItemTaxPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.TaxPolicy?.Title)</h4>
+                                                <h4>@Html.Raw(item.TaxPolicy?.Title ?? "")</h4>
                                             }
                                         }
                                     </div>
@@ -737,9 +740,9 @@
                                         {
                                             @foreach (var item in Product.ItemShippingPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.ItemShippingPolicy?.Title)</h4>
-                                                <h6>@Html.Raw(item.ItemShippingPolicy?.Description)</h6>
-                                                <p>@Html.Raw(item.ItemShippingPolicy?.Description)</p>
+                                                <h4>@Html.Raw(item.ItemShippingPolicy?.Title ?? "")</h4>
+                                                <h6>@Html.Raw(item.ItemShippingPolicy?.Description ?? "")</h6>
+                                                <p>@Html.Raw(item.ItemShippingPolicy?.Description ?? "")</p>
                                             }
                                         }
                                     </div>
@@ -759,9 +762,9 @@
                                         {
                                             @foreach (var item in Product.ItemWarrantyPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.WarrantyPolicy?.Title)</h4>
-                                                <h6>@Html.Raw(item.WarrantyPolicy?.Description)</h6>
-                                                <p>@Html.Raw(item.WarrantyPolicy?.Description)</p>
+                                                <h4>@Html.Raw(item.WarrantyPolicy?.Title ?? "")</h4>
+                                                <h6>@Html.Raw(item.WarrantyPolicy?.Description ?? "")</h6>
+                                                <p>@Html.Raw(item.WarrantyPolicy?.Description ?? "")</p>
                                             }
                                         }
                                     </div>
@@ -780,9 +783,9 @@
                                         {
                                             @foreach (var item in Product.ItemRefundPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.RefundPolicy?.Title)</h4>
-                                                <h6>@Html.Raw(item.RefundPolicy?.Description)</h6>
-                                                <p>@Html.Raw(item.RefundPolicy?.Description)</p>
+                                                <h4>@Html.Raw(item.RefundPolicy?.Title ?? "")</h4>
+                                                <h6>@Html.Raw(item.RefundPolicy?.Description ?? "")</h6>
+                                                <p>@Html.Raw(item.RefundPolicy?.Description ?? "")</p>
                                             }
                                         }
                                     </div>
@@ -802,9 +805,9 @@
                                         {
                                             @foreach (var item in Product.ItemReturnPolicyRecords)
                                             {
-                                                <h4>@Html.Raw(item.ReturnPolicy?.Title)</h4>
-                                                <h6>@Html.Raw(item.ReturnPolicy?.Description)</h6>
-                                                <p>@Html.Raw(item.ReturnPolicy?.Description)</p>
+                                                <h4>@Html.Raw(item.ReturnPolicy?.Title ?? "")</h4>
+                                                <h6>@Html.Raw(item.ReturnPolicy?.Description ?? "")</h6>
+                                                <p>@Html.Raw(item.ReturnPolicy?.Description ?? "")</p>
                                             }
                                         }
                                     </div>
@@ -1217,7 +1220,7 @@
            "aggregateRating": {
                "@@type": "AggregateRating",
                "ratingValue": "@AverageRating",
-               "reviewCount": "@Product.ItemReviews.Count"
+               "reviewCount": "@Product.ItemReviews?.Count"
            },
            "author": {
                "@@type": "Organization",
@@ -1315,9 +1318,15 @@
         {
             // Get Current User Information
             var GUID = HolderService.GetCurrentAccountHolderID(User);
+
             var Holder = await DataContext.AccountHolder.AsNoTracking()
-                .Include(c => c.AccountHolderCart).ThenInclude(c => c.ItemCartRecords).ThenInclude(c => c.Item)
-                .Include(c => c.SelectedBusiness).ThenInclude(c => c.BusinessCart).ThenInclude(c => c.ItemCartRecords).ThenInclude(c => c.Item)
+                .Include(c => c.AccountHolderCart)
+                    .ThenInclude(c => c.ItemCartRecords)
+                        .ThenInclude(c => c.Item)
+                .Include(c => c.SelectedBusiness)
+                    .ThenInclude(c => c.BusinessCart)
+                        .ThenInclude(c => c.ItemCartRecords)
+                            .ThenInclude(c => c.Item)
                 .FirstOrDefaultAsync(m => m.Id == GUID);
 
             ViewData["EndUser"] = Holder;
@@ -1325,7 +1334,8 @@
             if (Holder.SelectedBusiness != null)
             {
                 ViewData["IsBusinessCart"] = true;
-                ViewData["UserCanEdit"] = await DataContext.Item.AsNoTracking().AnyAsync(c => c.ID == ItemID && c.BusinessID == Holder.SelectedBusiness.ID);
+
+                ViewData["UserCanEdit"] = await DataContext.Item.AsNoTracking().AnyAsync(c => c.ID == ItemID && c.BusinessID == Holder.SelectedBusinessID);
 
                 foreach (var item in Holder.SelectedBusiness.BusinessCart.ItemCartRecords)
                 {
@@ -1349,25 +1359,16 @@
 
                 }
             }
-
-        }
+        } nm
         else
         {
-            if (!IPCartExist(IP))
-            {
-                var IPCart = new GuestCart();
-                var DefaultCurrency = await DataContext.Currency.AsNoTracking().FirstOrDefaultAsync(c => c.ISOCode == "COP" && c.CountryID == "COL");
-                IPCart.IP = IP;
-                IPCart.Currency = DefaultCurrency;
-                await DataContext.AddAsync(IPCart);
-                await DataContext.SaveChangesAsync();
-            }
-
             var ViewIPCart = await DataContext.GuestCart.AsNoTracking().Include(c => c.ItemCartRecords).FirstOrDefaultAsync(c => c.IP == IP);
+
             ViewData["ViewIPCart"] = ViewIPCart;
 
             ViewData["IsIPCart"] = true;
-            foreach (var item in ViewIPCart.ItemCartRecords)
+
+            foreach (var item in ViewIPCart?.ItemCartRecords ?? new())
             {
                 if (item.ItemID == ItemID)
                 {
