@@ -1,4 +1,4 @@
-@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@inherits FenixAlliance.ABM.Data.Access.Services.Templating.Razor.Templates.DynamicComponentBase
 @using System
 @using Microsoft.EntityFrameworkCore
 @using Newtonsoft.Json
@@ -1359,7 +1359,7 @@
 
                 }
             }
-        } nm
+        }
         else
         {
             var ViewIPCart = await DataContext.GuestCart.AsNoTracking().Include(c => c.ItemCartRecords).FirstOrDefaultAsync(c => c.IP == IP);

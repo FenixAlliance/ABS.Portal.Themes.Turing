@@ -1,4 +1,4 @@
-@inherits FenixAlliance.ABS.Core.Templating.Templates.DynamicComponentBase
+@inherits FenixAlliance.ABM.Data.Access.Services.Templating.Razor.Templates.DynamicComponentBase
 @using System
 @using System.Linq
 @using FenixAlliance.ABM.Models.Holders
@@ -329,7 +329,7 @@
                                                                     @Html.Raw(ProductOrderRegistration.Item.ShortDescription)
                                                                 </p>
                                                                 <h5>Applied Taxes:</h5>
-                                                                @foreach (var AppliedTax in ProductOrderRegistration.AppliedTaxPolicyRecords)
+                                                                @foreach (var AppliedTax in ProductOrderRegistration.AppliedItemTaxRecords)
                                                                 {
                                                                     <p><b>@AppliedTax.TaxPolicy.Title</b></p>
                                                                 }
