@@ -5,8 +5,8 @@
 
 <head>
     <base href="~/" />
-    @await Html.PartialAsync("_MetaTagsPartial")
-    @await Html.PartialAsync("_PortalHeadPartial")
+    @await Html.PartialAsync("_MetaTagsPartial", Model)
+    @await Html.PartialAsync("_PortalHeadPartial", Model)
 </head>
 
 <body>

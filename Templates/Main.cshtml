@@ -30,6 +30,8 @@
         @await ViewService.RenderAsync("Footer", Model)
     </div>
 
+    @await ViewService.RenderAsync("Scripts", Model)
+
     
     <noscript>
         <div class="app-setting">
@@ -40,8 +42,7 @@
                             <h1 class="app-setting__h1">JavaScript is disabled in your browser.</h1>
 
                             <span class="app-setting__text">
-                                Please enable JavaScript in your browser or upgrade to a
-                                JavaScript-capable browser.
+                                Please enable JavaScript in your browser or upgrade to a JavaScript-capable browser.
                             </span>
                         </div>
                     </div>
@@ -51,7 +52,6 @@
     </noscript>
     
 
-    @await ViewService.RenderAsync("Scripts", Model)
 
 </body>
 </html>

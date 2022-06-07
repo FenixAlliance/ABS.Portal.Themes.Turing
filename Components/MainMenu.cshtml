@@ -15,35 +15,6 @@
     var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 }
 
-<style>
-    .material-menu {
-        display: inline-flex;
-    }
-
-    .material-menu-list {
-    }
-
-    .nav-item {
-        color: white;
-    }
-        /* mouse over link */
-        .nav-item > a:hover {
-            color: white;
-        }
-        /* mouse over link */
-        .nav-item .show {
-            color: white;
-        }
-
-    .material-menu-list > li {
-        text-align: center;
-        flex-direction: row !important;
-    }
-    .navbar{
-        background-color:unset;
-    }
-</style>
-
 <script>
     var today = new Date();
     var hourNow = today.getHours();
