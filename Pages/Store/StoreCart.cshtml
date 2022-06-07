@@ -4,6 +4,7 @@
 @using System.Security.Claims
 @using System.Collections.Generic
 @using FenixAlliance.ABM.Models.Global.Carts.CartRecords.ItemRecords;
+@using Microsoft.EntityFrameworkCore
 
 @{
     var model = Model as List<FenixAlliance.ABM.Models.Global.Carts.CartRecords.ItemRecords.ItemCartRecord>;
@@ -13,12 +14,11 @@
     if (User.Identity.IsAuthenticated)
     {
         string id = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        shippingAddresses = await DataContext.HolderLocation.AsAsyncEnumerable().Where(c => c.AccountHolderID == id).ToListAsync();
+        shippingAddresses = await DataContext.HolderLocation.Where(c => c.AccountHolderID == id).ToListAsync();
     }
 }
 
 <script>
-
     var TotalTaxes = 0.0;
     var TotalCartCost = 0.0;
     var TotalShippingCost = 0.0;
@@ -28,7 +28,7 @@
 
 <div class="u-s-p-b-60">
 
-    <!--====== Section Intro ======-->
+    
     <div class="section__intro u-s-m-b-60">
         <div class="container">
             <div class="row">
@@ -40,8 +40,8 @@
             </div>
         </div>
     </div>
-    <!--====== End - Section Intro ======-->
-    <!--====== Section Content ======-->
+    
+    
     <div class="section__content">
         <div class="container">
             <div class="row">
@@ -61,7 +61,7 @@
 
 
 
-                                    <!--====== Row ======-->
+                                    
                                     <tr id="@item.ID">
 
 
@@ -335,7 +335,7 @@
                                         <td>
                                             <div class="table-p__input-counter-wrap">
 
-                                                <!--====== Input Counter ======-->
+                                                
                                                 <div class="input-counter">
 
                                                     <span class="input-counter__minus fas fa-minus"></span>
@@ -345,7 +345,7 @@
                                                     <span class="input-counter__plus fas fa-plus"></span>
 
                                                 </div>
-                                                <!--====== End - Input Counter ======-->
+                                                
 
                                             </div>
 
@@ -358,7 +358,7 @@
                                         </td>
 
                                     </tr>
-                                    <!--====== End - Row ======-->
+                                    
 
                                 }
                             </tbody>
@@ -393,7 +393,7 @@
             </div>
         </div>
     </div>
-    <!--====== End - Section Content ======-->
+    
 </div>
 
 
@@ -404,7 +404,7 @@
 
 <div class="u-s-p-b-60">
 
-    <!--====== Section Content ======-->
+    
     <div class="section__content">
         <div class="container">
             <div class="row">
@@ -418,7 +418,7 @@
                                     <span class="gl-text u-s-m-b-30">Enter your destination to get a shipping estimate.</span>
                                     <div class="u-s-m-b-30">
 
-                                        <!--====== Select Box ======-->
+                                        
 
                                         <label class="gl-label" for="shipping-country">COUNTRY *</label><select class="select-box select-box--primary-style" id="shipping-country">
                                             <option selected="" value="">Choose Country</option>
@@ -426,11 +426,11 @@
                                             <option value="uk">United Kingdom (UK)</option>
                                             <option value="us">United States (US)</option>
                                         </select>
-                                        <!--====== End - Select Box ======-->
+                                        
                                     </div>
                                     <div class="u-s-m-b-30">
 
-                                        <!--====== Select Box ======-->
+                                        
 
                                         <label class="gl-label" for="shipping-state">STATE/PROVINCE *</label><select class="select-box select-box--primary-style" id="shipping-state">
                                             <option selected="" value="">Choose State/Province</option>
@@ -438,7 +438,7 @@
                                             <option value="al">Alaska</option>
                                             <option value="ny">New York</option>
                                         </select>
-                                        <!--====== End - Select Box ======-->
+                                        
                                     </div>
                                     <div class="u-s-m-b-30">
 
@@ -518,7 +518,7 @@
             </div>
         </div>
     </div>
-    <!--====== End - Section Content ======-->
+    
 </div>
 
 

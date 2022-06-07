@@ -12,19 +12,19 @@
 </script>
 
 
-<!--====== Dropdown Main plugin ======-->
+
 <div class="menu-init" id="navigation3">
 
     <button class="btn btn--icon toggle-button toggle-button--secondary fas fa-shopping-bag toggle-button-shop" type="button"></button>
 
     <span class="total-item-round">@Cart.ItemCartRecords.Count</span>
 
-    <!--====== Menu ======-->
+    
     <div class="ah-lg-mode">
 
         <span class="ah-close">✕ Close</span>
 
-        <!--====== List ======-->
+        
         <ul class="ah-list ah-list--design1 ah-list--link-color-secondary">
 
             <li>
@@ -36,7 +36,7 @@
             </li>
             <li>
                 <b id="CartTotalPriceContainer">
-                    <!--====== Dropdown ======-->
+                    
 
                 </b>
             </li>
@@ -53,13 +53,13 @@
 
                 </a>
 
-                <!--====== Dropdown ======-->
+                
 
                 <span class="js-menu-toggle"></span>
 
                 <div class="mini-cart">
 
-                    <!--====== Mini Product Container ======-->
+                    
                     <div id="cart-popup-container" class="mini-product-container gl-scroll u-s-m-b-15">
 
                         @if (Cart.ItemCartRecords.Count == 0)
@@ -91,7 +91,7 @@
                                     image = ProductImagePlaceholder;
                                 }
 
-                                <!--====== Card for mini cart ======-->
+                                
                                 <div id="@PCR.ID" class="card-mini-product">
                                     <div class="mini-product">
                                         <div class="mini-product__image-wrapper">
@@ -136,28 +136,28 @@
                                     </div>
                                     <a onclick="RemoveStockItemFromCart('@PCR.ID','@PCR.ItemID')" class="mini-product__delete-link far fa-trash-alt"></a>
                                 </div>
-                                <!--====== End - Card for mini cart ======-->
+                                
                             }
                         }
                     </div>
-                    <!--====== End - Mini Product Container ======-->
-                    <!--====== Mini Product Statistics ======-->
+                    
+                    
                     <div class="mini-product-stat">
 
                             <a class="mini-link btn--e-brand-b-2" href="/Store/Checkout/PlaceOrderFromCart">PROCEED TO CHECKOUT</a>
 
                             <a class="mini-link btn--e-transparent-secondary-b-2" href="/Store/Cart">VIEW CART</a>
                     </div>
-                    <!--====== End - Mini Product Statistics ======-->
+                    
                 </div>
-                <!--====== End - Dropdown ======-->
+                
             </li>
         </ul>
-        <!--====== End - List ======-->
+        
     </div>
-    <!--====== End - Menu ======-->
+    
 </div>
-<!--====== End - Dropdown Main plugin ======-->
+
 
 
 <script>

@@ -4,7 +4,7 @@
 @using System.Collections.Generic
 @using Microsoft.EntityFrameworkCore
 @{
-    var items = await DataContext.Item.AsAsyncEnumerable().Where(c=>
+    var items = await DataContext.Item.Where(c=>
         c.OnDiscount
         && c.IsDeadlineDiscount
         && (DateTime.Compare( c.DeadlineDiscountFromDate,  DateTime.Now) < 0)

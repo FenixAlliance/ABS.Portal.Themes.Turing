@@ -32,7 +32,7 @@
     var TaxBase = Order.TotalAmountInUSD - Order.TotalTaxesInUSD;
     var Holder = Order.AccountHolder;
     var ForexRates = Deserialize.FromJson<FenixAlliance.ABM.Models.DTOs.Components.Global.Currencies.ForexRates>(Order.ForexRatesSnapshot);
-    var tenant = await DataContext.Business.AsAsyncEnumerable().Where(c => c.ID == WebPortal.BusinessID).FirstOrDefaultAsync();
+    var tenant = await DataContext.Business.Where(c => c.ID == WebPortal.BusinessID).FirstOrDefaultAsync();
     var accountingSettings = await OptionsService.GetOptionAsync<dynamic>("AccountingSettings", WebPortal.ID);
 
 }

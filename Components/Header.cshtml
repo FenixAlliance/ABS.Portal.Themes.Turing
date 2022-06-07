@@ -1,39 +1,30 @@
 @inherits FenixAlliance.ABM.Data.Access.Services.Templating.Razor.Templates.DynamicComponentBase
+
 @{Name = "Header";}
 
-<style>
-	@@media (max-width: 600px) {
-		.material-menucontainer {
-			margin-bottom: 0px;
-		}
-	}
-</style>
 
-<div class="material-menucontainer clearfix" style="padding-bottom:85px;">
-	<div class="overlapblackbg"></div>
-	<div class="material-mobileheader clearfix">
-		<a id="material-navtoggle" class="animated-arrow">
-			<span></span>
-		</a>
-		<a class="smallogo">
-			<img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/WhiteGenericLogo.svg")" onerror="this.src='/ui/images/WhiteGenericLogo.svg'"
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="NavBar">
+    <div class="container-xl">
+
+        <a class="navbar-brand" href="javascript:void(0)">
+			<img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/WhiteGenericLogo.svg")"
+				onerror="this.src='/ui/images/WhiteGenericLogo.svg'"
 				style="max-height:45px;" alt="">
 		</a>
-		<a class="callusicon" href="/Account/Index">
-			<span class="fa fa-user"></span>
-		</a>
-	</div>
-	<div class="material-header">
-		<div class="wrapper clearfix bigmegamenu">
-			<div class="logo clearfix" style="display: inline-flex;">
-				<a href="/" title="Logo">
-					<img src="@(Portal.Options.Branding.HeaderLogo.DefaltLogoURL ?? "/ui/images/WhiteGenericLogo.svg")"
-						style="max-height:50px;" onerror="this.src='/ui/images/WhiteGenericLogo.svg'" alt="Logo">
-				</a>
-			</div>
-			<!--Main Menu HTML Code-->
-			@Html.Raw(await ViewService.RenderAsync("MainMenu", Model))
-			<!--Menu HTML Code-->
-		</div>
-	</div>
-</div>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navBar" aria-controls="navBar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-md-center" id="navBar">
+
+			@(Html.Raw(await ViewService.RenderAsync("MainMenu", Model)))
+
+            <form action="https://docs.absuite.net/english/" target="_blank">
+                <input class="form-control" type="text" placeholder="Search" name="q" aria-label="Search the docs...">
+            </form>
+
+        </div>
+    </div>
+</nav>
+

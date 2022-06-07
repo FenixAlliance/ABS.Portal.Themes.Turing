@@ -6,55 +6,43 @@
 @using System.Threading.Tasks
 @using System.Collections.Generic
 @using System.Security.Claims
+@using FenixAlliance.ABM.Data.Interfaces.Services
 @using FenixAlliance.ABM.Models.Global.Carts.CartScopes
 
 @{
+    var marketplaceDataService = ServiceProvider.GetService(typeof(IMarketplaceDataService)) as IMarketplaceDataService;
 
     var cart = ViewData["Cart"] as FenixAlliance.ABM.Models.Global.Carts.Cart;
 
-    var Product = (FenixAlliance.ABM.Models.Logistics.Stock.Item.Item)Model;
+    var product = (FenixAlliance.ABM.Models.Logistics.Stock.Item.Item)Model;
 
     var IP = Context.Connection.RemoteIpAddress.ToString();
-    var ProductImagePlaceholder  = "/Store/img/empty-image.png";
-    var MinRate = 0.0;
-    var MaxRate = 0.0;
-    var AverageRating = 0.0;
-    var GoogleQuery = $"\"{Product.SKU}\"";
+
+    var ProductImagePlaceholder = "/Store/img/empty-image.png";
+
+    var GoogleQuery = $"\"{product.SKU}\"";
+
     var URL = "https://" + Context.Request?.Host + Context.Request.Path;
-    var TaxBase = Product.EstimatedTotalPriceInUSD - Product.EstimatedTaxesInUSD;
-    var relatedProducts = await DataContext.Item.AsAsyncEnumerable().Where(c => c.BusinessID == Product.BusinessID).Take(6).ToListAsync();
 
-    if (Product.ItemImages != null && Product.ItemImages.Count != 0)
-    {
-        ViewBag.Image = ProductImagePlaceholder = Product.ItemImages?.First()?.FileUploadURL ?? ProductImagePlaceholder;
-    }
-    else
-    {
-        ViewBag.Image = ProductImagePlaceholder;
-    }
+    var relatedProducts = marketplaceDataService.Products.Where(c => c.BusinessID == product.BusinessID).Take(6).ToList();
 
-    if (Product.ItemReviews != null && Product.ItemReviews.Count != 0)
-    {
-        AverageRating = (Product.ItemReviews?.Count == 0) ? 0.0 : Product.ItemReviews?.Average(c => c.ReviewScore) ?? 0.0;
-        MinRate = (Product.ItemReviews?.Count == 0) ? 0.0 : Product.ItemReviews?.OrderBy(c => c.ReviewScore).First().ReviewScore ?? 0.0;
-        MaxRate = (Product.ItemReviews?.Count == 0) ? 0.0 : Product.ItemReviews?.OrderByDescending(c => c.ReviewScore).First().ReviewScore  ?? 0.0;
-    }
+    ViewBag.Image = ProductImagePlaceholder;
 
-    await InvokeAsync(User, Product.ID, IP);
+    await InvokeAsync(User, product.ID, IP);
 }
 
 <script>
-   const ItemID = '@Product.ID';
+    const ItemID = '@product.ID';
 </script>
 
-<!--====== App Content ======-->
+
 <div class="app-content">
-    <!--====== Section 1 ======-->
+
     <div class="u-s-p-t-90">
         <div class="container">
             <div class="row">
                 <div class="col-lg-5">
-                    <!--====== Product Breadcrumb ======-->
+
                     <div class="pd-breadcrumb u-s-m-b-30">
                         <ul class="pd-breadcrumb__list">
                             <li class="has-separator">
@@ -64,26 +52,26 @@
                                 <a href="/Store">Store</a>
                             </li>
                             <li class="has-separator">
-                                <a href="/Store/Products">Products</a>
+                                <a href="/Store/product.">product.</a>
                             </li>
                             <li class="is-marked">
-                                <a href="#">@Product.SKU</a>
+                                <a href="#">@product.SKU</a>
                             </li>
                         </ul>
                     </div>
-                    <!--====== End - Product Breadcrumb ======-->
-                    <!--====== Product Detail Zoom ======-->
+
+
                     <div class="pd u-s-m-b-30">
                         <div class="slider-fouc pd-wrap">
                             <div id="pd-o-initiate">
-                                <div class="pd-o-img-wrap" data-src="@(Product.PrimaryImageURL ?? "/Store/img/empty-image.png")">
-                                    <img class="u-img-fluid" src="@(Product.PrimaryImageURL ?? "/Store/img/empty-image.png")" onerror="this.src='/Store/img/empty-image.png'" data-zoom-image="@Product.PrimaryImageURL" alt="">
+                                <div class="pd-o-img-wrap" data-src="@(product.PrimaryImageURL ?? "/Store/img/empty-image.png")">
+                                    <img class="u-img-fluid" src="@(product.PrimaryImageURL ?? "/Store/img/empty-image.png")" onerror="this.src='/Store/img/empty-image.png'" data-zoom-image="@product.PrimaryImageURL" alt="">
                                 </div>
-                                @if (Product.ItemImages is not null && Product.ItemImages.Count != 0)
+                                @if (product.ItemImages is not null && product.ItemImages.Count != 0)
                                 {
-                                    foreach (var item in Product.ItemImages)
+                                    foreach (var item in product.ItemImages)
                                     {
-                                        <div class="pd-o-img-wrap" data-src="@Product.PrimaryImageURL">
+                                        <div class="pd-o-img-wrap" data-src="@product.PrimaryImageURL">
                                             <img src="@(item.FileUploadURL ?? "/Store/img/empty-image.png")" onerror="this.src='/Store/img/empty-image.png'" data-zoom-image="@(item.FileUploadURL ?? "/Store/img/empty-image.png")" alt="">
                                         </div>
                                     }
@@ -95,11 +83,11 @@
                             <div class="slider-fouc">
                                 <div id="pd-o-thumbnail">
                                     <div>
-                                        <img class="u-img-fluid" src="@Product.PrimaryImageURL" alt="">
+                                        <img class="u-img-fluid" src="@product.PrimaryImageURL" alt="">
                                     </div>
-                                    @if (Product.ItemImages is not null && Product.ItemImages.Count != 0)
+                                    @if (product.ItemImages is not null && product.ItemImages.Count != 0)
                                     {
-                                        foreach (var item in Product.ItemImages)
+                                        foreach (var item in product.ItemImages)
                                         {
                                             <div>
                                                 <img class="u-img-fluid" src="@(item.FileUploadURL ?? "/Store/img/empty-image.png")" onerror="this.src='/Store/img/empty-image.png'" alt="">
@@ -110,19 +98,19 @@
                             </div>
                         </div>
                     </div>
-                    <!--====== End - Product Detail Zoom ======-->
 
-                    @*@if (!String.IsNullOrEmpty(Product.ItemCategoryID) && Product.ItemCategoryID != "Digital")
+
+                    @if (!String.IsNullOrEmpty(product.ItemCategoryID) && product.ItemCategoryID != "Digital")
                     {
                         <div class="detail-info-entry">
-                            <div class="inline-product-entry" style="display: flex;">
+                            <div class="inline-product.entry" style="display: flex;">
                                 <i style="color:#007C00" class="fas fa-shipping-fast fa-5x"></i>
                                 <div class="content" style="margin-left:50px;">
                                     <div class="cell-view" style="line-height:0px">
                                         <a href="#" class="title" style="margin:0px; line-height: 20px;"><b>@_("Included National Shipping to:")</b></a>
                                         <div class="price" style="letter-spacing:1px; margin:0px; padding:0px; line-height: 15px; ">
                                             <div class="current" style="font-size:15px; letter-spacing:1px; margin:0px; padding:0px; line-height: 20px;">
-                                                <img src="@Product.ShippingCountry?.CountryFlagUrl" style="max-height:12px;" />&nbsp;  @Product.ShippingCountry?.Name, principal cities.
+                                                <img src="@product.ShippingCountry?.CountryFlagUrl" style="max-height:12px;" />&nbsp;  @product.ShippingCountry?.Name, principal cities.
                                             </div>
                                         </div>
                                         <p class="title" style="margin-top:0px;text-decoration:none;font-size:12px;letter-spacing:1px;line-height: 14px;">
@@ -139,7 +127,7 @@
                     else
                     {
                         <div class="detail-info-entry">
-                            <div class="inline-product-entry" style="display: flex;">
+                            <div class="inline-product.entry" style="display: flex;">
                                 <i style="color:#3483FA" class="fas fa-download fa-5x"></i>
                                 <div class="content" style="margin-left:50px;">
                                     <div class="cell-view" style="line-height:0px">
@@ -159,19 +147,19 @@
                                 <div class="clear"></div>
                             </div>
                         </div>
-                    }*@
+                    }
                 </div>
 
                 <div class="col-lg-4">
-                    <!--====== Product Right Side Details ======-->
+
                     <div class="pd-detail">
                         <div>
-                            <span class="pd-detail__name">@Product.Title</span>
+                            <span class="pd-detail__name">@product.Title</span>
                         </div>
                         <div>
                             <div class="pd-detail__inline">
                                 <span class="pd-detail__price">
-                                    @if (Product.OnDiscount)
+                                    @if (product.OnDiscount)
                                     {
                                         <span class="prev">
                                             @await Component.InvokeAsync("ItemPrice", new { Item = Model, DisplayDiscountPrice = false, PrintUnformatted = false, ForexRates = ViewData["ExchangeRates"] })
@@ -186,34 +174,36 @@
                                 </span>
                             </div>
                         </div>
+
                         <div class="u-s-m-b-15">
                             @Html.Raw(await ViewService.RenderAsync("StoreItemRating", Model))
                         </div>
+
                         <div class="u-s-m-b-15">
                             <div class="pd-detail__inline">
-                                @if (Product.CurrentStock > 0)
+                                @if (product.CurrentStock > 0)
                                 {
-                                    @if (Product.CurrentStock < 5)
+                                    @if (product.CurrentStock < 5)
                                     {
 
-                                        <span class="pd-detail__left">Only @Product.CurrentStock left</span>
+                                        <span class="pd-detail__left">Only @product.CurrentStock left</span>
                                     }
                                     else
                                     {
-                                        <span class="pd-detail__stock">@Product.CurrentStock in stock</span>
+                                        <span class="pd-detail__stock">@product.CurrentStock in stock</span>
                                     }
                                 }
                             </div>
                         </div>
                         <div class="u-s-m-b-15">
                             <span class="pd-detail__preview-desc">
-                                @Product.ShortDescription
+                                @product.ShortDescription
                             </span>
                         </div>
 
                         @if (User.Identity.IsAuthenticated)
                         {
-                            @if (Product.InStock || Product.ByRequest)
+                            @if (product.InStock || product.ByRequest)
                             {
                                 @await ViewService.RenderAsync("ExpressCheckoutButton", Model)
                             }
@@ -227,13 +217,13 @@
                         }
                         else
                         {
-                            @if (Product.InStock || Product.ByRequest)
+                            @if (product.InStock || product.ByRequest)
                             {
                                 <a class="button style-4" style="display:block; border-radius: 5px;" href="/account/login">@_("Login to checkout")</a>
                             }
                         }
 
-                        @if (!Product.InStock && !Product.ByRequest)
+                        @if (!product.InStock && !product.ByRequest)
                         {
                             <div class="alert alert-danger">
                                 <b>@_("Cart checkout is disabled for Out of Stock Items that cannot currently be requested.")</b><br />
@@ -247,26 +237,26 @@
                             <div class="u-s-m-b-15">
                                 <div class="pd-detail__form">
                                     <div class="pd-detail-inline-2">
-                                        @if (DataContext.ItemCartRecord.Any(c => c.ItemID == Product.ID && c.CartID == cart.ID))
+                                        @if (DataContext.ItemCartRecord.Any(c => c.ItemID == product.ID && c.CartID == cart.ID))
                                         {
                                             <div class="u-s-m-b-15">
-                                                <button id="CartButton" class="btn btn--e-brand-b-2" onclick="RemoveStockItemFromCart('@DataContext.ItemCartRecord.FirstOrDefault(c => c.ItemID == Product.ID && c.CartID == cart.ID)?.ID')" type="submit">Remove from cart</button>
+                                                <button id="CartButton" class="btn btn--e-brand-b-2" onclick="RemoveStockItemFromCart('@DataContext.ItemCartRecord.FirstOrDefault(c => c.ItemID == product.ID && c.CartID == cart.ID)?.ID')" type="submit">Remove from cart</button>
                                             </div>
                                         }
                                         else
                                         {
                                             <div class="u-s-m-b-15">
-                                                <!--====== Input Counter ======-->
+
                                                 <div class="input-counter">
                                                     <span class="input-counter__minus fas fa-minus"></span>
                                                     <input class="input-counter__text input-counter--text-primary-style" id="CartQuantity" type="text" value="1" data-min="1" data-max="1000">
                                                     <span class="input-counter__plus fas fa-plus"></span>
                                                 </div>
-                                                <!--====== End - Input Counter ======-->
+
                                             </div>
 
                                             <div class="u-s-m-b-15">
-                                                <button id="CartButton" class="btn btn--e-brand-b-2" onclick="AddStockItemToCart('@Product.ID', parseInt($('#CartQuantity').val()))" >Add to Cart</button>
+                                                <button id="CartButton" class="btn btn--e-brand-b-2" onclick="AddStockItemToCart('@product.ID', parseInt($('#CartQuantity').val()))">Add to Cart</button>
                                             </div>
                                         }
                                     </div>
@@ -280,9 +270,9 @@
                             <div class="pd-detail__inline">
                                 <span class="pd-detail__click-wrap">
                                     <i class="fas fa-heart u-s-m-r-6"></i>
-                                    <a onclick="AddProductToWishlist('@Product.ID')">Add to Wishlist</a>
+                                    <a onclick="AddProductToWishlist('@product.ID')">Add to Wishlist</a>
                                     <span class="pd-detail__click-count">
-                                        (@DataContext.ItemWishListRecord.AsNoTracking().Where(c => c.ItemID == Product.ID).Count())
+                                        (@DataContext.ItemWishListRecord.AsNoTracking().Where(c => c.ItemID == product.ID).Count())
                                     </span>
                                 </span>
                             </div>
@@ -292,16 +282,16 @@
                             <div class="pd-detail__inline">
                                 <span class="pd-detail__click-wrap">
                                     <i class="fas fa-less-than-equal u-s-m-r-6"></i>
-                                    <a onclick="AddProductToCompare('@Product.ID')">@_("Add to compare table")</a>
+                                    <a onclick="AddProductToCompare('@product.ID')">@_("Add to compare table")</a>
                                     <span class="pd-detail__click-count">
-                                        (@DataContext.ItemToCompareRecord.AsNoTracking().Where(c => c.ItemID == Product.ID).Count())
+                                        (@DataContext.ItemToCompareRecord.AsNoTracking().Where(c => c.ItemID == product.ID).Count())
                                     </span>
                                 </span>
                             </div>
                         </div>
 
                         <div class="u-s-m-b-15">
-                            <span class="pd-detail__label u-s-m-b-8">Product Policy:</span>
+                            <span class="pd-detail__label u-s-m-b-8">product.Policy:</span>
                             <ul class="pd-detail__policy-list">
                                 <li>
                                     <i class="fas fa-check-circle u-s-m-r-8"></i>
@@ -313,29 +303,29 @@
                                 </li>
                                 <li>
                                     <i class="fas fa-check-circle u-s-m-r-8"></i>
-                                    <span>Returns accepted if product not as described.</span>
+                                    <span>Returns accepted if product.not as described.</span>
                                 </li>
                             </ul>
                         </div>
 
                     </div>
-                    <!--====== End - Product Right Side Details ======-->
+
                 </div>
-                <div class="col-lg-3 information-entry product-sidebar">
+                <div class="col-lg-3 information-entry product.sidebar">
                     <div class="card">
                         <div class="card-body">
-                            @if (Product.Brand != null)
+                            @if (product.Brand != null)
                             {
                                 <div class="col-md-12  information-entry  text-center">
                                     <div class="Item-column-entry detail-info-lines border-box">
                                         <div class="image">
-                                            <a href="Store/Brands/Details/@Product.Brand.ID">
-                                                <img src="@Product.Brand?.LogoURL" alt="@Product.Brand.Name's Logo">
+                                            <a href="Store/Brands/Details/@product.Brand.ID">
+                                                <img src="@product.Brand?.LogoURL" alt="@product.Brand.Name's Logo">
                                             </a>
                                         </div>
-                                        <h3 class="title text-center"><a href="/Store/Brands/Details/@Product.Brand.ID">@Product.Brand.Name</a></h3>
+                                        <h3 class="title text-center"><a href="/Store/Brands/Details/@product.Brand.ID">@product.Brand.Name</a></h3>
                                         <div class="description">
-                                            <a target="_blank" href="@Product.Brand.WebsiteURL">@_("Brand Website")</a>
+                                            <a target="_blank" href="@product.Brand.WebsiteURL">@_("Brand Website")</a>
                                         </div>
                                     </div>
                                 </div>
@@ -347,7 +337,7 @@
                                             <h3 class="title  text-center">
                                                 <b>@_("Item SKU"):</b>
                                                 <br />
-                                                <a href="https://www.google.com/search?q=@Product.SKU" target="_blank" data-toggle="tooltip" data-placement="top" title="Click to Search with Google"><b>@Product.SKU</b></a>
+                                                <a href="https://www.google.com/search?q=@product.SKU" target="_blank" data-toggle="tooltip" data-placement="top" title="Click to Search with Google"><b>@product.SKU</b></a>
                                             </h3>
                                         </div>
                                         <div class="share-box" style="display: grid;">
@@ -355,45 +345,45 @@
                                                 <b>@_("Merchant Profile"):</b>
                                                 <br />
                                                 <b>
-                                                    @Product.Business?.BusinessName
+                                                    @product.Business?.BusinessName
                                                     <br />
-                                                    <a href="/Studio/Social/Businesses/@Product.Business?.ID">
-                                                        @_("By"): @Product.Business?.BusinessLegalName
+                                                    <a href="/Studio/Social/Businesses/@product.Business?.ID">
+                                                        @_("By"): @product.Business?.BusinessLegalName
                                                     </a>
                                                     <br />
-                                                    <a href="/Studio/Social/Businesses/@Product.Business?.ID">
-                                                        @_("Tax ID"): @Product.Business?.TaxID
+                                                    <a href="/Studio/Social/Businesses/@product.Business?.ID">
+                                                        @_("Tax ID"): @product.Business?.TaxID
                                                     </a>
                                                 </b>
                                             </h3>
                                         </div>
 
-                                        @if (Product.ItemCategory != null)
+                                        @if (product.ItemCategory != null)
                                         {
                                             <div class="share-box" style="display: grid;">
                                                 <h3 class="title  text-center">
                                                     <b>@_("Primary Category"):</b>
                                                     <br />
                                                     <b>
-                                                        <a href="Store/Categories/Details/@Product.ItemCategoryID">@Model?.ItemCategory?.Title</a>
+                                                        <a href="Store/Categories/Details/@product.ItemCategoryID">@Model?.ItemCategory?.Title</a>
                                                     </b>
                                                 </h3>
                                             </div>
                                         }
 
-                                        @if (Product.ItemType != null)
+                                        @if (product.ItemType != null)
                                         {
                                             <div class="share-box" style="display: grid;">
-                                                <h3 class="title"><b>@_("Item Type"): <br /><a href="Store/Types/Details/@Product.ItemTypeID">@Product.ItemType.SingularTitle</a></b></h3>
+                                                <h3 class="title"><b>@_("Item Type"): <br /><a href="Store/Types/Details/@product.ItemTypeID">@product.ItemType.SingularTitle</a></b></h3>
                                             </div>
                                         }
 
-                                        @if (Product.ItemTaxPolicyRecords != null && Product.ItemTaxPolicyRecords.Count != 0)
+                                        @if (product.ItemTaxPolicyRecords != null && product.ItemTaxPolicyRecords.Count != 0)
                                         {
                                             <div class="share-box" style="display: grid;">
                                                 <h3 class="title"><b>@_("Applied Taxes")</b></h3>
                                             </div>
-                                            @foreach (var item in Product.ItemTaxPolicyRecords)
+                                            @foreach (var item in product.ItemTaxPolicyRecords)
                                             {
                                                 <div class="share-box" style="display: grid;">
                                                     <h3 class="title"><b></b>@item.TaxPolicy?.Title</h3>
@@ -408,13 +398,13 @@
                                         }
 
 
-                                        @if (Product.ItemTagRecords != null && Product.ItemTagRecords.Count != 0)
+                                        @if (product.ItemTagRecords != null && product.ItemTagRecords.Count != 0)
                                         {
                                             <div class="share-box" style="display: grid;">
                                                 <h3 class="block-title inline-Item-column-title">@_("Item Tags")</h3>
                                             </div>
 
-                                            @foreach (var Tag in Product.ItemTagRecords)
+                                            @foreach (var Tag in product.ItemTagRecords)
                                             {
                                                 <div class="share-box" style="display: grid;">
                                                     <a href="Store/Tags/Details?id=@Tag.ItemTag.ID">@Tag.ItemTag?.Title</a>
@@ -467,7 +457,7 @@
         </div>
     </div>
 
-    <!--====== Product Detail Tab ======-->
+
     <div class="u-s-p-y-90">
         <div class="container">
             <div class="row">
@@ -475,7 +465,7 @@
                     <div class="pd-tab">
                         <div class="u-s-m-b-30">
                             <ul class="nav pd-tab__list">
-                                @if (Product.DisplayShowcaseTab)
+                                @if (product.DisplayShowcaseTab)
                                 {
                                     <li class="nav-item">
                                         <a class="nav-link active" data-toggle="tab" href="#pd-desc">SHOWCASE</a>
@@ -500,7 +490,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link" id="view-review" data-toggle="tab" href="#pd-rev">
                                         REVIEWS
-                                        <span>(@Product.ItemReviews?.Count)</span>
+                                        <span>(@product.ItemReviews?.Count)</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -509,218 +499,227 @@
                             </ul>
                         </div>
                         <div class="tab-content">
-                            @if (Product.DisplayShowcaseTab)
+                            @if (product.DisplayShowcaseTab)
                             {
-                                <!--====== Tab 2 ======-->
+
                                 <div class="tab-pane" id="pd-desc">
                                     <div class="pd-tab__tag">
-                                        <h2 class="u-s-m-b-15">Product Attachments</h2>
+                                        <h2 class="u-s-m-b-15">product.Attachments</h2>
                                         <div class="u-s-m-b-15">
-                                            @Html.Raw(@Product.Description)
+                                            @Html.Raw(@product.Description)
                                         </div>
                                     </div>
                                 </div>
-                                <!--====== End - Tab 2 ======-->
+
                             }
 
-                        <div class="tab-pane fade show @((!Product.DisplayShowcaseTab) ? "active": string.Empty)" id="pd-specs">
+                            <div class="tab-pane fade show @((!product.DisplayShowcaseTab) ? "active": string.Empty)" id="pd-specs">
 
-                            @if (!string.IsNullOrEmpty(Product.ShortDescription))
-                            {
+                                @if (!string.IsNullOrEmpty(product.ShortDescription))
+                                {
+
+                                    <div class="u-s-m-b-15">
+                                        <p>@Html.Raw(product.ShortDescription ?? "Empty Description")</p>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(product.YoutubeVideoID))
+                                {
+                                    <div class="u-s-m-b-30"><iframe src="https://www.youtube.com/embed/@product.YoutubeVideoID" allowfullscreen></iframe></div>
+                                }
 
                                 <div class="u-s-m-b-15">
-                                    <p>@Html.Raw(Product.ShortDescription ?? "Empty Description")</p>
-                                </div>
-                            }
-
-                            @if (!string.IsNullOrEmpty(Product.YoutubeVideoID))
-                            {
-                                <div class="u-s-m-b-30"><iframe src="https://www.youtube.com/embed/@Product.YoutubeVideoID" allowfullscreen></iframe></div>
-                            }
-
-                            <div class="u-s-m-b-15">
-                                <div class=" table-responsive">
-                                    <table class="table">
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <b>
-                                                        Summary
-                                                    </b>
-                                                </td>
-
-                                                <td>
-                                                    <div class="comment">
-                                                        <div class="comment-content">
-                                                            <div class="comment-title"><span>@Product.Title</span></div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <td>
-                                                    <b>
-                                                        Reviews
-                                                    </b>
-                                                </td>
-
-                                                <td>
-                                                    @Html.Raw(await ViewService.RenderAsync("StoreItemRating", Model))
-                                                </td>
-                                            </tr>
-
-                                            @if (!String.IsNullOrEmpty(Product.ShortDescription))
-                                            {
+                                    <div class=" table-responsive">
+                                        <table class="table">
+                                            <tbody>
                                                 <tr>
-                                                    <td><b>@_("Description")</b></td>
                                                     <td>
-                                                        <div class="article-container style-1">
-                                                            <p>@Html.Raw(Product.ShortDescription)</p>
+                                                        <b>
+                                                            Summary
+                                                        </b>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="comment">
+                                                            <div class="comment-content">
+                                                                <div class="comment-title"><span>@product.Title</span></div>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                 </tr>
-                                            }
-                                            @if (!String.IsNullOrEmpty(Product.SKU))
-                                            {
+
                                                 <tr>
-                                                    <td><b>@_("Item SKU"):</b></td>
-                                                    <td>@Product.SKU</td>
-                                                </tr>
-                                            }
-                                            @if (Product.ItemType != null)
-                                            {
-                                                <tr>
-                                                    <td><b>@_("Item Type"):</b></td>
                                                     <td>
-                                                        @Product.ItemType.SingularTitle
+                                                        <b>
+                                                            Reviews
+                                                        </b>
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.Raw(await ViewService.RenderAsync("StoreItemRating", Model))
                                                     </td>
                                                 </tr>
-                                            }
-                                            @if (Product.Brand != null)
-                                            {
-                                                <tr>
-                                                    <td><b>@_("Manufacturer"):</b></td>
-                                                    <td>
-                                                        @Product.Brand.Name
-                                                    </td>
-                                                </tr>
-                                            }
-                                            @if (!String.IsNullOrEmpty(Product.Series))
-                                            {
-                                                <tr>
-                                                    <td><b>@_("Item Series"):</b></td>
-                                                    <td>
-                                                        @Product.Series
-                                                    </td>
-                                                </tr>
-                                            }
-                                            @if (Product.ItemCategoryRecords != null && Product.ItemCategoryRecords.Count != 0)
-                                            {
-                                                <tr>
-                                                    <td><b>@_("Categories")</b></td>
-                                                    <td>
-                                                        @foreach (var cat in Product.ItemCategoryRecords)
-                                                        {
-                                                            <span class="badge badge-success">@cat.ItemCategory.Title</span>
-                                                        }
-                                                    </td>
-                                                </tr>
-                                            }
-                                            @if (Product.ItemAttributeOptionRecords != null && Product.ItemAttributeOptionRecords.Count != 0)
-                                            {
-                                                @foreach (var Attrib in Product.ItemAttributeOptionRecords)
+
+                                                @if (!String.IsNullOrEmpty(product.ShortDescription))
                                                 {
                                                     <tr>
-                                                        <td><b>@Attrib.AttributeOption.ItemAttribute.Name</b></td>
+                                                        <td><b>@_("Description")</b></td>
                                                         <td>
-                                                            <div class="tags-box">
-                                                                <a href="Store/AttributeOptions/Details/@Attrib.AttributeOptionID">@Attrib.AttributeOption.Name</a>
+                                                            <div class="article-container style-1">
+                                                                <p>@Html.Raw(product.ShortDescription)</p>
                                                             </div>
                                                         </td>
                                                     </tr>
                                                 }
-                                            }
-                                            @if (Product.ItemCategoryRecords != null && Product.ItemCategoryRecords.Count != 0)
-                                            {
-                                                <tr>
-                                                    <td><b>@_("Tags"):</b></td>
-                                                    <td>
-                                                        @foreach (var cat in Product.ItemTagRecords)
-                                                        {
-                                                            <span class="badge badge-primary">@cat.ItemTag.Title</span>
-                                                        }
-                                                    </td>
-                                                </tr>
-                                            }
-                                            @if (Product.ShippingCountry != null)
-                                            {
-                                                <tr>
-                                                    <td><b>@_("Shipping Country"):</b></td>
-                                                    <td>
-                                                        <div class="comment">
-                                                            <a class="comment-image" href="#"><img src="@Product.ShippingCountry.CountryFlagUrl" style="max-height: 20px;" alt=""></a>
-                                                            <div class="comment-content">
-                                                                <div class="comment-title"><span> @Product.ShippingCountry.Name</span></div>
-                                                                <div class="comment-text"><span>@Product.ShippingCountry.Region</span></div>
+
+                                                @if (!String.IsNullOrEmpty(product.SKU))
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("Item SKU"):</b></td>
+                                                        <td>@product.SKU</td>
+                                                    </tr>
+                                                }
+
+                                                @if (product.ItemType != null)
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("Item Type"):</b></td>
+                                                        <td>
+                                                            @product.ItemType.SingularTitle
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                                @if (product.Brand != null)
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("Manufacturer"):</b></td>
+                                                        <td>
+                                                            @product.Brand.Name
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                                @if (!String.IsNullOrEmpty(product.Series))
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("Item Series"):</b></td>
+                                                        <td>
+                                                            @product.Series
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                                @if (product.ItemCategoryRecords != null && product.ItemCategoryRecords.Count != 0)
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("Categories")</b></td>
+                                                        <td>
+                                                            @foreach (var cat in product.ItemCategoryRecords)
+                                                            {
+                                                                <span class="badge badge-success">@cat.ItemCategory.Title</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                                @if (product.ItemAttributeOptionRecords != null && product.ItemAttributeOptionRecords.Count != 0)
+                                                {
+                                                    @foreach (var Attrib in product.ItemAttributeOptionRecords)
+                                                    {
+                                                        <tr>
+                                                            <td><b>@Attrib.AttributeOption.ItemAttribute.Name</b></td>
+                                                            <td>
+                                                                <div class="tags-box">
+                                                                    <a href="Store/AttributeOptions/Details/@Attrib.AttributeOptionID">@Attrib.AttributeOption.Name</a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+
+                                                @if (product.ItemCategoryRecords != null && product.ItemCategoryRecords.Count != 0)
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("Tags"):</b></td>
+                                                        <td>
+                                                            @foreach (var cat in product.ItemTagRecords)
+                                                            {
+                                                                <span class="badge badge-primary">@cat.ItemTag.Title</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                                @if (product.ShippingCountry != null)
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("Shipping Country"):</b></td>
+                                                        <td>
+                                                            <div class="comment">
+                                                                <a class="comment-image" href="#"><img src="@product.ShippingCountry.CountryFlagUrl" style="max-height: 20px;" alt=""></a>
+                                                                <div class="comment-content">
+                                                                    <div class="comment-title"><span> @product.ShippingCountry.Name</span></div>
+                                                                    <div class="comment-text"><span>@product.ShippingCountry.Region</span></div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            }
-                                            @if (!String.IsNullOrEmpty(Product.SystemRequirements))
-                                            {
+                                                        </td>
+                                                    </tr>
+                                                }
+
+                                                @if (!String.IsNullOrEmpty(product.SystemRequirements))
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("System requirements"):</b></td>
+                                                        <td>
+                                                            @product.SystemRequirements?.ToUpper()
+                                                        </td>
+                                                    </tr>
+                                                }
                                                 <tr>
-                                                    <td><b>@_("System requirements"):</b></td>
+                                                    <td><b>@_("Taxable"):</b></td>
                                                     <td>
-                                                        @Product.SystemRequirements?.ToUpper()
+                                                        @_(product.Taxable.ToString())
                                                     </td>
                                                 </tr>
-                                            }
-                                            <tr>
-                                                <td><b>@_("Taxable"):</b></td>
-                                                <td>
-                                                    @_(Product.Taxable.ToString())
-                                                </td>
-                                            </tr>
-                                            @if (Product.PreSale)
-                                            {
-                                                <tr>
-                                                    <td><b>@_("On Pre-Sale"):</b></td>
-                                                    <td>
-                                                        @Product.PreSale
-                                                    </td>
-                                                </tr>
-                                            }
-                                            @if (!String.IsNullOrEmpty(Product.OperatingSystemSupported))
-                                            {
-                                                <tr>
-                                                    <td><b>@_("Operating System"):</b></td>
-                                                    <td>
-                                                        @Product.OperatingSystemSupported?.ToUpper()
-                                                    </td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
+                                                @if (product.PreSale)
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("On Pre-Sale"):</b></td>
+                                                        <td>
+                                                            @product.PreSale
+                                                        </td>
+                                                    </tr>
+                                                }
+                                                @if (!String.IsNullOrEmpty(product.OperatingSystemSupported))
+                                                {
+                                                    <tr>
+                                                        <td><b>@_("Operating System"):</b></td>
+                                                        <td>
+                                                            @product.OperatingSystemSupported?.ToUpper()
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                            <!--====== End - Tab 1 ======-->
-                            <!--====== Tab Policies ======-->
+
+
                             <div class="tab-pane fade show" id="pd-policies">
-                                @if (Product.ItemTaxPolicyRecords != null)
+                                @if (product.ItemTaxPolicyRecords != null)
                                 {
                                     <div class="col-md-12 information-entry" style="margin-top:15px">
                                         <h3>@_("TAX POLICIES")</h3>
-                                        @if (Product.ItemTaxPolicyRecords.Count() == 0)
+                                        @if (product.ItemTaxPolicyRecords.Count() == 0)
                                         {
 
                                             <div class="alert alert-danger" role="alert">  <h4>@_("This Item don't have any tax Policies.")</h4></div>
                                         }
                                         else
                                         {
-                                            @foreach (var item in Product.ItemTaxPolicyRecords)
+                                            @foreach (var item in product.ItemTaxPolicyRecords)
                                             {
                                                 <h4>@Html.Raw(item.TaxPolicy?.Title ?? "")</h4>
                                             }
@@ -728,17 +727,17 @@
                                     </div>
                                 }
 
-                                @if (Product.ItemShippingPolicyRecords != null)
+                                @if (product.ItemShippingPolicyRecords != null)
                                 {
                                     <div class="col-md-12 information-entry" style="margin-top:15px">
                                         <h3>@_("SHIPPING POLICIES")</h3>
-                                        @if (Product.ItemShippingPolicyRecords.Count() == 0)
+                                        @if (product.ItemShippingPolicyRecords.Count() == 0)
                                         {
                                             <div class="alert alert-danger" role="alert">  <h4>@_("This Item don't have any Shipping Policies.")</h4></div>
                                         }
                                         else
                                         {
-                                            @foreach (var item in Product.ItemShippingPolicyRecords)
+                                            @foreach (var item in product.ItemShippingPolicyRecords)
                                             {
                                                 <h4>@Html.Raw(item.ItemShippingPolicy?.Title ?? "")</h4>
                                                 <h6>@Html.Raw(item.ItemShippingPolicy?.Description ?? "")</h6>
@@ -747,12 +746,13 @@
                                         }
                                     </div>
                                 }
-                                @if (Product.ItemWarrantyPolicyRecords != null)
+
+                                @if (product.ItemWarrantyPolicyRecords != null)
                                 {
                                     <div class="col-md-12 information-entry" style="margin-top:15px">
                                         <h3>@_("Warranty Policies")</h3>
 
-                                        @if (Product.ItemWarrantyPolicyRecords.Count() == 0)
+                                        @if (product.ItemWarrantyPolicyRecords.Count() == 0)
                                         {
                                             <div class="alert alert-danger" role="alert">
                                                 <h4>@_("This Item don't have any Warranty Policies.")</h4>
@@ -760,7 +760,7 @@
                                         }
                                         else
                                         {
-                                            @foreach (var item in Product.ItemWarrantyPolicyRecords)
+                                            @foreach (var item in product.ItemWarrantyPolicyRecords)
                                             {
                                                 <h4>@Html.Raw(item.WarrantyPolicy?.Title ?? "")</h4>
                                                 <h6>@Html.Raw(item.WarrantyPolicy?.Description ?? "")</h6>
@@ -769,11 +769,12 @@
                                         }
                                     </div>
                                 }
-                                @if (Product.ItemRefundPolicyRecords != null)
+
+                                @if (product.ItemRefundPolicyRecords != null)
                                 {
                                     <div class="col-md-12 information-entry" style="margin-top:15px">
                                         <h3>@_("Refund Policies")</h3>
-                                        @if (Product.ItemRefundPolicyRecords.Count() == 0)
+                                        @if (product.ItemRefundPolicyRecords.Count() == 0)
                                         {
                                             <div class="alert alert-danger" role="alert">
                                                 <h4>@_("This Item don't have any Refund Policies.")</h4>
@@ -781,7 +782,7 @@
                                         }
                                         else
                                         {
-                                            @foreach (var item in Product.ItemRefundPolicyRecords)
+                                            @foreach (var item in product.ItemRefundPolicyRecords)
                                             {
                                                 <h4>@Html.Raw(item.RefundPolicy?.Title ?? "")</h4>
                                                 <h6>@Html.Raw(item.RefundPolicy?.Description ?? "")</h6>
@@ -791,11 +792,11 @@
                                     </div>
                                 }
 
-                                @if (Product.ItemReturnPolicyRecords != null)
+                                @if (product.ItemReturnPolicyRecords != null)
                                 {
                                     <div class="col-md-12 information-entry" style="margin-top:15px">
                                         <h3>@_("RETURN POLICIES")</h3>
-                                        @if (Product.ItemReturnPolicyRecords.Count() == 0)
+                                        @if (product.ItemReturnPolicyRecords.Count() == 0)
                                         {
                                             <div class="alert alert-danger" role="alert">
                                                 <h4>@_("This Item don't have any Return Policies.")</h4>
@@ -803,7 +804,7 @@
                                         }
                                         else
                                         {
-                                            @foreach (var item in Product.ItemReturnPolicyRecords)
+                                            @foreach (var item in product.ItemReturnPolicyRecords)
                                             {
                                                 <h4>@Html.Raw(item.ReturnPolicy?.Title ?? "")</h4>
                                                 <h6>@Html.Raw(item.ReturnPolicy?.Description ?? "")</h6>
@@ -813,14 +814,14 @@
                                     </div>
                                 }
                             </div>
-                            <!--====== End - Tab Policies ======-->
-                            <!--====== Tab 2 ======-->
+
+
                             <div class="tab-pane" id="pd-questions">
                                 <div class="pd-tab__tag">
                                     <h2 class="u-s-m-b-15">ASK YOUR QUESTIONS</h2>
                                     <div class="u-s-m-b-15">
 
-                                        @if (Product.ItemQuestions.Count() == 0)
+                                        @if (product.ItemQuestions.Count() == 0)
                                         {
                                             <div class="alert alert-danger" role="alert">
                                                 <b> @_("This Item don't have any Questions.")</b>
@@ -828,7 +829,7 @@
                                         }
                                         else
                                         {
-                                            @foreach (var item in Product.ItemQuestions ?? new())
+                                            @foreach (var item in product.ItemQuestions ?? new())
                                             {
                                                 if (item.SocialProfile is FenixAlliance.ABM.Models.Social.SocialProfiles.Scopes.AccountHolderSocialProfile)
                                                 {
@@ -855,21 +856,21 @@
                                         else
                                         {
                                             <div class="alert alert-danger" role="alert">
-                                                <h4>@_("You need to") <a href="/Account/Login" style="  text-decoration: underline;"><sub>@_("log In or sign up")</sub></a> @_("into your Alliance ID Account to post a question about")" @Product.Title</h4>
+                                                <h4>@_("You need to") <a href="/Account/Login" style="text-decoration: underline;"><sub>@_("log In or sign up")</sub></a> @_("into your Alliance ID Account to post a question about")" @product.Title</h4>
                                             </div>
                                         }
 
                                     </div>
                                 </div>
                             </div>
-                            <!--====== End - Tab 2 ======-->
-                            <!--====== Tab 3 ======-->
+
+
                             <div class="tab-pane" id="pd-rev">
                                 <div class="pd-tab__rev">
                                     <div class="u-s-m-b-30">
                                         <div class="pd-tab__rev-score">
                                             <div class="u-s-m-b-8">
-                                                <h2>@Product.ItemReviews?.Count Reviews - @AverageRating (Overall)</h2>
+                                                <h2>@product.ReviewsCount Reviews - @product.RatingAverage (Overall)</h2>
                                             </div>
                                             <div class="gl-rating-style-2 u-s-m-b-8">
 
@@ -895,7 +896,7 @@
                                         <form class="pd-tab__rev-f1">
                                             <div class="rev-f1__group">
                                                 <div class="u-s-m-b-15">
-                                                    <h2>@Product.ItemReviews.Count Review(s) for Man Ruched Floral Applique Tee</h2>
+                                                    <h2>@product.ReviewsCount Review(s) for Man Ruched Floral Applique Tee</h2>
                                                 </div>
                                                 <div class="u-s-m-b-15">
                                                     <label for="sort-review"></label>
@@ -994,94 +995,94 @@
                                                             <tbody>
                                                                 <tr>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-1" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-1"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-1.5" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-1.5"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-2" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-2"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-2.5" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-2.5"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-3" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-3"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-3.5" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-3.5"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-4" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-4"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-4.5" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-4.5"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                     <td>
-                                                                        <!--====== Radio Box ======-->
+
                                                                         <div class="radio-box">
                                                                             <input type="radio" id="star-5" name="rating">
                                                                             <div class="radio-box__state radio-box__state--primary">
                                                                                 <label class="radio-box__label" for="star-5"></label>
                                                                             </div>
                                                                         </div>
-                                                                        <!--====== End - Radio Box ======-->
+
                                                                     </td>
                                                                 </tr>
                                                             </tbody>
@@ -1111,15 +1112,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--====== End - Tab 3 ======-->
-                            <!--====== Tab 2 ======-->
+
+
                             <div class="tab-pane" id="pd-attachments">
                                 <div class="pd-tab__tag">
-                                    <h2 class="u-s-m-b-15">Product Attachments</h2>
+                                    <h2 class="u-s-m-b-15">product.Attachments</h2>
                                     <div class="u-s-m-b-15">
-                                        @if (Product.ItemAttachments != null)
+                                        @if (product.ItemAttachments != null)
                                         {
-                                            @if (Product.ItemAttachments.Count() == 0)
+                                            @if (product.ItemAttachments.Count() == 0)
                                             {
                                                 <div class="alert alert-danger" role="alert">
                                                     <h4>@_("This Item don't have any attachments.")</h4>
@@ -1127,7 +1128,7 @@
                                             }
                                             else
                                             {
-                                                @foreach (var item in Product.ItemAttachments)
+                                                @foreach (var item in product.ItemAttachments)
                                                 {
                                                     <br />
 
@@ -1140,7 +1141,7 @@
                                                                 </div>
                                                                 <div class="sale-description">
                                                                     @_("This file contains extended information about"):
-                                                                    <b>@Product.Title</b>.
+                                                                    <b>@product.Title</b>.
                                                                     @_("It may be provided by Fenix Alliance Group, the manufacturer or external sources. We make sure this file is totally free from Malware and that bad stuff. Guaranteed.")
                                                                     <br />
                                                                     <b>@_("File Type"): @item.FileName.Split('.')[1] </b> |
@@ -1166,7 +1167,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--====== End - Tab 2 ======-->
+
 
                         </div>
                     </div>
@@ -1174,74 +1175,74 @@
             </div>
         </div>
     </div>
-    <!--====== End - Product Detail Tab ======-->
+
     <div class="u-s-p-b-90">
-        <!--====== Section Intro ======-->
+
         <div class="section__intro u-s-m-b-46">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="section__text-wrap">
                             <h1 class="section__heading u-c-secondary u-s-m-b-12">CUSTOMER ALSO VIEWED</h1>
-                            <span class="section__span u-c-grey">PRODUCTS THAT CUSTOMER VIEWED</span>
+                            <span class="section__span u-c-grey">product. THAT CUSTOMER VIEWED</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!--====== End - Section Intro ======-->
+
         @await ViewService.RenderAsync("StoreItemsSlider", relatedProducts)
     </div>
-    <!--====== End - Section 1 ======-->
-</div>
-<!--====== End - App Content ======-->
 
-<!-- application/ld+json -->
+</div>
+
+
+
 <script type="application/ld+json">
-   {
-       "@@context": "https://schema.org/",
-       "@@type": "Item",
-       "name": "@Product.Title",
-       "image": "@ProductImagePlaceholder",
-       "description": "@Product.Description",
-       "category": "@(Product.ItemCategory?.Title ?? "Undefined"),
-       "sku": "@Product.SKU",
-       "mpn": "@Product.SKU",
-       "ProductID": "@Product.ID",
-       "brand": "@(Product.Brand?.Name ?? "Undefined")",
-       "review": {
-           "@@type": "Review",
-           "reviewRating": {
-               "@@type": "Review",
-               "ratingValue": "@AverageRating",
-               "bestRating": "@MaxRate",
-               "worstRating": "@MinRate"
-           },
-           "aggregateRating": {
-               "@@type": "AggregateRating",
-               "ratingValue": "@AverageRating",
-               "reviewCount": "@Product.ItemReviews?.Count"
-           },
-           "author": {
-               "@@type": "Organization",
-               "name": "Fenix Alliance S.A.S"
-           }
-       },
-       "offers": [{
-               "url": "@URL",
-               "@@type": "Offer",
-               "price": "@Product.EstimatedTotalPriceInUSD",
-               "priceValidUntil": "2019-06-30",
-               "priceCurrency": "USD",
-               "itemCondition": "https://schema.org/NewCondition",
-               "availability": "https://schema.org/InStock",
-               "seller": {
-                   "@@type": "Organization",
-                   "name": "Fenix Alliance S.A.S"
-               }
-           }
-       ]
-   }
+    {
+        "@@context": "https://schema.org/",
+        "@@type": "Item",
+        "name": "@product.Title",
+        "image": "@ProductImagePlaceholder",
+        "description": "@product.Description",
+        "category": "@(product.ItemCategory?.Title ?? "Undefined"),
+        "sku": "@product.SKU",
+        "mpn": "@(product.MPN ?? product.SKU)",
+        "ProductID": "@product.ID",
+        "brand": "@(product.Brand?.Name ?? "Undefined")",
+        "review": {
+            "@@type": "Review",
+            "reviewRating": {
+                "@@type": "Review",
+                "ratingValue": "@product.RatingAverage",
+                "bestRating": "@product.MinRating",
+                "worstRating": "@product.MaxRating"
+            },
+            "aggregateRating": {
+                "@@type": "AggregateRating",
+                "ratingValue": "@product.RatingAverage",
+                "reviewCount": "@product.ReviewsCount"
+            },
+            "author": {
+                "@@type": "Organization",
+                "name": "Fenix Alliance S.A.S"
+            }
+        },
+        "offers": [{
+                "url": "@URL",
+                "@@type": "Offer",
+                "price": "@product.EstimatedTotalPriceInUSD",
+                "priceValidUntil": "2019-06-30",
+                "priceCurrency": "USD",
+                "itemCondition": "https://schema.org/NewCondition",
+                "availability": "https://schema.org/InStock",
+                "seller": {
+                    "@@type": "Organization",
+                    "name": "Fenix Alliance S.A.S"
+                }
+            }
+        ]
+    }
 </script>
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials.min.js"></script>
@@ -1250,46 +1251,52 @@
 
 <script>
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         $("#share").jsSocials({
             showLabel: false,
             shareIn: "popup",
             showCount: false,
-            url: "https://fenixalliance.com.co/store/products/details/@Product.ID",
-            text: "Buy Now your new @Product.Title at @Portal?.Options?.Store?.Name | Just: USD @Math.Round(Product.EstimatedTotalPriceInUSD).ToString("C2")",
+            url: "https://fenixalliance.com.co/store/product./details/@product.ID",
+            text: "Buy Now your new @product.Title at @Portal?.Options?.Store?.Name | Just: USD @Math.Round(product.EstimatedTotalPriceInUSD).ToString("C2")",
             shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "whatsapp"]
         });
     });
 
     function SubmitQuestionValidation() {
+
         var Question = $('#QuestionMsg').val();
+
         var QuestionData = { "ItemID": ItemID, "ContactID": CurrentTenantGUID, "Question": Question, "NeedsRevision": true };
-        $.ajax({
-            url: '/api/ItemQuestions',
-            type: 'POST',
-            contentType: 'application/json; charset=utf-8',
-            headers: {
-                RequestVerificationToken:
-                    $('input:hidden[name="__RequestVerificationToken")').val()
-            },
-            data: JSON.stringify(QuestionData)
-        }).done(function (QuestionResult) {
-            toastr.success('@_("We will reply to your question as soon as possible")', '@_("Asked Suceessfully")');
-            location.reload();
-        });
+
+        $.ajax(
+            {
+                url: '/api/ItemQuestions',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                headers: {
+                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken")').val()
+                },
+                data: JSON.stringify(QuestionData)
+            }
+        ).done(
+            function(QuestionResult) {
+                toastr.success('@_("We will reply to your question as soon as possible")', '@_("Asked Suceessfully")');
+                location.reload();
+            }
+        );
+
         return false;
     }
 
     $(document).ready(
         $.ajax({
-            url: '/api/Items/CreateSARUsageRecord?ItemID=@Product.ID&CartID=' + CartID + '&EventType=Click ',
+            url: '/api/Items/CreateSARUsageRecord?ItemID=@product.ID&CartID=' + CartID + '&EventType=Click ',
             type: 'GET',
             contentType: 'application/json; charset=utf-8',
             headers: {
-                RequestVerificationToken:
-                    $('input:hidden[name="__RequestVerificationToken"]').val()
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
             }
-        }).success(function () {
+        }).success(function() {
             console.log("Sar record was successfull | Infinity Comex  SAR Engine ");
         })
     );
@@ -1319,7 +1326,8 @@
             // Get Current User Information
             var GUID = HolderService.GetCurrentAccountHolderID(User);
 
-            var Holder = await DataContext.AccountHolder.AsNoTracking()
+            var Holder = await DataContext.AccountHolder
+                .AsNoTracking()
                 .Include(c => c.AccountHolderCart)
                     .ThenInclude(c => c.ItemCartRecords)
                         .ThenInclude(c => c.Item)

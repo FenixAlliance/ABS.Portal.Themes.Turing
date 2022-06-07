@@ -6,8 +6,8 @@
 @{
     var PreOrderID = Guid.NewGuid().ToString();
     var Holder = await HolderService.GetCurrentAccountHolderAsync(User);
-    var BillingLocations = await DataContext.HolderLocation.AsAsyncEnumerable().Where(c => c.AccountHolderID == Holder.Id).ToListAsync();
-    var BillingLocation = await DataContext.HolderLocation.AsAsyncEnumerable().Where(c => c.AccountHolderID == Holder.Id && c.IsDefaultShippingLocation).FirstOrDefaultAsync();
+    var BillingLocations = await DataContext.HolderLocation.Where(c => c.AccountHolderID == Holder.Id).ToListAsync();
+    var BillingLocation = await DataContext.HolderLocation.Where(c => c.AccountHolderID == Holder.Id && c.IsDefaultShippingLocation).FirstOrDefaultAsync();
     var BillingLocationID = BillingLocation?.ID;
 }
 

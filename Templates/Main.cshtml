@@ -22,15 +22,15 @@
 </head>
 <body>
 
-    @await Component.InvokeAsync("ForexRates", new { CurrentUser = User})
-    <!--====== Main App ======-->
+    @await Component.InvokeAsync("ForexRates")
+    
     <div id="app">
         @await ViewService.RenderAsync("Header", Model)
         @Body
         @await ViewService.RenderAsync("Footer", Model)
     </div>
 
-    <!--====== Noscript ======-->
+    
     <noscript>
         <div class="app-setting">
             <div class="container">
@@ -49,7 +49,7 @@
             </div>
         </div>
     </noscript>
-    <!--====== End: Noscript ======-->
+    
 
     @await ViewService.RenderAsync("Scripts", Model)
 

@@ -6,7 +6,7 @@
 
     var holder = await HolderService.GetCurrentAccountHolderAsync(User);
 
-    var Holder = await DataContext.AccountHolder.Include(c=>c.BusinessProfileRecords).AsAsyncEnumerable().Where(c => c.Id == "").FirstOrDefaultAsync();
+    var Holder = await DataContext.AccountHolder.Include(c=>c.BusinessProfileRecords).Where(c => c.Id == "").FirstOrDefaultAsync();
 }
 
 @Portal.Options.Branding.HeaderLogo.

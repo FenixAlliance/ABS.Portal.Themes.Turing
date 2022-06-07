@@ -15,15 +15,15 @@
 <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.jssocials/1.4.0/jssocials-theme-flat.css" />
 
 
-<!--Main layout-->
+
 <main class="pt-5 pb-5">
     <div class="container">
-        <!--Grid row-->
+        
         <div class="row justify-content-md-center">
-            <!--Grid column-->
+            
             <div class="col-md-8 mb-4 mt-4">
 
-                <!--Section: Post data-mdb-->
+                
                 <section class="border-bottom mb-4">
                     <img src="@(Model.HighlightImage ?? "/ui/images/generic-blogpost-image.png")" onerror="this.src='/ui/images/generic-blogpost-image.png'" class="img-fluid shadow-2-strong rounded mb-4 mt-4"  alt="@Model.Title" />
 
@@ -33,9 +33,9 @@
                         </div>   
                     </div>
                 </section>
-                <!--Section: Post data-mdb-->
+                
 
-                <!--Section: Author-->
+                
                 <section class="border-bottom mb-4 pb-4">
                     <div class="row">
                         <div class="col-3">
@@ -69,27 +69,27 @@
                         </div>
                     </div>
                 </section>
-                <!--Section: Author-->
+                
 
 
 
 
-                <!--Section: Text-->
+                
                 <section>
                     @(Model.Code ?? Model.HTMLContent   )
                 </section>
-                <!--Section: Text-->
+                
 
-                <!--Section: Share buttons-->
+                
                 <section class="text-center border-top border-bottom py-4 mb-4">
                     <p><strong>Share with your friends:</strong></p>
 
                     <div id="share"></div>
 
                 </section>
-                <!--Section: Share buttons-->
+                
 
-                <!--Section: Author-->
+                
                 <section class="border-bottom mb-4 pb-4">
                     <div class="row">
                         <div class="col-3">
@@ -123,14 +123,14 @@
                         </div>
                     </div>
                 </section>
-                <!--Section: Author-->
+                
 
-                <!--Section: Comments-->
+                
                 <section class="border-bottom mb-3">
                     <p class="text-center"><strong>Comments: @Post.BlogPostComments.Count</strong></p>
                     @foreach (var comment in Post.BlogPostComments)
                     {
-                        <!-- Comment -->
+                        
                         <div class="row mb-4">
                             <div class="col-2">
                                 <img src="@((comment.OwnerSocialProfile as FenixAlliance.ABM.Models.Social.SocialProfiles.Scopes.AccountHolderSocialProfile)?.AccountHolder?.AvatarURL ?? "/ui/images/anonymous.png")"
@@ -146,28 +146,28 @@
                         </div>
                     }
                 </section>
-                <!--Section: Comments-->
+                
                 @if(User.Identity.IsAuthenticated){
-                    <!--Section: Reply-->
+                    
                     <section id="comments-box">
                         <p class="text-center"><strong>Leave a reply</strong></p>
 
                         <form>
 
-                            <!-- Message input -->
+                            
                             <div class="form-outline mb-4">
                                 <label class="form-label" for="form4Example3">Comment</label>
                                 <textarea class="form-control" id="form4Example3" placeholder="Write a comment..." rows="4"></textarea>
                             </div>
 
 
-                            <!-- Submit button -->
+                            
                             <button type="submit" class="btn btn-primary btn-block mb-4">
                                 Publish
                             </button>
                         </form>
                     </section>
-                    <!--Section: Reply-->
+                    
                 }else{
                     <div class="alert alert-primary" role="alert" id="comments-box">
                        <b>
@@ -176,15 +176,15 @@
                     </div>
                 }
             </div>
-            <!--Grid column-->
+            
 
             @await ViewService.RenderAsync("BlogPostSidebar", Post)
 
         </div>
-        <!--Grid row-->
+        
     </div>
 </main>
-<!--Main layout-->
+
 
 
     <script>

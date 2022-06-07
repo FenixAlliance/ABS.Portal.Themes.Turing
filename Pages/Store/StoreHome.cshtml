@@ -6,12 +6,12 @@
 
 @{
 
-    var stockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.Published).Take(24).OrderByDescending(c => c.Timestamp).ToListAsync();
-    var trendingStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.Hot && c.Published).Take(24).ToListAsync();
-    var featuredStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.Featured && c.Published).Take(3).ToListAsync();
-    var bestSellerStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.IsBestSeller && c.Published).Take(3).ToListAsync();
-    var monthSelectionStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.IsProductOfTheMonth && c.Published).Take(3).ToListAsync();
-    var weekSelectionStockItems = await DataContext.Item.Include(c => c.ItemCategory).AsAsyncEnumerable().Where(c => c.ItemCategoryID != null && c.IsProductOfTheWeek && c.Published).Take(3).ToListAsync();
+    var stockItems = await DataContext.Item.Include(c => c.ItemCategory).Where(c => c.Published).Take(24).OrderByDescending(c => c.Timestamp).ToListAsync();
+    var trendingStockItems = await DataContext.Item.Include(c => c.ItemCategory).Where(c => c.ItemCategoryID != null && c.Hot && c.Published).Take(24).ToListAsync();
+    var featuredStockItems = await DataContext.Item.Include(c => c.ItemCategory).Where(c => c.ItemCategoryID != null && c.Featured && c.Published).Take(3).ToListAsync();
+    var bestSellerStockItems = await DataContext.Item.Include(c => c.ItemCategory).Where(c => c.ItemCategoryID != null && c.IsBestSeller && c.Published).Take(3).ToListAsync();
+    var monthSelectionStockItems = await DataContext.Item.Include(c => c.ItemCategory).Where(c => c.ItemCategoryID != null && c.IsProductOfTheMonth && c.Published).Take(3).ToListAsync();
+    var weekSelectionStockItems = await DataContext.Item.Include(c => c.ItemCategory).Where(c => c.ItemCategoryID != null && c.IsProductOfTheWeek && c.Published).Take(3).ToListAsync();
 
     List<FenixAlliance.ABM.Models.Content.Posts.BlogPost> posts = DataContext.BlogPost
         .Include(c => c.BlogPostComments)
@@ -37,14 +37,14 @@
 
 <div class="app-content">
 
-    <!--====== SLIDER ======-->
+    
     @await ViewService.RenderAsync("StoreHomeContent1", stockItems)
 
     @if (trendingStockItems.Count != 0)
     {
         <div class="u-s-p-t-60 mtb-50">
 
-            <!--====== Section Intro ======-->
+            
             <div class="section__intro u-s-m-b-16">
                 <div class="container">
                     <div class="row">
@@ -58,8 +58,8 @@
                     </div>
                 </div>
             </div>
-            <!--====== End - Section Intro ======-->
-            <!--====== Section Content ======-->
+            
+            
             <div class="section__content">
                 <div class="container">
                     <div class="row">
@@ -146,13 +146,13 @@
                     </div>
                 </div>
             </div>
-            <!--====== End - Section Content ======-->
+            
         </div>
     }
 
-    <!--====== ITEMS ======-->
+    
     <div class="u-s-p-y-60" style=" padding-top: 50px; ">
-        <!--====== Section Intro ======-->
+        
         <div class="section__intro u-s-m-b-46">
             <div class="container">
                 <div class="row">
@@ -166,7 +166,7 @@
                 </div>
             </div>
         </div>
-        <!--====== End - Section Intro ======-->
+        
         @await ViewService.RenderAsync("StoreItemsSlider", stockItems)
     </div>
 
@@ -174,10 +174,10 @@
         @await ViewService.RenderAsync("StoreHomeContent2", stockItems)
     </div>
 
-    <!--====== BRANDS ======-->
+    
     <div class="u-s-p-b-60">
 
-        <!--====== Section Intro ======-->
+        
         <div class="section__intro u-s-m-b-46">
             <div class="container">
                 <div class="row">
@@ -191,15 +191,15 @@
                 </div>
             </div>
         </div>
-        <!--====== End - Section Intro ======-->
-        <!--====== Section Content ======-->
+        
+        
         <div class="section__content">
             <div class="container">
 
-                <!--====== Brand Slider ======-->
+                
                 <div class="slider-fouc">
                     <div class="owl-carousel" id="brand-slider" data-item="5">
-                        @foreach (var item in await DataContext.ItemBrand.AsAsyncEnumerable().Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
+                        @foreach (var item in await DataContext.ItemBrand.Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
                         {
                             <div class="brand-slide" style="height:200px">
 
@@ -212,10 +212,10 @@
 
                     </div>
                 </div>
-                <!--====== End - Brand Slider ======-->
+                
             </div>
         </div>
-        <!--====== End - Section Content ======-->
+        
     </div>
 
     <div class="u-s-p-b-60">
@@ -225,7 +225,7 @@
 
     @await ViewService.RenderAsync("StoreDeadlineDeals", stockItems)
 
-    <!--====== CATEGORIES ======-->
+    
     <div class="u-s-p-b-60">
         <div class="u-s-p-b-60">
             <div class="section__intro u-s-m-b-46">
@@ -247,7 +247,7 @@
                     <div class="slider-fouc">
                         <div class="owl-carousel" id="category-slider" data-item="4">
 
-                            @foreach (var item in await DataContext.ItemCategory.AsAsyncEnumerable().Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
+                            @foreach (var item in await DataContext.ItemCategory.Where(c => c.BusinessID == Portal.TenantID).ToListAsync())
                             {
                                 <div class="bp-mini bp-mini--img u-h-100" style="margin-left: 5px; margin-right: 5px ">
                                     <div class="bp-mini__thumbnail" style="height: 200px;">
@@ -280,7 +280,7 @@
 
     @if (bestSellerStockItems.Count > 0 || weekSelectionStockItems.Count > 0 || monthSelectionStockItems.Count > 0)
     {
-        <!--====== STACKS ======-->
+        
         <div class="u-s-p-b-60">
             <div class="section__content">
                 <div class="container">
@@ -328,9 +328,9 @@
 
     @if (posts.Count > 0)
     {
-        <!--====== BLOG ======-->
+        
         <div class="u-s-p-b-60">
-            <!--====== Section Intro ======-->
+            
             <div class="section__intro u-s-m-b-46">
                 <div class="container">
                     <div class="row">
@@ -344,8 +344,8 @@
                     </div>
                 </div>
             </div>
-            <!--====== End - Section Intro ======-->
-            <!--====== Section Content ======-->
+            
+            
             <div class="section__content">
                 <div class="container">
                     <div class="row">
@@ -354,11 +354,11 @@
                             <div class="col-lg-4 col-md-6 u-s-m-b-30">
                                 <div class="bp-mini bp-mini--img u-h-100">
                                     <div class="bp-mini__thumbnail" style="height: 200px;">
-                                        <!--====== Image Code ======-->
+                                        
                                         <a class="aspect aspect--bg-greyect--1366-768 u-d-block" href="/Blog/Posts/Details/@post.ID" style="height: 200px;">
                                             <img class="aspect__img" src="@((!string.IsNullOrEmpty(post.FeaturedImageURL)) ? post.FeaturedImageURL : " /ui/images/generic-blogpost-image.png")" alt="@post.Title" style="height: 200px;">
                                         </a>
-                                        <!--====== End - Image Code ======-->
+                                        
                                     </div>
                                     <div class="bp-mini__content">
                                         <div class="bp-mini__stat">
@@ -408,7 +408,7 @@
                     </div>
                 </div>
             </div>
-            <!--====== End - Section Content ======-->
+            
         </div>
     }
 

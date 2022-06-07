@@ -5,6 +5,7 @@
 @using FenixAlliance.ABM.Models.Accounting.Billing.Orders
 @using FenixAlliance.ABM.Models.Accounting.Billing.Invoices
 @using FenixAlliance.ABM.Models.Accounting.Billing.Payments
+@using Microsoft.EntityFrameworkCore
 
 @{
     ViewData["Title"] = "New Order Payment";
@@ -17,7 +18,7 @@
 
 <link rel="stylesheet" href="/ui/lib/intl-tel-input/build/css/intlTelInput.css">
 <script type="text/javascript" src="/ui/lib/card/dist/jquery.card.js"></script>
-<!-- Validate Phone -->
+
 <script src="/ui/lib/intl-tel-input/build/js/intlTelInput.js"></script>
 <script src="/ui/lib/intl-tel-input/build/js/utils.js"></script>
 
@@ -268,7 +269,7 @@
                                                                         "merchant_id": 118495305,
                                                                         "order_id": "@Order.ID",
                                                                         "email": "@Order.AccountHolder.Email",
-                                                                        "delivery_country": "@((await DataContext.Country.AsAsyncEnumerable().FirstOrDefaultAsync(c=>c.ID == Order.AccountHolder.CountryID))?.ISO2 ?? "US")",
+                                                                        "delivery_country": "@((await DataContext.Country.FirstOrDefaultAsync(c=>c.ID == Order.AccountHolder.CountryID))?.ISO2 ?? "US")",
                                                                         "estimated_delivery_date": "@Order.Timestamp.AddDays(10).ToString("yyy-MM-dd")",
 
                                                                             //// OPTIONAL FIELDS
