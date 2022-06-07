@@ -22,7 +22,7 @@
 </head>
 <body>
 
-    @await Component.InvokeAsync("ForexRates")
+    @await Component.InvokeAsync("ForexRates", new { CurrentUser = User })
     
     <div id="app">
         @await ViewService.RenderAsync("Header", Model)

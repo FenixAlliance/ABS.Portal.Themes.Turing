@@ -11,7 +11,7 @@
 
 <body>
 
-    @await Component.InvokeAsync("ForexRates")
+    @await Component.InvokeAsync("ForexRates", new { CurrentUser = User })
 
     @if (Portal.Options.Integrations.Google.GoogleTagManager.Enable)
     {
