@@ -62,8 +62,7 @@
     <!-- Scripts - Complements -->
     @await Component.InvokeAsync("ForexRates", new { PartialViewName = "_PortalScriptsPartial"})
 
-
-    @await Component.InvokeAsync("ValidationScripts")
+    @await Component.InvokeAsync("ValidationScripts", new { Holder = Model })
 
 </body>
 </html>
