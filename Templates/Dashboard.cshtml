@@ -5,8 +5,8 @@
 
 <head>
     <base href="~/" />
-    @await Html.PartialAsync("_MetaTagsPartial", Model)
-    @await Html.PartialAsync("_PortalHeadPartial", Model)
+    @await Html.PartialAsync("_MetaTagsPartial")
+    @await Html.PartialAsync("_PortalHeadPartial")
 </head>
 
 <body>
@@ -62,7 +62,7 @@
     <!-- Scripts - Complements -->
     @await Html.PartialAsync("_PortalScriptsPartial")
 
-    @await Component.InvokeAsync("ValidationScripts", new { Holder = Model })
+    @await Component.InvokeAsync("ValidationScripts")
 
 </body>
 </html>
