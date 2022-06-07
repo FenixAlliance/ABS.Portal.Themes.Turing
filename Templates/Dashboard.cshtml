@@ -6,7 +6,7 @@
 <head>
     <base href="~/" />
     @await Component.InvokeAsync("MetaTags", Portal)
-    @await Component.InvokeAsync("Partial", "_PortalHeadPartial")
+    @await Component.InvokeAsync("ForexRates", new { PartialViewName = "_PortalHeadPartial"})
 </head>
 
 <body>
@@ -60,7 +60,7 @@
     @Body
 
     <!-- Scripts - Complements -->
-    @await Component.InvokeAsync("Partial", "_PortalScriptsPartial")
+    @await Component.InvokeAsync("ForexRates", new { PartialViewName = "_PortalScriptsPartial"})
 
 
     @await Component.InvokeAsync("ValidationScripts")
