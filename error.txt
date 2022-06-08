@@ -1,0 +1,37 @@
+ The following locations were searched:
+  /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.es-CO.es-CO.cshtml
+   /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.es.es-CO.cshtml
+    /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.es-CO.cshtml 
+    /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.es-CO.es.cshtml
+     /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.es.es.cshtml 
+     /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.es.cshtml 
+     /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.es-CO.cshtml 
+     /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.es.cshtml 
+     /Areas/Account/Views/Account/Components/Partial/_PortalHeadPartial.cshtml 
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.es-CO.es-CO.cshtml 
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.es.es-CO.cshtml
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.es-CO.cshtml 
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.es-CO.es.cshtml 
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.es.es.cshtml 
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.es.cshtml 
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.es-CO.cshtml 
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.es.cshtml 
+     /Areas/Account/Views/Shared/Components/Partial/_PortalHeadPartial.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.es-CO.es-CO.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.es.es-CO.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.es-CO.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.es-CO.es.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.es.es.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.es.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.es-CO.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.es.cshtml 
+     /Views/Shared/Components/Partial/_PortalHeadPartial.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.es-CO.es-CO.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.es.es-CO.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.es-CO.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.es-CO.es.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.es.es.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.es.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.es-CO.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.es.cshtml 
+     /Pages/Shared/Components/Partial/_PortalHeadPartial.cshtml at Microsoft.AspNetCore.Mvc.ViewEngines.ViewEngineResult.EnsureSuccessful(IEnumerable`1 originalLocations) at Microsoft.AspNetCore.Mvc.ViewComponents.ViewViewComponentResult.ExecuteAsync(ViewComponentContext context) at Microsoft.AspNetCore.Mvc.ViewComponents.DefaultViewComponentInvoker.InvokeAsync(ViewComponentContext context) at Microsoft.AspNetCore.Mvc.ViewComponents.DefaultViewComponentHelper.InvokeCoreAsync(ViewComponentDescriptor descriptor, Object arguments) at FenixAlliance.ABS.Core.Templating.Dynamic.Template.ExecuteAsync() at FenixAlliance.ABM.Data.Access.Services.Templating.Razor.Templates.DynamicComponentBase.ExecuteAsync(Stream stream) in C:\Users\PC\Code\FAGroup\FenixAlliance.ABM\FenixAlliance.ABM.Data.Access\Services\Templating\Razor\Templates\DynamicComponentBase.cs:line 222 at FenixAlliance.ABM.Data.Access.Services.ViewRenderingService.ExecuteInstance(IDynamicComponentBase instance) in C:\Users\PC\Code\FAGroup\FenixAlliance.ABM\FenixAlliance.ABM.Data.Access\Services\Templating\ViewRenderingService.cs:line 416 at FenixAlliance.ABM.Data.Access.Services.ViewRenderingService.RenderAsync(WebContent content, MarkupString body, Object model) in C:\Users\PC\Code\FAGroup\FenixAlliance.ABM\FenixAlliance.ABM.Data.Access\Services\Templating\ViewRenderingService.cs:line 178
